@@ -44,7 +44,7 @@ export default function ChatWindow({ messages, isLoading }: ChatWindowProps) {
           }}
         >
           <div style={{ fontSize: '40px' }}>💬</div>
-          <div>Ask me anything about the XBO Token ($XBO)</div>
+          <div>Ask me anything about CryptoPayX</div>
         </div>
       )}
 

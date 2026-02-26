@@ -39,7 +39,7 @@ export default function ChatInput({ onSend, disabled, placeholder }: ChatInputPr
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         disabled={disabled}
-        placeholder={disabled ? 'Initializing AI model…' : `Ask me anything about ${placeholder ?? 'XBO Token'}… (Enter to send)`}
+        placeholder={disabled ? 'Initializing AI model…' : `Ask me anything about ${placeholder}…`}
         rows={1}
         style={{
           flex: 1,
