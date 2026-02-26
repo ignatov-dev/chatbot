@@ -1,4 +1,7 @@
 import { useState, type KeyboardEvent } from 'react'
+import { IoSend } from 'react-icons/io5'
+
+const MAX_LENGTH = 100
 
 interface ChatInputProps {
   onSend: (message: string) => void
@@ -23,6 +26,8 @@ export default function ChatInput({ onSend, disabled, placeholder }: ChatInputPr
     }
   }
 
+  const isOverLimit = value.length > MAX_LENGTH
+
   return (
     <div
       style={{
@@ -31,37 +36,56 @@ export default function ChatInput({ onSend, disabled, placeholder }: ChatInputPr
         background: '#ffffff',
         display: 'flex',
         gap: '10px',
-        alignItems: 'flex-end',
+        alignItems: 'center',
       }}
     >
-      <textarea
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        disabled={disabled}
-        placeholder={disabled ? 'Initializing AI model…' : `Ask me anything about ${placeholder}…`}
-        rows={1}
-        style={{
-          flex: 1,
-          resize: 'none',
-          border: '1px solid #d1d5db',
-          borderRadius: '12px',
-          padding: '10px 14px',
-          fontSize: '14px',
-          lineHeight: '1.5',
-          outline: 'none',
-          fontFamily: 'inherit',
-          background: disabled ? '#f9fafb' : '#ffffff',
-          color: '#111827',
-          maxHeight: '120px',
-          overflowY: 'auto',
-        }}
-        onInput={(e) => {
-          const el = e.currentTarget
-          el.style.height = 'auto'
-          el.style.height = `${el.scrollHeight}px`
-        }}
-      />
+      <div style={{ flex: 1, position: 'relative', display: 'flex' }}>
+        <textarea
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          disabled={disabled}
+          maxLength={MAX_LENGTH}
+          placeholder={disabled ? 'Initializing AI model…' : `Ask me anything about ${placeholder}…`}
+          rows={1}
+          style={{
+            width: '100%',
+            boxSizing: 'border-box',
+            resize: 'none',
+            border: '1px solid #d1d5db',
+            borderRadius: '12px',
+            padding: '10px 14px',
+            paddingRight: '70px',
+            fontSize: '14px',
+            lineHeight: '1.5',
+            outline: 'none',
+            fontFamily: 'inherit',
+            background: disabled ? '#f9fafb' : '#ffffff',
+            color: '#111827',
+            height: '100%',
+            overflowY: 'auto',
+          }}
+          onInput={(e) => {
+            const el = e.currentTarget
+            el.style.height = 'auto'
+            el.style.height = `${el.scrollHeight}px`
+          }}
+        />
+        <span
+          style={{
+            position: 'absolute',
+            right: '12px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            fontSize: '11px',
+            color: isOverLimit ? '#ef4444' : '#9ca3af',
+            pointerEvents: 'none',
+            lineHeight: '1.5',
+          }}
+        >
+          {value.length}/{MAX_LENGTH}
+        </span>
+      </div>
       <button
         onClick={handleSend}
         disabled={disabled || !value.trim()}
@@ -82,7 +106,7 @@ export default function ChatInput({ onSend, disabled, placeholder }: ChatInputPr
         }}
         aria-label="Send"
       >
-        ↑
+        <IoSend size={18} />
       </button>
     </div>
   )
