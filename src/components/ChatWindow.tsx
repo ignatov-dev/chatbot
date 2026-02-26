@@ -25,7 +25,7 @@ export default function ChatWindow({ messages, isLoading }: ChatWindowProps) {
       style={{
         flex: 1,
         overflowY: 'auto',
-        padding: '20px 16px',
+        padding: window.innerWidth <= 768 ? '12px 10px' : '20px 16px',
         display: 'flex',
         flexDirection: 'column',
       }}

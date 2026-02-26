@@ -37,7 +37,7 @@ export default function ChatInput({ onSend, disabled, placeholder }: ChatInputPr
         display: 'flex',
         gap: '10px',
         alignItems: 'center',
-        height: 70
+        minHeight: 70
       }}
     >
       <div style={{ flex: 1, position: 'relative', display: 'flex' }}>

@@ -66,6 +66,7 @@ function AuthenticatedApp({
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const skipFetchRef = useRef(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // Load conversations on mount and when theme changes
   useEffect(() => {
@@ -169,14 +170,16 @@ function AuthenticatedApp({
 
   return (
     <>
+      {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
       <ConversationSidebar
         conversations={conversations}
         activeConversationId={activeConversationId}
-        onSelectConversation={setActiveConversationId}
-        onNewConversation={handleNewConversation}
+        onSelectConversation={(id) => { setActiveConversationId(id); setSidebarOpen(false) }}
+        onNewConversation={() => { handleNewConversation(); setSidebarOpen(false) }}
         onDeleteConversation={handleDeleteConversation}
         onSignOut={onSignOut}
         userEmail={user.email ?? ''}
+        isOpen={sidebarOpen}
       />
 
       <div
@@ -204,6 +207,9 @@ function AuthenticatedApp({
               gap: '12px',
             }}
           >
+            <button className="hamburger-btn" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
+              ☰
+            </button>
             <img src={XBO} alt="" style={{ width: '32px', height: '32px' }} />
             <div>
               <div style={{ fontWeight: 600, fontSize: '15px', color: '#111827' }}>
@@ -234,6 +240,7 @@ function AuthenticatedApp({
 
           {/* Theme tabs */}
           <div
+            className="theme-tabs"
             style={{
               display: 'flex',
               gap: '4px',
@@ -256,6 +263,7 @@ function AuthenticatedApp({
                   borderRadius: '0',
                   transition: 'color 0.15s, border-color 0.15s',
                   marginBottom: '-1px',
+                  whiteSpace: 'nowrap' as const,
                 }}
               >
                 {theme.label}

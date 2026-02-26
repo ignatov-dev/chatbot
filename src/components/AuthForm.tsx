@@ -34,7 +34,7 @@ export default function AuthForm() {
           style={{
             width: '100%',
             maxWidth: '360px',
-            padding: '32px',
+            padding: window.innerWidth <= 768 ? '24px 20px' : '32px',
             background: '#ffffff',
             borderRadius: '12px',
             boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
@@ -82,7 +82,7 @@ export default function AuthForm() {
         style={{
           width: '100%',
           maxWidth: '360px',
-          padding: '32px',
+          padding: window.innerWidth <= 768 ? '24px 20px' : '32px',
           background: '#ffffff',
           borderRadius: '12px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)',

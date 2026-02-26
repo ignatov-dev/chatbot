@@ -10,6 +10,7 @@ interface ConversationSidebarProps {
   onDeleteConversation: (id: string) => void
   onSignOut: () => void
   userEmail: string
+  isOpen?: boolean
 }
 
 function timeAgo(dateStr: string): string {
@@ -32,7 +33,10 @@ export default function ConversationSidebar({
   onDeleteConversation,
   onSignOut,
   userEmail,
+  isOpen,
 }: ConversationSidebarProps) {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+
   return (
     <div
       style={{
@@ -42,6 +46,16 @@ export default function ConversationSidebar({
         display: 'flex',
         flexDirection: 'column',
         flexShrink: 0,
+        ...(isMobile ? {
+          position: 'fixed' as const,
+          top: 0,
+          left: 0,
+          height: '100dvh',
+          zIndex: 1000,
+          transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.25s ease',
+          boxShadow: isOpen ? '4px 0 16px rgba(0,0,0,0.1)' : 'none',
+        } : {}),
       }}
     >
       {/* New Chat button */}
@@ -136,7 +150,7 @@ export default function ConversationSidebar({
                 flexShrink: 0,
                 display: 'flex',
                 alignItems: 'center',
-                opacity: 0,
+                opacity: isMobile ? 1 : 0,
                 transition: 'opacity 0.15s, color 0.15s',
               }}
               onMouseEnter={(e) => { e.currentTarget.style.color = '#dc2626' }}
