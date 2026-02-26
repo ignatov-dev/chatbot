@@ -1,12 +1,10 @@
 import { HiOutlineTrash } from 'react-icons/hi'
-import { HiMiniPencilSquare } from 'react-icons/hi2'
 import type { ConversationSummary } from '../services/conversations'
 
 interface ConversationSidebarProps {
   conversations: ConversationSummary[]
   activeConversationId: string | null
   onSelectConversation: (id: string) => void
-  onNewConversation: () => void
   onDeleteConversation: (id: string) => void
   onSignOut: () => void
   userEmail: string
@@ -29,7 +27,6 @@ export default function ConversationSidebar({
   conversations,
   activeConversationId,
   onSelectConversation,
-  onNewConversation,
   onDeleteConversation,
   onSignOut,
   userEmail,
@@ -48,45 +45,24 @@ export default function ConversationSidebar({
         flexShrink: 0,
         ...(isMobile ? {
           position: 'fixed' as const,
-          top: 0,
+          bottom: 0,
+          left: 0,
           right: 0,
-          left: 'auto' as const,
-          height: '100dvh',
+          top: 'auto' as const,
+          width: '100vw',
+          height: '70dvh',
           zIndex: 1000,
           borderRight: 'none',
-          borderLeft: '1px solid #e5e7eb',
-          transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
-          transition: 'transform 0.25s ease',
-          boxShadow: isOpen ? '-4px 0 16px rgba(0,0,0,0.1)' : 'none',
+          borderTop: '1px solid #e5e7eb',
+          borderRadius: '16px 16px 0 0',
+          transform: isOpen ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'transform 0.3s ease',
+          boxShadow: isOpen ? '0 -4px 16px rgba(0,0,0,0.1)' : 'none',
         } : {}),
       }}
     >
-      {/* New Chat button */}
-      <div style={{ padding: '12px' }}>
-        <button
-          onClick={onNewConversation}
-          style={{
-            width: '100%',
-            padding: '8px 12px',
-            background: '#f3f4f6',
-            color: '#374151',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '13px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px',
-          }}
-        >
-          <HiMiniPencilSquare /> New Chat
-        </button>
-      </div>
-
       {/* Conversation list */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 8px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
         {conversations.length === 0 && (
           <p style={{ textAlign: 'center', fontSize: '12px', color: '#9ca3af', padding: '16px 0' }}>
             No conversations yet

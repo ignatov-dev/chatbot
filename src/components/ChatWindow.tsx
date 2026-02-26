@@ -14,14 +14,16 @@ interface ChatWindowProps {
 }
 
 export default function ChatWindow({ messages, isLoading }: ChatWindowProps) {
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const el = containerRef.current
+    if (el) el.scrollTop = el.scrollHeight
   }, [messages, isLoading])
 
   return (
     <div
+      ref={containerRef}
       style={{
         flex: 1,
         overflowY: 'auto',
@@ -101,7 +103,7 @@ export default function ChatWindow({ messages, isLoading }: ChatWindowProps) {
         </div>
       )}
 
-      <div ref={bottomRef} />
+      <div />
 
       <style>{`
         @keyframes bounce {

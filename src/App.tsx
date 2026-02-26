@@ -4,6 +4,7 @@ import ChatInput from './components/ChatInput'
 import ConversationSidebar from './components/ConversationSidebar'
 import AuthForm from './components/AuthForm'
 import { useAuth } from './contexts/AuthContext'
+import { HiMiniPencilSquare } from 'react-icons/hi2'
 import { askClaude } from './services/chat';
 import XBO from '/XBO.svg';
 import {
@@ -175,7 +176,6 @@ function AuthenticatedApp({
         conversations={conversations}
         activeConversationId={activeConversationId}
         onSelectConversation={(id) => { setActiveConversationId(id); setSidebarOpen(false) }}
-        onNewConversation={() => { handleNewConversation(); setSidebarOpen(false) }}
         onDeleteConversation={handleDeleteConversation}
         onSignOut={onSignOut}
         userEmail={user.email ?? ''}
@@ -233,6 +233,27 @@ function AuthenticatedApp({
                 Online
               </div>
             </div>
+            {(activeConversationId || messages.length > 0) && (
+              <button
+                onClick={handleNewConversation}
+                aria-label="New chat"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '36px',
+                  height: '36px',
+                  border: 'none',
+                  background: '#f3f4f6',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                  color: '#374151',
+                }}
+              >
+                <HiMiniPencilSquare size={18} />
+              </button>
+            )}
             <button className="hamburger-btn" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
               ☰
             </button>

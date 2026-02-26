@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5175 --open",
+    "dev": "vite --port 5175 --open --host",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "ingest": "node scripts/ingest.mjs -- loyalty-program.txt",
