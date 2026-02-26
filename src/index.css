@@ -59,7 +59,7 @@ body {
 /* Mobile responsive */
 @media (max-width: 768px) {
   html, body {
-    height: 100vh;
+    height: 100dvh;
     width: 100vw;
     overflow: hidden;
   }
@@ -72,7 +72,7 @@ body {
   #root {
     align-items: stretch;
     justify-content: stretch;
-    height: 100vh;
+    height: 100dvh;
     width: 100vw;
     overflow: hidden;
   }
@@ -80,7 +80,7 @@ body {
   .app-shell {
     width: 100vw;
     max-width: none;
-    height: 100vh;
+    height: 100dvh;
     max-height: none;
     border-radius: 0;
     box-shadow: none;
