@@ -49,12 +49,15 @@ export default function ConversationSidebar({
         ...(isMobile ? {
           position: 'fixed' as const,
           top: 0,
-          left: 0,
+          right: 0,
+          left: 'auto' as const,
           height: '100dvh',
           zIndex: 1000,
-          transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
+          borderRight: 'none',
+          borderLeft: '1px solid #e5e7eb',
+          transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
           transition: 'transform 0.25s ease',
-          boxShadow: isOpen ? '4px 0 16px rgba(0,0,0,0.1)' : 'none',
+          boxShadow: isOpen ? '-4px 0 16px rgba(0,0,0,0.1)' : 'none',
         } : {}),
       }}
     >

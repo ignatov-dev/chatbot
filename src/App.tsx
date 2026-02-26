@@ -207,11 +207,8 @@ function AuthenticatedApp({
               gap: '12px',
             }}
           >
-            <button className="hamburger-btn" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
-              ☰
-            </button>
             <img src={XBO} alt="" style={{ width: '32px', height: '32px' }} />
-            <div>
+            <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 600, fontSize: '15px', color: '#111827' }}>
                 {THEMES[activeTheme].label} Assistant
               </div>
@@ -236,6 +233,9 @@ function AuthenticatedApp({
                 Online
               </div>
             </div>
+            <button className="hamburger-btn" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
+              ☰
+            </button>
           </div>
 
           {/* Theme tabs */}
