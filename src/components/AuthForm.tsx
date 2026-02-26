@@ -28,16 +28,7 @@ export default function AuthForm() {
   }
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100%',
-        width: '100%',
-        background: '#f9fafb',
-      }}
-    >
+    <>
       {confirmationSent ? (
         <div
           style={{
@@ -280,6 +271,6 @@ export default function AuthForm() {
         </p>
       </form>
       )}
-    </div>
+    </>
   )
 }

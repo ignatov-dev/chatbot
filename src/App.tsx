@@ -50,7 +50,7 @@ export default function App() {
     return <AuthForm />
   }
 
-  return <AuthenticatedApp user={user} onSignOut={signOut} />
+  return <div className="app-shell"><AuthenticatedApp user={user} onSignOut={signOut} /></div>
 }
 
 function AuthenticatedApp({
