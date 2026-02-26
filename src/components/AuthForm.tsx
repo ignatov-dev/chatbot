@@ -271,6 +271,13 @@ export default function AuthForm() {
             {isSignUp ? 'Sign In' : 'Sign Up'}
           </button>
         </p>
+
+        <p style={{ textAlign: 'center', fontSize: '11px', color: '#9ca3af', marginTop: '16px', lineHeight: 1.5 }}>
+          By continuing, you agree to our{' '}
+          <a href="/privacy" style={{ color: '#6b7280', textDecoration: 'underline' }}>Privacy Policy</a>
+          {' '}and{' '}
+          <a href="/terms" style={{ color: '#6b7280', textDecoration: 'underline' }}>Terms of Service</a>.
+        </p>
       </form>
       )}
     </div>
