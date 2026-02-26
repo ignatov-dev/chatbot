@@ -19,7 +19,7 @@ export default function ChatInput({ onSend, disabled, placeholder }: ChatInputPr
     setValue('')
   }
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSend()
@@ -37,17 +37,17 @@ export default function ChatInput({ onSend, disabled, placeholder }: ChatInputPr
         display: 'flex',
         gap: '10px',
         alignItems: 'center',
+        height: 70
       }}
     >
       <div style={{ flex: 1, position: 'relative', display: 'flex' }}>
-        <textarea
+        <input
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={disabled}
           maxLength={MAX_LENGTH}
           placeholder={disabled ? 'Initializing AI model…' : `Ask me anything about ${placeholder}…`}
-          rows={1}
           style={{
             width: '100%',
             boxSizing: 'border-box',

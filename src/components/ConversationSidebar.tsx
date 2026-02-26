@@ -156,6 +156,7 @@ export default function ConversationSidebar({
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
+          height: 70
         }}
       >
         <div
