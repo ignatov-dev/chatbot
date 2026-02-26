@@ -14,11 +14,13 @@ export interface DbMessage {
   created_at: string
 }
 
-export async function fetchConversations(): Promise<ConversationSummary[]> {
-  const { data, error } = await supabase
+export async function fetchConversations(sources?: string[]): Promise<ConversationSummary[]> {
+  let query = supabase
     .from('conversations')
     .select('id, title, source, updated_at')
     .order('updated_at', { ascending: false })
+  if (sources?.length) query = query.in('source', sources)
+  const { data, error } = await query
   if (error) throw error
   return data
 }

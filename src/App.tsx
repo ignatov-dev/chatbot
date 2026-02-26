@@ -19,6 +19,9 @@ const THEMES = [
   // { label: 'XBO Token', sources: ['xbo-token-guide.pdf'] },
   // { label: 'XBO CryptoPay', sources: ['xbo-cryptopay-guide.pdf'] },
   { label: 'CryptoPayX', sources: ['cryptopayx_api_documentation.txt'] },
+  { label: 'Deposit & Withdrawal', sources: ['deposit-and-withdrawals.txt'] },
+  { label: 'Vefification', sources: ['verification.txt'] },
+  { label: 'Loyalty Program', sources: ['loyalty-program.txt'] },
   // { label: 'All Products', sources: ['xbo-token-guide.pdf', 'xbo-cryptopay-guide.pdf'] },
 ]
 
@@ -64,10 +67,10 @@ function AuthenticatedApp({
   const [isLoading, setIsLoading] = useState(false)
   const skipFetchRef = useRef(false)
 
-  // Load conversations on mount
+  // Load conversations on mount and when theme changes
   useEffect(() => {
-    fetchConversations().then(setConversations).catch(console.error)
-  }, [])
+    fetchConversations(THEMES[activeTheme].sources).then(setConversations).catch(console.error)
+  }, [activeTheme])
 
   // Load messages when conversation changes
   useEffect(() => {
@@ -105,6 +108,7 @@ function AuthenticatedApp({
     setActiveTheme(index)
     setActiveConversationId(null)
     setMessages([])
+    // conversations reload via useEffect on activeTheme
   }
 
   const handleSend = useCallback(
@@ -132,7 +136,8 @@ function AuthenticatedApp({
       saveMessage(convId, 'user', userText).catch(console.error)
 
       try {
-        const answer = await askClaude(userText, THEMES[activeTheme].sources)
+        const history = messages.map(({ role, content }) => ({ role, content }))
+        const answer = await askClaude(userText, THEMES[activeTheme].sources, history)
         const assistantMsg: Message = {
           id: `a-${Date.now()}`,
           role: 'assistant',
@@ -157,7 +162,7 @@ function AuthenticatedApp({
       }
 
       // Refresh sidebar
-      fetchConversations().then(setConversations).catch(console.error)
+      fetchConversations(THEMES[activeTheme].sources).then(setConversations).catch(console.error)
     },
     [activeConversationId, activeTheme],
   )

@@ -29,6 +29,9 @@ const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
 
 const DOCUMENTS = [
   'cryptopayx_api_documentation.txt',
+  'deposit-and-withdrawals.txt',
+  'verification.txt',
+  'loyalty-program.txt'
 ]
 
 // Split by ===...SECTION: NAME...=== delimiters, then sub-chunk large sections

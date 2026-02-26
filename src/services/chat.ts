@@ -2,7 +2,11 @@ import { supabase } from '../lib/supabase'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string
 
-export async function askClaude(question: string, sources?: string[]): Promise<string> {
+export async function askClaude(
+  question: string,
+  sources?: string[],
+  history?: Array<{ role: 'user' | 'assistant'; content: string }>,
+): Promise<string> {
   const { data: { session } } = await supabase.auth.getSession()
 
   const res = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
@@ -12,7 +16,7 @@ export async function askClaude(question: string, sources?: string[]): Promise<s
       'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY as string,
       Authorization: `Bearer ${session?.access_token ?? import.meta.env.VITE_SUPABASE_ANON_KEY}`,
     },
-    body: JSON.stringify({ question, sources }),
+    body: JSON.stringify({ question, sources, history }),
   })
 
   if (!res.ok) {
