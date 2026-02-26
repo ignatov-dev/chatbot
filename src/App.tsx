@@ -4,8 +4,8 @@ import ChatInput from './components/ChatInput'
 import ConversationSidebar from './components/ConversationSidebar'
 import AuthForm from './components/AuthForm'
 import { useAuth } from './contexts/AuthContext'
-import { RiRobot2Line } from 'react-icons/ri'
-import { askClaude } from './services/chat'
+import { askClaude } from './services/chat';
+import XBO from '/XBO.svg';
 import {
   fetchConversations,
   createConversation,
@@ -204,23 +204,7 @@ function AuthenticatedApp({
               gap: '12px',
             }}
           >
-            <div
-              style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '50%',
-                background: '#4f2dd0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#fff',
-                fontWeight: 700,
-                fontSize: '16px',
-                flexShrink: 0,
-              }}
-            >
-              <RiRobot2Line size={20} />
-            </div>
+            <img src={XBO} alt="" style={{ width: '32px', height: '32px' }} />
             <div>
               <div style={{ fontWeight: 600, fontSize: '15px', color: '#111827' }}>
                 {THEMES[activeTheme].label} Assistant

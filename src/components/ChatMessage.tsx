@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import { marked } from 'marked'
-import { RiRobot2Line } from 'react-icons/ri'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { stackoverflowLight } from 'react-syntax-highlighter/dist/esm/styles/hljs'
+import XBO from '/XBO.svg';
 
 interface ChatMessageProps {
   role: 'user' | 'assistant'
@@ -61,24 +61,7 @@ export default function ChatMessage({ role, content }: ChatMessageProps) {
       }}
     >
       {!isUser && (
-        <div
-          style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            background: '#4f2dd0',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '14px',
-            color: '#fff',
-            flexShrink: 0,
-            marginRight: '8px',
-            alignSelf: 'flex-end',
-          }}
-        >
-          <RiRobot2Line size={18} />
-        </div>
+          <img src={XBO} alt="" style={{ width: '32px', height: '32px' }} />
       )}
       <div
         style={{
