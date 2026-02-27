@@ -25,6 +25,44 @@ const THEMES = [
 
 export default function App() {
   const { user, loading, signOut } = useAuth()
+  const [view, setView] = useState<'auth' | 'auth-exit' | 'chat' | 'chat-exit'>(user ? 'chat' : 'auth')
+  const [animateChat, setAnimateChat] = useState(false)
+  const [animateAuth, setAnimateAuth] = useState(false)
+  const prevUserRef = useRef(user)
+  const hasResolvedAuth = useRef(false)
+
+  const handleSignOut = useCallback(() => {
+    setView('chat-exit')
+    setTimeout(() => {
+      setView('auth')
+      setAnimateAuth(true)
+      signOut()
+    }, 400)
+  }, [signOut])
+
+  useEffect(() => {
+    if (loading) return
+    const isFirstResolve = !hasResolvedAuth.current
+    hasResolvedAuth.current = true
+
+    const wasSignedOut = !prevUserRef.current
+    prevUserRef.current = user
+
+    if (user && wasSignedOut) {
+      if (isFirstResolve) {
+        setView('chat')
+        return
+      }
+      setView('auth-exit')
+      setAnimateChat(true)
+      const timer = setTimeout(() => setView('chat'), 400)
+      return () => clearTimeout(timer)
+    }
+    if (!user && view !== 'auth') {
+      setView('auth')
+      setAnimateChat(false)
+    }
+  }, [user, loading])
 
   if (loading) {
     return (
@@ -44,11 +82,33 @@ export default function App() {
     )
   }
 
-  if (!user) {
-    return <AuthForm />
+  if (view === 'auth') {
+    return animateAuth
+      ? <div className="auth-enter" onAnimationEnd={() => setAnimateAuth(false)}><AuthForm /></div>
+      : <AuthForm />
   }
 
-  return <div className="app-shell"><AuthenticatedApp user={user} onSignOut={signOut} /></div>
+  if (view === 'auth-exit') {
+    return (
+      <div className="auth-exit">
+        <AuthForm />
+      </div>
+    )
+  }
+
+  if (view === 'chat-exit') {
+    return (
+      <div className="app-shell chat-exit">
+        <AuthenticatedApp user={user!} onSignOut={handleSignOut} />
+      </div>
+    )
+  }
+
+  return (
+    <div className={`app-shell${animateChat ? ' chat-enter' : ''}`} onAnimationEnd={() => setAnimateChat(false)}>
+      <AuthenticatedApp user={user!} onSignOut={handleSignOut} />
+    </div>
+  )
 }
 
 function AuthenticatedApp({
@@ -56,19 +116,24 @@ function AuthenticatedApp({
   onSignOut,
 }: {
   user: { id: string; email?: string }
-  onSignOut: () => Promise<void>
+  onSignOut: () => void
 }) {
   const [activeTheme, setActiveTheme] = useState(0)
   const [conversations, setConversations] = useState<ConversationSummary[]>([])
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingConversations, setIsLoadingConversations] = useState(true)
   const skipFetchRef = useRef(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // Load conversations on mount and when theme changes
   useEffect(() => {
-    fetchConversations(THEMES[activeTheme].sources).then(setConversations).catch(console.error)
+    setIsLoadingConversations(true)
+    fetchConversations(THEMES[activeTheme].sources)
+      .then(setConversations)
+      .catch(console.error)
+      .finally(() => setIsLoadingConversations(false))
   }, [activeTheme])
 
   // Load messages when conversation changes
@@ -164,7 +229,7 @@ function AuthenticatedApp({
       // Refresh sidebar
       fetchConversations(THEMES[activeTheme].sources).then(setConversations).catch(console.error)
     },
-    [activeConversationId, activeTheme],
+    [activeConversationId, activeTheme, messages],
   )
 
   const handleOptionClick = useCallback(
@@ -192,6 +257,7 @@ function AuthenticatedApp({
         onSignOut={onSignOut}
         userEmail={user.email ?? ''}
         isOpen={sidebarOpen}
+        isLoading={isLoadingConversations}
       />
 
       <div

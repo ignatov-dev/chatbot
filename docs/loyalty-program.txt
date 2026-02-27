@@ -1,0 +1,121 @@
+============================================================
+SECTION: WHAT IS THE XBO.COM LOYALTY PROGRAM?
+============================================================
+
+The XBO.com Loyalty program is a unique system of benefits designed to show our appreciation for your commitment and engagement. It ensures that loyal users enjoy better conditions and receive higher crypto rewards based on their progress within the program.
+ Loyalty program is eligible only for retail clients.
+
+==============================================================
+SECTION: HOW DOES THE LOYALTY PROGRAM WORK?
+============================================================
+
+The XBO loyalty program offers crypto rewards and improved trading and exchanging conditions to clients who actively use the platform. 
+The program is based on accumulating experience points (XP). You can get them for completing various actions on the platform, such as passing verification, installing the app, and exchanging cryptocurrencies. Visit the XBO Rewards center to see the full list of actions that bring you XP. 
+XPs are a unit of reward for regular everyday actions taken on the XBO.com platform. XPs are the currency you need to unlock higher membership tiers and earn (awesome) rewards.
+You can earn XP by:
+- Reaching various levels of identity verification (from 100 to 300 XP).
+- Logging in daily (10 XP).
+- Referring new users to the platform (50 XP).
+- Spot-trading (7 XP for every $10).
+- Swapping crypto or fiat assets (20 XP for every $20).
+- Installing the free mobile app (150 XP).
+When you collect enough XP, you move up one loyalty level.
+The XBO.com Loyalty program consists of 5 tiers:
+- Silver - your starting level once you register successfully.
+- Gold - requires 10,000 XP.
+- Platinum - requires 65,000 XP. 
+- Diamond - requires 650,000 XP. 
+- Black Diamond - requires 2,100,000 XP!
+Each level gives you additional perks, rewards, and more favorable conditions to exchange and trade crypto.
+Each time you move from one tier to the next, you will receive: 
+- Improved benefits, including exchange cashback, free monthly fiat withdrawals, favorable spot-trading fees, and XBO.com card upgrades.
+- An incremental amount of randomized cryptocurrency rewards.
+ Loyalty program is eligible only for retail clients.
+
+==============================================================
+SECTION: WHAT ARE XPS AND HOW TO COLLECT THEM?
+============================================================
+
+XP is a unit of reward for regular everyday actions taken on the XBO.com platform and is an integral part of our unique loyalty program. Accumulating enough XP will allow you to level up your loyalty tier and access numerous benefits, including crypto rewards.
+ You can earn XPs in a variety of ways: 
+  - Reaching various levels of identity verification (from 100 to 300 XP)
+ - Logging in daily (10 XP)
+ - Referring new users to the platform (50 XP)
+ - Spot-trading (7 XP/$10)
+ - Futures-trading (7 XP/$100)
+ - Swapping crypto or fiat assets (20 XP/$20)
+ - Installing the free mobile app (150 XP).
+  *Loyalty program is eligible only for retail clients.
+
+==============================================================
+SECTION: HOW CAN I CHECK MY XP BALANCE?
+============================================================
+
+- Desktop platform - navigate to the menu on the left side of the interface to find your current XP amount.
+- Mobile app - go to the bottom right of the app interface, click on Menu, and view your XP balance and loyalty tier in the upper right corner
+Loyalty program is eligible only for retail clients.
+
+==============================================================
+SECTION: WHAT CAN YOU DO WITH XPS?
+============================================================
+
+XPs are used exclusively to level up your account's loyalty tier (from Silver to Gold, Platinum, Diamond, and Black Diamond). They are key to unlocking greater benefits, favorable trading terms as well as crypto rewards.
+ When you collect enough XP to level up, you will move to the next loyalty tier automatically.
+ Loyalty program is eligible only for retail clients.
+
+==============================================================
+SECTION: WHEN DO I GET MY CRYPTO REWARDS?
+============================================================
+
+You will receive crypto rewards every time you move from one tier to the next.
+ Hint: Start collecting XPs, the currency you need to unlock higher membership tiers and earn crypto rewards.
+
+Loyalty program is eligible only for retail clients.
+
+==============================================================
+SECTION: HOW DOES LEVELING UP IMPROVE MY XBO EXPERIENCE?
+============================================================
+
+You can use all XBO.com platform features to buy, sell, or exchange leading cryptocurrencies, regardless of your loyalty tier. Our loyalty program, however, provides perks that improve with each tier. So, the higher your tier level, the more benefits you receive!
+Level-up to enjoy:
+- More cashback on exchange.
+- Lower spot trading fees.
+- Greater crypto rewards.
+- More free fiat withdrawals per month.
+You will also receive an upgrade to your XBO.com payments card upon each level up.
+Loyalty program is eligible only for retail clients.
+
+==============================================================
+SECTION: HOW DO FREE PAYMENT CARDS WORK IN THE LOYALTY PROGRAM?
+============================================================
+
+Some loyalty tiers include free payment card issuance. The number of free cards you're entitled to depends on your current loyalty tier and is shown on the Loyalty page.
+When you request a new card:
+- Your tier's free card entitlement is checked
+- Your lifetime number of free cards already issued is taken into account
+If free entitlement is available, the card is issued with a 0 issuance fee.
+If the entitlement is exhausted, the standard card issuance fee applies.
+Cards issued in the past are not re-evaluated and are not retroactively treated as free. 
+
+Only cards that were issued with a 0 fee at the time of issuance count toward your lifetime free card usage.
+When your loyalty tier changes, your free card entitlement is updated immediately and compared against the total number of free cards already issued.
+All zero-fee card issuances appear in your Balance transactions.
+
+==============================================================
+SECTION: HOW DO LOYALTY TIERS, XBO TOKENS, AND XP WORK TOGETHER?
+============================================================
+
+Your loyalty tier is determined by XP and XBO Token holdings.
+Tier requirements include:
+- A minimum XP balance
+- A minimum XBO Token amount held continuously for a defined number of days
+Your eligibility is evaluated daily.
+If you qualify for different tiers based on XP and XBO Tokens, the highest tier you are eligible for will be applied.
+If you reach a tier based on XBO Tokens, you must continue holding the required token balance to maintain that tier.
+If the token requirements are not met, your tier will be based solely on XP.
+
+==============================================================
+
+END OF DOCUMENT
+
+==============================================================

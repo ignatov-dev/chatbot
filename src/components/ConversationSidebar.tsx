@@ -9,6 +9,7 @@ interface ConversationSidebarProps {
   onSignOut: () => void
   userEmail: string
   isOpen?: boolean
+  isLoading?: boolean
 }
 
 function timeAgo(dateStr: string): string {
@@ -31,6 +32,7 @@ export default function ConversationSidebar({
   onSignOut,
   userEmail,
   isOpen,
+  isLoading,
 }: ConversationSidebarProps) {
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
 
@@ -63,7 +65,51 @@ export default function ConversationSidebar({
     >
       {/* Conversation list */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
-        {conversations.length === 0 && (
+        {isLoading && conversations.length === 0 && (
+          <>
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                style={{
+                  padding: '10px 12px',
+                  marginBottom: '2px',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '6px',
+                }}
+              >
+                <div
+                  style={{
+                    height: '13px',
+                    borderRadius: '4px',
+                    background: '#e5e7eb',
+                    width: `${65 + (i * 17) % 30}%`,
+                    animation: 'shimmer 1.5s infinite',
+                    animationDelay: `${i * 0.1}s`,
+                  }}
+                />
+                <div
+                  style={{
+                    height: '11px',
+                    borderRadius: '4px',
+                    background: '#f3f4f6',
+                    width: '40%',
+                    animation: 'shimmer 1.5s infinite',
+                    animationDelay: `${i * 0.1 + 0.05}s`,
+                  }}
+                />
+              </div>
+            ))}
+            <style>{`
+              @keyframes shimmer {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.4; }
+              }
+            `}</style>
+          </>
+        )}
+        {!isLoading && conversations.length === 0 && (
           <p style={{ textAlign: 'center', fontSize: '12px', color: '#9ca3af', padding: '16px 0' }}>
             No conversations yet
           </p>

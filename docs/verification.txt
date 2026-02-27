@@ -1,0 +1,28 @@
+============================================================
+SECTION: WHY DO I NEED TO VERIFY MY ACCOUNT?
+============================================================
+There are four main reasons why you should verify your account.Security. By providing the personal information required for verification, you prove that you are who you claim to be. In this way, we help prevent a third party from impersonating you and using your payment information for fraud.Eligibility. The verification of your identity proves that you can legally participate in crypto exchange, including being of age. Regulatory compliance. Verifying your identity is necessary to comply with anti-money laundering and other financial regulations needed to ensure the safety of your operations.Enhanced opportunities. Passing higher verification levels will allow you to access more platform functions such as unlocking fiat transactions and raising their limits.
+
+SECTION: HOW DO I VERIFY MY ACCOUNT?
+============================================================
+XBO has three verification levels: Occasional, Basic, and Pro. Each level has different requirements.Occasional verification:Verify your email address. When registering, you will receive a verification email. Open it and press Confirm email to verify your email address.Verify your phone number. After you enter your telephone number, you'll receive an SMS with a verification code. Enter this code in a separate field to have your phone number verified. Provide your personal details. Provide your full name exactly as it is written on your official documents and your date of birth. You must be 18 years old to proceed with the verification. Basic verification:Provide your residential address. Provide information about your place of residence, including country, city, home address, and ZIP code.Verify your identity. Submit a document to prove your identity, such as a driver's license, a national ID, a passport, or a residence permit. Follow the instructions and upload front and back photos.Take a selfie. Following the instructions, take a photo of yourself and upload it.Pro verification:Verify your residence. Submit a document to prove your place of residence, such as a bank statement, a residence certificate, a utility bill, a government document with your address on it, or a tax document. Follow the instructions to upload the photo of this document. Fill in a questionnaire. Answer a few questions about your annual income, your main source of funds, your field of occupation, and your anticipated investment amount. Occasional verification is sufficient to start exchanging crypto. Basic and Pro verification is required to unlock the full range of XBO functions.
+
+SECTION: WHY ARE THERE DIFFERENT VERIFICATION LEVELS?
+============================================================
+Account verification is crucial to ensuring your safety on the XBO.com platform. We use multiple security protocols and standards. But a fully verified account creates an additional layer of protection against malicious activities.We've separated the process into three levels to allow you to access some platform features even before the full verification is complete.Pass these verification levels to unlock the following deposit and withdrawal limits:Level 1 – OccasionalCrypto: deposit with no limits and withdraw up to $1K per day (up to $10K for this level).Level 2 - BasicCrypto: deposit without limits and withdraw up to $5,000 per day.Fiat: deposit and withdraw up to $1,000 per day ($5,000 per month).Level 3 – ProCrypto: deposit and withdraw with no limits.Fiat: deposit and withdraw with no limits.
+
+SECTION: WHERE CAN I CHECK THE STATUS OF MY VERIFICATION?
+============================================================
+You can check your verification status in your personal profile.In the mobile app:Tap on Menu. Your verification level status will be displayed right next to your name, along with all the other actions available for your account.On the web platform:Hover your mouse over the Account icon in the bottom, right corner of the XBO.com home page. Your verification status, along with other account information, will appear. There are four types of verification statuses:Verified (Occasional, Basic, or Pro)PendingDeclinedUnverified
+
+SECTION: HOW DO I CHANGE MY RESIDENTIAL ADDRESS?
+============================================================
+To update your address, please contact our support team.Our specialists are available 24/7 in Live chat or Telegram, which you can find in the communication widget on the website or via email: support@xbo.com.
+
+SECTION: HOW IS THE PERSONAL INFORMATION I PROVIDE DURING VERIFICATION PROTECTED?
+============================================================
+XBO.com protects your data using the highest standards of customer data protection.We abide by the General Data Protection Regulation (GDPR) and Data Protection Act (DPA) regulations. All the information you provide during the verification process - including your name, address, phone number, and date of birth - is protected under these regulations.Additionally, XBO.com data controls complies with SOC2 requirements for security, availability, processing integrity, confidentiality, and privacy. And the entire verification process is further protected using FUGU advanced technologies.
+
+==============================================================
+END OF DOCUMENT
+==============================================================

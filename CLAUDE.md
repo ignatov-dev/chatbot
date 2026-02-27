@@ -57,3 +57,20 @@ Frontend env vars use the `VITE_` prefix (`VITE_SUPABASE_URL`, `VITE_SUPABASE_AN
 ### Theme System
 
 "Themes" (CryptoPayX, Deposit & Withdrawal) map to different document sources. Switching themes resets the active conversation and queries different chunks.
+
+### Supabase Edge Functions
+
+Edge Functions are **not** stored in this repo — they are deployed on Supabase. Use the **Supabase MCP tools** to read and update them:
+
+- `mcp__supabase__list_edge_functions` — list all functions
+- `mcp__supabase__get_edge_function` — read a function's code (pass `function_slug`, e.g. `"chat"`)
+- `mcp__supabase__deploy_edge_function` — deploy/update a function
+
+The `chat` Edge Function (`slug: "chat"`, `verify_jwt: false`) handles:
+- Language detection & translation (Groq)
+- Vector similarity search on `document_chunks`
+- Semantic question cache (`question_cache` table)
+- LLM prompt construction with system prompt + context chunks + history
+- Response parsing (OPTIONS extraction for clarification flows)
+
+When modifying the Edge Function, always read the current version first with `get_edge_function`, make changes, then deploy the full file.

@@ -1,0 +1,361 @@
+
+==============================================================
+SECTION: HOW DO I DEPOSIT FIAT INTO MY ACCOUNT?
+==============================================================
+
+To deposit fiat into your XBO.com account, you should enter your XBO.com wallet, select Fiat, and click the Deposit button at the bottom of the screen.
+
+You can fund your account using:
+
+Credit card
+Bank transfer
+
+Choose the deposit method you prefer and follow the step-by-step instructions provided. If the transaction is approved, the money will arrive in your account according to the timeline given by your selected deposit method. If the deposit attempt is declined, you'll need to try again or select another deposit method.
+
+============================================================
+SECTION: WHICH PAYMENT METHODS DO YOU ACCEPT?
+==============================================================
+
+We accept the following payment methods:
+
+Credit card
+Bank transfer
+
+XBO.com is continuously growing and improving. In the future, we may integrate new payment methods into our platform. If this happens, you'll be informed about any changes.
+
+============================================================
+SECTION: HOW DO I TRANSFER CRYPTO TO MY XBO.COM ACCOUNT FROM ANOTHER CRYPTO WALLET?
+==============================================================
+
+To transfer crypto to your XBO.com account, follow these steps:
+
+Enter your XBO.com wallet and tap Cryptos. You'll see a list of cryptocurrencies our platform supports. Choose the one you'd like to transfer to your account and tap Receive.
+From the list of available networks, choose the one you want to use to transfer your crypto. Make sure you choose a network compatible with the currency you want to send.
+
+Please keep in mind that the network you select at this step should be the same as the one you'll select on your outside wallet when finalizing the transfer. Otherwise, your funds may be lost.
+
+Now you'll see a QR code and a Send address (a series of numbers and letters). This is your unique XBO.com crypto address for the cryptocurrency you have chosen.
+
+You have two ways to transfer crypto to your XBO.com account:
+
+Copy your XBO.com Send address. Then log into the crypto wallet from which you want to transfer crypto and paste the address into the Send.
+Scan the QR code with your smartphone and follow the instructions.
+
+Scanning the QR code is more convenient if you use different devices for XBO.com and your other crypto wallet. If you access both platforms from the same device, it is better to use the Send address.
+
+============================================================
+SECTION: WHAT IS THE CURRENCY OF MY ACCOUNT? HOW DO I CHANGE IT?
+==============================================================
+
+The currency of your XBO.com account is USD.
+
+For now, there is no way to change this. Our development team is working on adding more options in the nearest future. We'll keep you up to date.
+
+============================================================
+SECTION: HOW CAN I WITHDRAW MY FUNDS?
+==============================================================
+
+You can withdraw cryptocurrency or fiat by following these steps:
+
+To transfer cryptocurrency to your personal wallet (e.g., MetaMask, Phantom):
+
+Go to your XBO.com wallet.
+Choose the crypto you want to withdraw.
+Click Send.
+Choose how much you want to withdraw.
+Select the network that will process the transaction. Make sure it matches the network of the receiving wallet, or your funds could be lost!
+Paste your personal wallet address.
+Click Continue to withdraw.
+Confirm the transaction with the code sent to your phone number.
+
+You can view the status of the withdrawal process in Transaction history. Once the transaction is processed, the crypto will be delivered to your personal wallet.
+
+Important! If you make your first fiat deposit using a card, you won't be able to withdraw crypto for 72 hours. This temporary lock allows us to detect and limit the risk of fraud.
+
+To withdraw fiat to your bank account:
+
+Go to your fiat XBO.com wallet.
+Choose the currency you want to withdraw.
+Click Withdraw.
+Choose how much you want to withdraw.
+Enter your bank details.
+Click Withdraw.
+Confirm the transaction with the code sent to your phone number.
+
+You can also view this process in Transaction history. Once it's processed, you will receive the funds to your bank account.
+
+Important! If you make your first fiat deposit using a card, you won't be able to withdraw fiat for 72 hours. This temporary lock allows us to detect and limit the risk of fraud.
+
+============================================================
+SECTION: WHAT ARE THE DEPOSIT AND WITHDRAWAL COMMISSIONS?
+==============================================================
+
+XBO.com has the following deposit and withdrawal fees:
+
+Deposit
+
+Crypto- 0%
+
+Fiat
+
+Payment method	Fees
+Credit cards	3.75% + $0.25
+Wire transfers	EUR (SEPA, Instant SEPA – ISX Financial EU Ltd)	Fix fee of €5 per transaction
+EUR (SEPA – Bank Frick & Co. AG)	Fix fee of €2 per transaction
+EUR (SWIFT – Bank Frick & Co. AG)	Fix fee of €10 per transaction
+GBP (Faster Payments – BCB Payments Ltd)	Fix fee of £1 per transaction
+GBP (CHAPS – BCB Payments Ltd)	Fix fee of £15 per transaction
+GBP (SWIFT – BCB Payments Ltd)	Fix fee of £15 per transaction
+USD (SWIFT – Bank Frick & Co. AG)	Fix fee of $10 per transaction
+CHF (SWIFT – Bank Frick & Co. AG)	Fix fee of CHF5 per transaction
+CAD (SWIFT – Bank Frick & Co. AG)	Fix fee of 25CAD per transaction
+
+*Fiat currency options are provided at the discretion of the banking institutions and are subject to their risk appetite.
+
+Withdrawal
+
+Crypto
+
+Currency	Network Code	Min Withdrawal Amount	Withdrawal Fee
+1INCH	Ethereum (ERC20)	25	20
+AAVE	Ethereum (ERC20)	0.5	0.25
+ADA	Cardano (ADA)	1.5	0.8
+ALGO	Algorand (ALGO)	10	5
+APE	Ethereum (ERC20)	5	2.5
+ASTER	BNB Smart Chain (BEP20)	1	0.5
+ATH	Ethereum (ERC20)	150	100
+ATOM	Cosmos (ATOM)	2	1
+AUDIO	Ethereum (ERC20)	60	50
+AVA	Ethereum (ERC20)	25	12
+AVAX	Avalanche C-Chain (AVAX)	0.08	0.01
+AVNT	Base (Base)	1	0.5
+AXL	Axelar (AXL)	10	5
+AXS	Ethereum (ERC20)	1.5	0.7
+BAL	Ethereum (ERC20)	2	1
+BAT	Ethereum (ERC20)	15	10
+BCH	Bitcoin Cash (BCH)	0.008	0.001
+BCUT	Ethereum (ERC20)	70	60
+BIT	Ethereum (ERC20)	10	5
+BLUR	Ethereum (ERC20)	3	2
+BNB	BNB Smart Chain (BEP20)	0.01	0.0005
+BONK	Solana (SOL)	400000	200000
+BTC	Bitcoin (BTC)	0.0002	0.0001
+CELO	Celo (CELO)	2	1
+CHZ	Ethereum (ERC20)	25	10
+COMP	Ethereum (ERC20)	0.05	0.03
+CRV	Ethereum (ERC20)	12	6
+DOGE	Doge (DOGE)	12	3
+DOT	Polkadot (DOT)	1	0.5
+DRIFT	Solana (SOL)	2	1
+DYDX	dydX (DYDX)	0.2	0.1
+EIGEN	Ethereum (ERC20)	5	3
+ENA	Ethereum (ERC20)	11	10
+ENS	Ethereum (ERC20)	0.2	0.1
+ETC	Ethereum Classic (ETC)	0.1	0.01
+ETH	Arbitrum One (Arbitrum)	0.0002	0.0001
+ETH	Base (Base)	0.0002	0.0001
+ETH	Ethereum (ERC20)	0.001	0.0005
+ETH	Linea (Linea)	0.0002	0.0001
+ETHW	Ethereum (Proof-of-Work) (ETHW)	0.2	0.05
+EURC	Ethereum (ERC20)	10	5
+FARTCOIN	Solana (SOL)	3	2
+FET	Ethereum (ERC20)	50	25
+FLOKI	Ethereum (ERC20)	50000	25000
+FLR	Flare Network (FLR)	2	1
+FTN	Bahamut (FTN)	0.2	0.15
+GALA	Ethereum (ERC20)	500	100
+GRT	Ethereum (ERC20)	100	10
+HBAR	Hedera Hashgraph (HBAR)	10	3
+HNT	Solana (SOL)	0.6	0.5
+HONEY	Solana (SOL)	30	20
+IMX	Ethereum (ERC20)	14	7
+IO	Solana (SOL)	1.5	1
+IOTA	BNB Smart Chain (BEP20)	0	0
+JTO	Solana (SOL)	0.6	0.5
+JUP	Solana (SOL)	10	2.5
+KMNO	Solana (SOL)	15	10
+LDO	Ethereum (ERC20)	5	3
+LINEA	Linea (Linea)	11	10
+LINK	Ethereum (ERC20)	2	0.2
+LPT	Ethereum (ERC20)	1	0.5
+LTC	Litecoin (LTC)	0.1	0.005
+MANA	Ethereum (ERC20)	40	20
+MASK	Ethereum (ERC20)	25	10
+ME	Solana (SOL)	1	0.5
+MELANIA	Solana (SOL)	1.5	1
+MORPHO	Ethereum (ERC20)	2	1
+MOVE	Ethereum (ERC20)	4	3
+MUBARAK	BNB Smart Chain (BEP20)	30	15
+NEAR	NEAR Protocol (NEAR)	0.1	0.01
+NEIRO	Ethereum (ERC20)	10000	5000
+ONDO	Ethereum (ERC20)	4	2
+PENDLE	Ethereum (ERC20)	4	2
+PENGU	Solana (SOL)	200	77
+PEPE	Ethereum (ERC20)	31645569	15822785
+PERP	Ethereum (ERC20)	15	10
+PNUT	Solana (SOL)	20	10
+POL	Ethereum (ERC20)	10	5
+POL	Polygon (POLYGON)	2	0.1
+PUMP	Solana (SOL)	100	90
+PYTH	Solana (SOL)	15	10
+PYUSD	Ethereum (ERC20)	10	4.5
+QNT	Ethereum (ERC20)	0.14	0.07
+RAY	Solana (SOL)	0.6	0.5
+RENDER	Solana (SOL)	1	0.3
+RLUSD	Ripple (XRP)	5	1
+RON	Ronin (RON)	0.01	0.001
+S	Sonic (Sonic)	0.16	0.08
+SAND	Ethereum (ERC20)	16	8
+SHIB	Ethereum (ERC20)	746000	447000
+SKY	Ethereum (ERC20)	21	20
+SNX	Ethereum (ERC20)	5	2.5
+SOL	Solana (SOL)	0.01	0.006
+SUI	SUI Network (SUI)	0.15	0.1
+SUSHI	Ethereum (ERC20)	25	5
+TNSR	Solana (SOL)	8	4
+TON	The Open Network (TON)	1	0.05
+TRUMP	Solana (SOL)	0.2	0.1
+TRX	Tron (TRC20)	10	1.5
+TST	BNB Smart Chain (BEP20)	10	5
+UNI	Ethereum (ERC20)	1	0.3
+USDC	Base (Base)	1	0.5
+USDC	Ethereum (ERC20)	7	4.5
+USDC	Polygon (POLYGON)	2	1
+USDC	Solana (SOL)	10	2
+USDT	Arbitrum One (Arbitrum)	1	0.5
+USDT	BNB Smart Chain (BEP20)	3	1
+USDT	Ethereum (ERC20)	7	4.5
+USDT	Polygon (POLYGON)	2	1
+USDT	Solana (SOL)	5	1
+USDT	Tron (TRC20)	6	3
+VIRTUAL	Ethereum (ERC20)	2	1
+W	Solana (SOL)	11	10
+WBTC	Ethereum (ERC20)	0.0003	0.0001
+WIF	Solana (SOL)	10	5
+WLD	Ethereum (ERC20)	5	1
+WLFI	Ethereum (ERC20)	20	12
+XAUT	Ethereum (ERC20)	0.015	0.01
+XBO	Ethereum (ERC20)	3	2
+XEC	eCash (XEC)	20000	5000
+XLM	Stellar (XLM)	40	0.02
+XRP	Ripple (XRP)	5	0.05
+XTZ	Tezos (XTZ)	0.8	0.4
+ZRX	Ethereum (ERC20)	10	5
+
+* Crypto withdrawal fees for CryptoPay accounts may vary
+
+Fiat
+
+Payment method	Fees
+Credit cards	Currently NA
+Wire transfers	EUR - SEPA, Instant SEPA, SWIFT	0.2% - min 12.50 EUR
+USD - SWIFT, ACH	0.2% - min 75 USD
+GBP - SWIFT, Faster Payments	0.3% - min 30 GBP
+CHF - SWIFT	0.2% - min 30 CHF
+CAD - SWIFT	0.2% - min 40 CAD
+
+Please keep in mind that your bank or blockchain network may charge separate fees and commissions.
+
+============================================================
+SECTION: WHAT IS THE MINIMUM FIAT WITHDRAWAL AMOUNT?
+==============================================================
+
+XBO.com minimum withdrawal requirements are:
+
+USD - $100
+EUR - €100
+GBP - £1,000
+CHF - 100 CHF
+CAD - 100 CAD
+
+============================================================
+SECTION: WHAT IS THE MINIMUM DEPOSIT AMOUNT?
+==============================================================
+
+XBO.com minimum deposit requirements are:
+
+Using a Bank Card:
+
+USD - $10
+EUR - €10
+GBP - £10
+
+Wire transfer:
+
+USD - $100
+EUR - €100
+GBP - £100
+CHF - 100 CHF
+CAD - 100 CAD
+
+Minimum deposit amount in Crypto:
+
+All crypto - $5 equivalent
+
+============================================================
+SECTION: WHAT ARE THE WIRE METHODS SUPPORTED?
+==============================================================
+
+XBO.com currently supports:
+
+EUR via SEPA and Instant SEPA.
+USD via SWIFT and ACH.
+GBP via SWIFT and Faster Payments.
+
+We are constantly adding more solutions and currencies, so please continue to check for updates.
+
+============================================================
+SECTION: WHAT IS A WEB3 WALLET?
+==============================================================
+
+A Web3 wallet is a digital wallet that allows users to interact with decentralized applications (DApps) and manage digital assets on blockchain networks. Unlike traditional digital wallets, Web3 wallets are built for decentralized ecosystems, enabling direct access to blockchain-based services without the need for intermediaries like banks.
+
+How to connect your Web3 wallet (e.g., MetaMask, Trust Wallet) to XBO.com?
+
+Go to your XBO.com wallet.
+Click the 'Connect Web3 wallet' button.
+Follow the on-screen instructions to complete the connection.
+After confirming the connection in your Web3 wallet, return to XBO.com to securely deposit or withdraw crypto between your Web3 and XBO.com wallets.
+
+That's it! You're ready to start managing your crypto seamlessly across both wallets.
+
+How to deposit crypto from your Web3 wallet (e.g., MetaMask, Trust Wallet) to XBO.com?
+
+Go to your XBO.com wallet.
+Click Deposit Crypto.
+Select the cryptocurrency you want to transfer from your Web3 wallet to XBO.com.
+Click Deposit via Web3 Wallet.
+Enter the amount you want to deposit.
+Click Proceed and confirm the transaction in your selected Web3 wallet.
+Once the transaction is processed, your crypto will appear in your XBO.com wallet.
+
+Your funds are now securely deposited and ready to use!
+
+How to withdraw crypto to your Web3 wallet (e.g., MetaMask, Trust Wallet)?
+
+Go to your XBO.com wallet.
+Select the cryptocurrency you want to transfer from your XBO.com wallet to your Web3 wallet.
+Enter the amount you want to transfer.
+Choose the network for the transaction, ensuring it matches the network of your Web3 wallet to avoid any loss of funds.
+Click Send to Web3 wallet.
+Click Confirm to finalize the transaction.
+
+You can track the status in Transaction History. Once processed, the crypto will be transferred to your Web3 wallet.
+
+============================================================
+SECTION: HOW DO I CLOSE MY ACCOUNT?
+==============================================================
+
+To close your XBO.com account, please follow these simple steps:
+
+Make sure you have a zero balance in your account.
+If you have a positive balance, please go to your wallet and withdraw all your funds.
+Fill in the form below with your request to close your account and any additional information you wish to share.
+
+Once we receive and process your request, your account will be closed immediately. You will receive confirmation by email.
+
+Please note that once your account is closed, all your account data, transaction history, and settings will be permanently deleted.
+
+==============================================================
+END OF DOCUMENT
+==============================================================
