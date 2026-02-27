@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import XBO from '/XBO.svg';
-import ChatMessage from './ChatMessage'
+import ChatMessage from '../ChatMessage'
 import styles from './ChatWindow.module.css'
 
 export interface Message {

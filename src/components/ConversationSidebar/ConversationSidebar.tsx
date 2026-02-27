@@ -1,6 +1,6 @@
 import { HiOutlineTrash } from 'react-icons/hi'
 import { motion, AnimatePresence } from 'framer-motion'
-import type { ConversationSummary } from '../services/conversations'
+import type { ConversationSummary } from '../../services/conversations'
 import styles from './ConversationSidebar.module.css'
 
 interface ConversationSidebarProps {
