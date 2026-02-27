@@ -159,27 +159,17 @@ function AuthenticatedApp({
     setMessages([])
   }
 
-  const handleShare = useCallback(async () => {
+  const handleShare = useCallback(() => {
     if (!activeConversationId) return
-    try {
-      const url = await shareConversation(activeConversationId)
-      try {
-        await navigator.clipboard.writeText(url)
-      } catch {
-        // Fallback for iOS Safari where clipboard API fails after async
-        const textarea = document.createElement('textarea')
-        textarea.value = url
-        textarea.style.position = 'fixed'
-        textarea.style.opacity = '0'
-        document.body.appendChild(textarea)
-        textarea.select()
-        document.execCommand('copy')
-        document.body.removeChild(textarea)
-      }
-      showToast('Link copied to clipboard!')
-    } catch {
-      showToast('Failed to share conversation')
-    }
+    // Write clipboard synchronously within the gesture using ClipboardItem with
+    // a deferred blob promise — this preserves the user-gesture context on iOS Safari.
+    const textPromise = shareConversation(activeConversationId).then(
+      (url) => new Blob([url], { type: 'text/plain' }),
+    )
+    navigator.clipboard
+      .write([new ClipboardItem({ 'text/plain': textPromise })])
+      .then(() => showToast('Link copied to clipboard!'))
+      .catch(() => showToast('Failed to share conversation'))
   }, [activeConversationId, showToast])
 
   const handleDeleteConversation = async (id: string) => {
