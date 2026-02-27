@@ -74,10 +74,11 @@ export default function AuthForm() {
         )}
 
         <div className={styles.fieldGroup}>
-          <label className={styles.label}>
+          <label htmlFor="auth-email" className={styles.label}>
             Email
           </label>
           <input
+            id="auth-email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -87,10 +88,11 @@ export default function AuthForm() {
         </div>
 
         <div className={styles.fieldGroupLast}>
-          <label className={styles.label}>
+          <label htmlFor="auth-password" className={styles.label}>
             Password
           </label>
           <input
+            id="auth-password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
