@@ -12,10 +12,11 @@ export interface Message {
 interface ChatWindowProps {
   messages: Message[]
   isLoading: boolean
+  themeLabel?: string
   onOptionClick?: (messageId: string, option: string) => void
 }
 
-export default function ChatWindow({ messages, isLoading, onOptionClick }: ChatWindowProps) {
+export default function ChatWindow({ messages, isLoading, themeLabel, onOptionClick }: ChatWindowProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -48,7 +49,7 @@ export default function ChatWindow({ messages, isLoading, onOptionClick }: ChatW
           }}
         >
           <div style={{ fontSize: '40px' }}>💬</div>
-          <div>Ask me anything about CryptoPayX</div>
+          <div>Ask me anything about {themeLabel ?? 'CryptoPayX'}</div>
         </div>
       )}
 

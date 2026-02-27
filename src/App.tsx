@@ -381,7 +381,7 @@ function AuthenticatedApp({
             background: '#f9fafb',
           }}
         >
-          <ChatWindow messages={messages} isLoading={isLoading} onOptionClick={handleOptionClick} />
+          <ChatWindow messages={messages} isLoading={isLoading} themeLabel={THEMES[activeTheme].label} onOptionClick={handleOptionClick} />
         </div>
 
         {/* Input */}
