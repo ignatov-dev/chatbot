@@ -259,7 +259,25 @@
   flex-shrink: 0;
 }
 
+.mobile-pin-btn {
+  display: none;
+}
+
 @media (max-width: 768px) {
+  .mobile-pin-btn {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 4px;
+    border-radius: 4px;
+    color: #d1d5db;
+    cursor: pointer;
+  }
+
+  .mobile-pin-btn-active {
+    color: #4f2dd0;
+  }
+
   .sidebar {
     position: fixed;
     bottom: 0;
@@ -272,6 +290,7 @@
     border-right: none;
     border-top: 1px solid #e5e7eb;
     border-radius: 16px 16px 0 0;
+    padding-top: 12px;
     transform: translateY(100%);
     transition: transform 0.3s ease;
     box-shadow: none;
@@ -282,7 +301,11 @@
     box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
   }
 
-  .menu-trigger {
-    opacity: 1;
+  .menu-anchor {
+    display: none;
+  }
+
+  .pin-indicator {
+    display: none;
   }
 }

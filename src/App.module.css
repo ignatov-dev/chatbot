@@ -127,6 +127,12 @@
   background: #f9fafb;
 }
 
+@media (max-width: 768px) {
+  .header-theme-label {
+    display: none;
+  }
+}
+
 .toast {
   position: fixed;
   bottom: 24px;

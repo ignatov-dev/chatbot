@@ -102,7 +102,7 @@ export default function ConversationSidebar({
         </div>
       </div>
 
-      {/* 3-dot menu */}
+      {/* 3-dot menu (desktop) */}
       <div className={styles.menuAnchor}>
         <span
           role="button"
@@ -126,6 +126,21 @@ export default function ConversationSidebar({
           </svg>
         </span>
       </div>
+
+      {/* Pin toggle (mobile) */}
+      <span
+        role="button"
+        title={conv.is_pinned ? 'Unpin' : 'Pin'}
+        onClick={(e) => {
+          e.stopPropagation()
+          onPinConversation(conv.id, !conv.is_pinned)
+        }}
+        className={`${styles.mobilePinBtn}${conv.is_pinned ? ` ${styles.mobilePinBtnActive}` : ''}`}
+      >
+        <svg viewBox="0 0 24 24" width={16} height={16} fill="currentColor">
+          <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" />
+        </svg>
+      </span>
     </motion.button>
   )
 

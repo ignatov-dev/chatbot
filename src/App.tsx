@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import ChatWindow, { type Message } from './components/ChatWindow'
 import ChatInput from './components/ChatInput'
 import ConversationSidebar from './components/ConversationSidebar'
+import ConfirmDialog from './components/ConfirmDialog'
 import AuthForm from './components/AuthForm'
 import { useAuth } from './contexts/AuthContext'
 import { askClaude } from './services/chat';
@@ -120,6 +121,7 @@ function AuthenticatedApp({
   const skipFetchRef = useRef(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
   // Load conversations on mount and when theme changes
   useEffect(() => {
@@ -161,7 +163,19 @@ function AuthenticatedApp({
     if (!activeConversationId) return
     try {
       const url = await shareConversation(activeConversationId)
-      await navigator.clipboard.writeText(url)
+      try {
+        await navigator.clipboard.writeText(url)
+      } catch {
+        // Fallback for iOS Safari where clipboard API fails after async
+        const textarea = document.createElement('textarea')
+        textarea.value = url
+        textarea.style.position = 'fixed'
+        textarea.style.opacity = '0'
+        document.body.appendChild(textarea)
+        textarea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textarea)
+      }
       showToast('Link copied to clipboard!')
     } catch {
       showToast('Failed to share conversation')
@@ -276,7 +290,7 @@ function AuthenticatedApp({
         conversations={conversations}
         activeConversationId={activeConversationId}
         onSelectConversation={(id) => { setActiveConversationId(id); setSidebarOpen(false) }}
-        onDeleteConversation={handleDeleteConversation}
+        onDeleteConversation={(id) => setDeleteConfirmId(id)}
         onPinConversation={handlePinConversation}
         onSignOut={onSignOut}
         userEmail={user.email ?? ''}
@@ -291,7 +305,7 @@ function AuthenticatedApp({
             <img src={XBO} alt="" className={styles.logo} />
             <div className={styles.headerInfo}>
               <div className={styles.headerTitle}>
-                {THEMES[activeTheme].label} Assistant
+                <span className={styles.headerThemeLabel}>{THEMES[activeTheme].label} </span>Assistant
               </div>
               <div className={styles.statusRow}>
                 <span className={styles.statusDot} />
@@ -300,7 +314,7 @@ function AuthenticatedApp({
             </div>
             {activeConversationId && (
               <button
-                onClick={() => handleDeleteConversation(activeConversationId)}
+                onClick={() => setDeleteConfirmId(activeConversationId)}
                 aria-label="Delete conversation"
                 title="Delete conversation"
                 className={styles.deleteBtn}
@@ -354,6 +368,18 @@ function AuthenticatedApp({
         {/* Input */}
         <ChatInput onSend={handleSend} disabled={isLoading} placeholder={THEMES[activeTheme].label} />
       </main>
+
+      {deleteConfirmId && (
+        <ConfirmDialog
+          title="Delete conversation"
+          message="This conversation will be permanently deleted. This action cannot be undone."
+          onConfirm={() => {
+            handleDeleteConversation(deleteConfirmId)
+            setDeleteConfirmId(null)
+          }}
+          onCancel={() => setDeleteConfirmId(null)}
+        />
+      )}
 
       <AnimatePresence>
         {toast && (
