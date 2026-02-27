@@ -1,0 +1,72 @@
+.message-row {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.message-row-user {
+  justify-content: flex-end;
+}
+
+.message-row-assistant {
+  justify-content: flex-start;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+}
+
+.bubble {
+  max-width: 90%;
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  word-break: break-word;
+}
+
+.bubble-user {
+  border-radius: 18px 18px 4px 18px;
+  background: #4f2dd0;
+  color: #ffffff;
+}
+
+.bubble-assistant {
+  border-radius: 18px 18px 18px 4px;
+  background: #ffffff;
+  color: #111827;
+}
+
+.user-text {
+  white-space: pre-wrap;
+}
+
+.code-block {
+  margin: 8px 0;
+}
+
+.options-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.option-button {
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  background: #f3f4f6;
+  color: #111827;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.option-button:hover {
+  background: #4f2dd0;
+  color: #ffffff;
+  border-color: #4f2dd0;
+}

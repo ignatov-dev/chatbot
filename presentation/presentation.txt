@@ -1,0 +1,14 @@
+Scene 00 — Problem Statement (0:00 – 0:05)
+Your customers have dozens of questions scattered across countless documents. Finding the right answer takes time — time they don't have.
+
+Scene 01 — Opening (0:05 – 0:08)
+Meet the XBO AI Assistant — intelligent support powered by RAG technology.
+
+Scene 02 — Auth Flow (0:08 – 0:13)
+Getting started is simple. Sign in with your credentials, and you're ready to go.
+
+Scene 03 — Chat Demo (0:13 – 0:33)
+The sidebar keeps all your conversations organized by topic. Just type a question in natural language — like "How do I create a payment intent?" — and get a detailed, accurate answer pulled directly from your documentation. Need structured data? The assistant formats responses with tables and clear breakdowns. It even links to video tutorials when they're available.
+
+Scene 10 — Closing (0:33 – 0:37)
+XBO AI Assistant. Smarter support. Instant answers. Happy customers.

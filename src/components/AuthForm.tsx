@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import styles from './AuthForm.module.css'
 
 export default function AuthForm() {
   const { signIn, signUp, signInWithGoogle } = useAuth()
@@ -9,6 +10,7 @@ export default function AuthForm() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [confirmationSent, setConfirmationSent] = useState(false)
+  const [showGuide, setShowGuide] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,48 +32,18 @@ export default function AuthForm() {
   return (
     <>
       {confirmationSent ? (
-        <div
-          style={{
-            width: '100%',
-            maxWidth: '360px',
-            padding: window.innerWidth <= 768 ? '24px 20px' : '32px',
-            background: '#ffffff',
-            borderRadius: '12px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-            textAlign: 'center',
-          }}
-        >
-          <div
-            style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '50%',
-              background: '#d1fae5',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '24px',
-              marginBottom: '16px',
-            }}
-          >
+        <div className={styles.confirmationCard}>
+          <div className={styles.confirmationIcon}>
             ✉
           </div>
-          <h2 style={{ margin: 0, fontSize: '18px', color: '#111827' }}>Check your email</h2>
-          <p style={{ margin: '8px 0 24px', fontSize: '13px', color: '#6b7280', lineHeight: 1.5 }}>
+          <h2 className={styles.confirmationTitle}>Check your email</h2>
+          <p className={styles.confirmationText}>
             We sent a confirmation link to <strong>{email}</strong>. Click the link to activate your account.
           </p>
           <button
             type="button"
             onClick={() => { setConfirmationSent(false); setIsSignUp(false); setError(null) }}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#4f2dd0',
-              cursor: 'pointer',
-              fontWeight: 600,
-              fontSize: '13px',
-              padding: 0,
-            }}
+            className={styles.linkButton}
           >
             Back to Sign In
           </button>
@@ -79,66 +51,30 @@ export default function AuthForm() {
       ) : (
       <form
         onSubmit={handleSubmit}
-        style={{
-          width: '100%',
-          maxWidth: '360px',
-          padding: window.innerWidth <= 768 ? '24px 20px' : '32px',
-          background: '#ffffff',
-          borderRadius: '12px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-        }}
+        className={styles.formCard}
       >
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <div
-            style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '50%',
-              background: '#4f2dd0',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#fff',
-              fontWeight: 700,
-              fontSize: '20px',
-              marginBottom: '12px',
-            }}
-          >
-            X
-          </div>
-          <h2 style={{ margin: 0, fontSize: '18px', color: '#111827' }}>
+        <div className={styles.formHeader}>
+          <img
+            src="/XBO.svg"
+            alt="XBO"
+            className={styles.formLogo}
+          />
+          <h2 className={styles.formTitle}>
             {isSignUp ? 'Create an account' : 'Welcome back'}
           </h2>
-          <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#6b7280' }}>
+          <p className={styles.formSubtitle}>
             {isSignUp ? 'Sign up to start chatting' : 'Sign in to continue'}
           </p>
         </div>
 
         {error && (
-          <div
-            style={{
-              padding: '8px 12px',
-              marginBottom: '16px',
-              background: '#fef2f2',
-              color: '#dc2626',
-              borderRadius: '8px',
-              fontSize: '13px',
-            }}
-          >
+          <div className={styles.errorBox}>
             {error}
           </div>
         )}
 
-        <div style={{ marginBottom: '12px' }}>
-          <label
-            style={{
-              display: 'block',
-              fontSize: '13px',
-              fontWeight: 500,
-              color: '#374151',
-              marginBottom: '4px',
-            }}
-          >
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>
             Email
           </label>
           <input
@@ -146,28 +82,12 @@ export default function AuthForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            style={{
-              width: '100%',
-              padding: '8px 12px',
-              border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              fontSize: '14px',
-              outline: 'none',
-              boxSizing: 'border-box',
-            }}
+            className={styles.input}
           />
         </div>
 
-        <div style={{ marginBottom: '20px' }}>
-          <label
-            style={{
-              display: 'block',
-              fontSize: '13px',
-              fontWeight: 500,
-              color: '#374151',
-              marginBottom: '4px',
-            }}
-          >
+        <div className={styles.fieldGroupLast}>
+          <label className={styles.label}>
             Password
           </label>
           <input
@@ -176,40 +96,22 @@ export default function AuthForm() {
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={6}
-            style={{
-              width: '100%',
-              padding: '8px 12px',
-              border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              fontSize: '14px',
-              outline: 'none',
-              boxSizing: 'border-box',
-            }}
+            className={styles.input}
           />
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          style={{
-            width: '100%',
-            padding: '10px',
-            background: loading ? '#9b8ad8' : '#4f2dd0',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: 600,
-            cursor: loading ? 'not-allowed' : 'pointer',
-          }}
+          className={styles.submitButton}
         >
           {loading ? 'Please wait...' : isSignUp ? 'Sign Up' : 'Sign In'}
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '16px 0' }}>
-          <div style={{ flex: 1, height: '1px', background: '#e5e7eb' }} />
-          <span style={{ fontSize: '12px', color: '#9ca3af' }}>or</span>
-          <div style={{ flex: 1, height: '1px', background: '#e5e7eb' }} />
+        <div className={styles.divider}>
+          <div className={styles.dividerLine} />
+          <span className={styles.dividerText}>or</span>
+          <div className={styles.dividerLine} />
         </div>
 
         <button
@@ -219,21 +121,7 @@ export default function AuthForm() {
             setError(null)
             signInWithGoogle()
           }}
-          style={{
-            width: '100%',
-            padding: '10px',
-            background: '#ffffff',
-            color: '#374151',
-            border: '1px solid #d1d5db',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: 500,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-          }}
+          className={styles.googleButton}
         >
           <svg width="18" height="18" viewBox="0 0 48 48">
             <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -244,33 +132,67 @@ export default function AuthForm() {
           Continue with Google
         </button>
 
-        <p style={{ textAlign: 'center', fontSize: '13px', color: '#6b7280', marginTop: '16px' }}>
+        <p className={styles.toggleText}>
           {isSignUp ? 'Already have an account? ' : "Don't have an account? "}
           <button
             type="button"
             onClick={() => { setIsSignUp(!isSignUp); setError(null) }}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#4f2dd0',
-              cursor: 'pointer',
-              fontWeight: 600,
-              fontSize: '13px',
-              padding: 0,
-            }}
+            className={styles.linkButton}
           >
             {isSignUp ? 'Sign In' : 'Sign Up'}
           </button>
         </p>
 
-        <p style={{ textAlign: 'center', fontSize: '11px', color: '#9ca3af', marginTop: '16px', lineHeight: 1.5 }}>
+        <p className={styles.termsText}>
           By continuing, you agree to our{' '}
-          <a href="/privacy" style={{ color: '#6b7280', textDecoration: 'underline' }}>Privacy Policy</a>
+          <a href="/privacy" className={styles.termsLink}>Privacy Policy</a>
           {' '}and{' '}
-          <a href="/terms" style={{ color: '#6b7280', textDecoration: 'underline' }}>Terms of Service</a>.
+          <a href="/terms" className={styles.termsLink}>Terms of Service</a>.
         </p>
+
+        <button
+          type="button"
+          onClick={() => setShowGuide(true)}
+          className={styles.guideButton}
+        >
+          Guide Tour
+        </button>
       </form>
       )}
+
+      {showGuide && <GuideModal onClose={() => setShowGuide(false)} />}
     </>
+  )
+}
+
+function GuideModal({ onClose }: { onClose: () => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handleKey)
+    videoRef.current?.play().catch(() => {})
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [onClose])
+
+  return (
+    <div
+      onClick={onClose}
+      className={styles.modalOverlay}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className={styles.modalContent}
+      >
+        <video
+          ref={videoRef}
+          src="/xbo-presentation-hq.mp4"
+          controls
+          className={styles.modalVideo}
+        />
+      </div>
+    </div>
   )
 }

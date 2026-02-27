@@ -1,0 +1,23 @@
+{
+  "name": "xbo-chatbot-presentation",
+  "private": true,
+  "scripts": {
+    "start": "npx remotion studio",
+    "build": "npx remotion render src/index.ts XBOPresentation out/xbo-presentation.mp4",
+    "build:hq": "npx remotion render src/index.ts XBOPresentation out/xbo-presentation-hq.mp4 --codec h264 --crf 18 --image-format png"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.248",
+    "@remotion/google-fonts": "4.0.248",
+    "@remotion/transitions": "4.0.248",
+    "@remotion/media-utils": "4.0.248",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "remotion": "4.0.248"
+  },
+  "devDependencies": {
+    "@remotion/bundler": "4.0.248",
+    "@types/react": "^19.1.0",
+    "typescript": "~5.8.3"
+  }
+}

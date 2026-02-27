@@ -7,6 +7,7 @@ import { useAuth } from './contexts/AuthContext'
 import { HiMiniPencilSquare } from 'react-icons/hi2'
 import { askClaude } from './services/chat';
 import XBO from '/XBO.svg';
+import styles from './App.module.css'
 import {
   fetchConversations,
   createConversation,
@@ -66,17 +67,7 @@ export default function App() {
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100%',
-          background: '#ffffff',
-          color: '#6b7280',
-          fontSize: '14px',
-        }}
-      >
+      <div className={styles.loading}>
         Loading...
       </div>
     )
@@ -260,54 +251,17 @@ function AuthenticatedApp({
         isLoading={isLoadingConversations}
       />
 
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-          background: '#ffffff',
-          overflow: 'hidden',
-        }}
-      >
+      <div className={styles.mainColumn}>
         {/* Header */}
-        <div
-          style={{
-            borderBottom: '1px solid #e5e7eb',
-            background: '#ffffff',
-          }}
-        >
-          <div
-            style={{
-              padding: '16px 20px 12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-            }}
-          >
-            <img src={XBO} alt="" style={{ width: '32px', height: '32px' }} />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600, fontSize: '15px', color: '#111827' }}>
+        <div className={styles.header}>
+          <div className={styles.headerRow}>
+            <img src={XBO} alt="" className={styles.logo} />
+            <div className={styles.headerInfo}>
+              <div className={styles.headerTitle}>
                 {THEMES[activeTheme].label} Assistant
               </div>
-              <div
-                style={{
-                  fontSize: '12px',
-                  color: '#6b7280',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                }}
-              >
-                <span
-                  style={{
-                    width: '7px',
-                    height: '7px',
-                    borderRadius: '50%',
-                    background: '#22c55e',
-                    display: 'inline-block',
-                  }}
-                />
+              <div className={styles.statusRow}>
+                <span className={styles.statusDot} />
                 Online
               </div>
             </div>
@@ -315,19 +269,7 @@ function AuthenticatedApp({
               <button
                 onClick={handleNewConversation}
                 aria-label="New chat"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '36px',
-                  height: '36px',
-                  border: 'none',
-                  background: '#f3f4f6',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  flexShrink: 0,
-                  color: '#374151',
-                }}
+                className={styles.newChatBtn}
               >
                 <HiMiniPencilSquare size={18} />
               </button>
@@ -338,32 +280,12 @@ function AuthenticatedApp({
           </div>
 
           {/* Theme tabs */}
-          <div
-            className="theme-tabs"
-            style={{
-              display: 'flex',
-              gap: '4px',
-              padding: '0 16px 0',
-            }}
-          >
+          <div className={`${styles.themeTabs} theme-tabs`}>
             {THEMES.map((theme, i) => (
               <button
                 key={theme.label}
                 onClick={() => handleThemeChange(i)}
-                style={{
-                  padding: '6px 16px',
-                  fontSize: '13px',
-                  fontWeight: i === activeTheme ? 600 : 400,
-                  border: 'none',
-                  borderBottom: i === activeTheme ? '2px solid #4f2dd0' : '2px solid transparent',
-                  background: 'transparent',
-                  color: i === activeTheme ? '#4f2dd0' : '#6b7280',
-                  cursor: 'pointer',
-                  borderRadius: '0',
-                  transition: 'color 0.15s, border-color 0.15s',
-                  marginBottom: '-1px',
-                  whiteSpace: 'nowrap' as const,
-                }}
+                className={`${styles.themeTab}${i === activeTheme ? ` ${styles.themeTabActive}` : ''}`}
               >
                 {theme.label}
               </button>
@@ -372,15 +294,7 @@ function AuthenticatedApp({
         </div>
 
         {/* Messages */}
-        <div
-          style={{
-            flex: 1,
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            background: '#f9fafb',
-          }}
-        >
+        <div className={styles.messagesArea}>
           <ChatWindow messages={messages} isLoading={isLoading} themeLabel={THEMES[activeTheme].label} onOptionClick={handleOptionClick} />
         </div>
 

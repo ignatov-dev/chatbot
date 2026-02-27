@@ -3,6 +3,7 @@ import { marked } from 'marked'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { stackoverflowLight } from 'react-syntax-highlighter/dist/esm/styles/hljs'
 import XBO from '/XBO.svg';
+import styles from './ChatMessage.module.css'
 
 interface ChatMessageProps {
   role: 'user' | 'assistant'
@@ -55,37 +56,19 @@ export default function ChatMessage({ role, content, options, onOptionClick }: C
   }, [content, isUser])
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: isUser ? 'flex-end' : 'flex-start',
-        marginBottom: '12px',
-      }}
-    >
+    <div className={`${styles.messageRow} ${isUser ? styles.messageRowUser : styles.messageRowAssistant}`}>
       {!isUser && (
-          <img src={XBO} alt="" style={{ width: '32px', height: '32px' }} />
+          <img src={XBO} alt="" className={styles.avatar} />
       )}
-      <div
-        style={{
-          maxWidth: '90%',
-          padding: '10px 14px',
-          borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-          background: isUser ? '#4f2dd0' : '#ffffff',
-          color: isUser ? '#ffffff' : '#111827',
-          fontSize: '14px',
-          lineHeight: '1.5',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
-          wordBreak: 'break-word',
-        }}
-      >
+      <div className={`${styles.bubble} ${isUser ? styles.bubbleUser : styles.bubbleAssistant}`}>
         {isUser ? (
-          <span style={{ whiteSpace: 'pre-wrap' }}>{content}</span>
+          <span className={styles.userText}>{content}</span>
         ) : (
           <>
             <div className="md">
               {parts.map((part, i) =>
                 part.type === 'code' ? (
-                  <div key={i} style={{ margin: '8px 0' }}>
+                  <div key={i} className={styles.codeBlock}>
                     <SyntaxHighlighter language={part.language} style={stackoverflowLight}>
                       {part.value}
                     </SyntaxHighlighter>
@@ -99,33 +82,12 @@ export default function ChatMessage({ role, content, options, onOptionClick }: C
               )}
             </div>
             {options && options.length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' }}>
+              <div className={styles.optionsRow}>
                 {options.map((option) => (
                   <button
                     key={option}
                     onClick={() => onOptionClick?.(option)}
-                    style={{
-                      padding: '6px 14px',
-                      fontSize: '13px',
-                      fontWeight: 500,
-                      fontFamily: 'inherit',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '18px',
-                      background: '#f3f4f6',
-                      color: '#111827',
-                      cursor: 'pointer',
-                      transition: 'background 0.15s, color 0.15s',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = '#4f2dd0'
-                      e.currentTarget.style.color = '#ffffff'
-                      e.currentTarget.style.borderColor = '#4f2dd0'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = '#f3f4f6'
-                      e.currentTarget.style.color = '#111827'
-                      e.currentTarget.style.borderColor = '#e5e7eb'
-                    }}
+                    className={styles.optionButton}
                   >
                     {option}
                   </button>

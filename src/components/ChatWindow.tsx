@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import XBO from '/XBO.svg';
 import ChatMessage from './ChatMessage'
+import styles from './ChatWindow.module.css'
 
 export interface Message {
   id: string
@@ -27,99 +29,59 @@ export default function ChatWindow({ messages, isLoading, themeLabel, onOptionCl
   return (
     <div
       ref={containerRef}
-      style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: window.innerWidth <= 768 ? '12px 10px' : '20px 16px',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
+      className={styles.container}
     >
       {messages.length === 0 && (
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#9ca3af',
-            fontSize: '14px',
-            gap: '8px',
-          }}
-        >
-          <div style={{ fontSize: '40px' }}>💬</div>
+        <div className={styles.emptyState}>
+          <div className={styles.emptyEmoji}>💬</div>
           <div>Ask me anything about {themeLabel ?? 'CryptoPayX'}</div>
         </div>
       )}
 
-      {messages.map((msg) => (
-        <ChatMessage
-          key={msg.id}
-          role={msg.role}
-          content={msg.content}
-          options={msg.options}
-          onOptionClick={onOptionClick ? (option: string) => onOptionClick(msg.id, option) : undefined}
-        />
-      ))}
+      <AnimatePresence initial={false}>
+        {messages.map((msg) => (
+          <motion.div
+            key={msg.id}
+            initial={{ opacity: 0, y: 12, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
+            <ChatMessage
+              role={msg.role}
+              content={msg.content}
+              options={msg.options}
+              onOptionClick={onOptionClick ? (option: string) => onOptionClick(msg.id, option) : undefined}
+            />
+          </motion.div>
+        ))}
 
-      {isLoading && (
-        <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '12px' }}>
-          <div
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              background: '#4f2dd0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '14px',
-              color: '#fff',
-              flexShrink: 0,
-              marginRight: '8px',
-              alignSelf: 'flex-end',
-            }}
+        {isLoading && (
+          <motion.div
+            key="typing-indicator"
+            initial={{ opacity: 0, y: 8, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className={styles.typingRow}
           >
-            <img src={XBO} alt="" style={{ width: '32px', height: '32px' }} />
-          </div>
-          <div
-            style={{
-              padding: '10px 16px',
-              borderRadius: '18px 18px 18px 4px',
-              background: '#ffffff',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
-              display: 'flex',
-              gap: '4px',
-              alignItems: 'center',
-            }}
-          >
-            {[0, 1, 2].map((i) => (
-              <span
-                key={i}
-                style={{
-                  width: '7px',
-                  height: '7px',
-                  borderRadius: '50%',
-                  background: '#9ca3af',
-                  display: 'inline-block',
-                  animation: 'bounce 1.2s infinite',
-                  animationDelay: `${i * 0.2}s`,
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+            <div className={styles.typingAvatar}>
+              <img src={XBO} alt="" className={styles.typingAvatarImg} />
+            </div>
+            <div className={styles.typingBubble}>
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  className={styles.typingDot}
+                  style={{ animationDelay: `${i * 0.2}s` }}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div />
 
-      <style>{`
-        @keyframes bounce {
-          0%, 60%, 100% { transform: translateY(0); }
-          30% { transform: translateY(-6px); }
-        }
-      `}</style>
     </div>
   )
 }
