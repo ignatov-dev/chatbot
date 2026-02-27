@@ -6,6 +6,7 @@ export interface ConversationSummary {
   source: string
   updated_at: string
   is_shared?: boolean
+  is_pinned: boolean
 }
 
 export interface DbMessage {
@@ -18,7 +19,7 @@ export interface DbMessage {
 export async function fetchConversations(sources?: string[]): Promise<ConversationSummary[]> {
   let query = supabase
     .from('conversations')
-    .select('id, title, source, updated_at, is_shared')
+    .select('id, title, source, updated_at, is_shared, is_pinned')
     .order('updated_at', { ascending: false })
   if (sources?.length) query = query.in('source', sources)
   const { data, error } = await query
@@ -70,6 +71,14 @@ export async function deleteConversation(id: string): Promise<void> {
   const { error } = await supabase
     .from('conversations')
     .delete()
+    .eq('id', id)
+  if (error) throw error
+}
+
+export async function pinConversation(id: string, pinned: boolean): Promise<void> {
+  const { error } = await supabase
+    .from('conversations')
+    .update({ is_pinned: pinned })
     .eq('id', id)
   if (error) throw error
 }

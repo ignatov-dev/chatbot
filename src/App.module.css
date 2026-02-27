@@ -74,6 +74,24 @@
   color: #374151;
 }
 
+.delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(220, 38, 38, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: #dc2626;
+}
+
+.delete-btn:hover {
+  background: rgba(220, 38, 38, 0.18);
+}
+
 .theme-tabs {
   display: flex;
   gap: 4px;

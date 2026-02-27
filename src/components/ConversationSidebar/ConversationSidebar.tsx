@@ -1,3 +1,4 @@
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { ConversationSummary } from '../../services/conversations'
 import styles from './ConversationSidebar.module.css'
@@ -7,6 +8,7 @@ interface ConversationSidebarProps {
   activeConversationId: string | null
   onSelectConversation: (id: string) => void
   onDeleteConversation: (id: string) => void
+  onPinConversation: (id: string, pinned: boolean) => void
   onSignOut: () => void
   userEmail: string
   isOpen?: boolean
@@ -30,17 +32,146 @@ export default function ConversationSidebar({
   activeConversationId,
   onSelectConversation,
   onDeleteConversation,
+  onPinConversation,
   onSignOut,
   userEmail,
   isOpen,
   isLoading,
 }: ConversationSidebarProps) {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null)
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
+
+  // Close dropdown on click outside or scroll
+  useEffect(() => {
+    if (!menuOpenId) return
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpenId(null)
+      }
+    }
+    const handleScroll = () => setMenuOpenId(null)
+    const listEl = listRef.current
+    document.addEventListener('mousedown', handleClick)
+    listEl?.addEventListener('scroll', handleScroll)
+    return () => {
+      document.removeEventListener('mousedown', handleClick)
+      listEl?.removeEventListener('scroll', handleScroll)
+    }
+  }, [menuOpenId])
+
+  const filteredConversations = useMemo(() => {
+    if (!searchQuery.trim()) return conversations
+    const q = searchQuery.toLowerCase()
+    return conversations.filter((c) => c.title.toLowerCase().includes(q))
+  }, [conversations, searchQuery])
+
+  const pinned = useMemo(
+    () => filteredConversations.filter((c) => c.is_pinned),
+    [filteredConversations],
+  )
+  const unpinned = useMemo(
+    () => filteredConversations.filter((c) => !c.is_pinned),
+    [filteredConversations],
+  )
+
+  const renderConversation = (conv: ConversationSummary) => (
+    <motion.button
+      key={conv.id}
+      layout
+      animate={{ opacity: 1, height: 'auto', y: 0 }}
+      transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+      onClick={() => onSelectConversation(conv.id)}
+      className={`${styles.conversationButton}${conv.id === activeConversationId ? ` ${styles.conversationButtonActive}` : ''}`}
+    >
+      <div className={styles.conversationText}>
+        <div
+          className={`${styles.conversationTitle}${conv.id === activeConversationId ? ` ${styles.conversationTitleActive}` : ''}`}
+        >
+          {conv.is_pinned && (
+            <svg className={styles.pinIndicator} viewBox="0 0 24 24" width={12} height={12} fill="currentColor">
+              <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" />
+            </svg>
+          )}
+          {conv.title}
+        </div>
+        <div className={styles.conversationTime}>
+          {timeAgo(conv.updated_at)}
+        </div>
+      </div>
+
+      {/* 3-dot menu */}
+      <div className={styles.menuAnchor}>
+        <span
+          role="button"
+          title="Options"
+          onClick={(e) => {
+            e.stopPropagation()
+            if (menuOpenId === conv.id) {
+              setMenuOpenId(null)
+            } else {
+              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+              setMenuPos({ top: rect.top, left: rect.right - 140 })
+              setMenuOpenId(conv.id)
+            }
+          }}
+          className={styles.menuTrigger}
+        >
+          <svg viewBox="0 0 24 24" width={18} height={18} fill="currentColor">
+            <circle cx="12" cy="5" r="1.5" />
+            <circle cx="12" cy="12" r="1.5" />
+            <circle cx="12" cy="19" r="1.5" />
+          </svg>
+        </span>
+      </div>
+    </motion.button>
+  )
+
   return (
     <div
       className={`${styles.sidebar}${isOpen ? ` ${styles.sidebarOpen}` : ''}`}
     >
-      {/* Conversation list */}
-      <div className={styles.conversationList}>
+      {/* Search */}
+      {!isLoading && conversations.length > 0 && (
+        <div className={styles.searchWrapper}>
+          <svg className={styles.searchIcon} viewBox="0 0 20 20" width={14} height={14} fill="currentColor">
+            <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+          </svg>
+          <input
+            type="text"
+            className={styles.searchInput}
+            placeholder="Search conversations..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button
+              className={styles.searchClear}
+              onClick={() => setSearchQuery('')}
+              aria-label="Clear search"
+            >
+              <svg viewBox="0 0 20 20" width={12} height={12} fill="currentColor">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Pinned group (non-scrolling) */}
+      {pinned.length > 0 && (
+        <div className={styles.pinnedSection}>
+          <AnimatePresence initial={false}>
+            {pinned.map(renderConversation)}
+          </AnimatePresence>
+          {unpinned.length > 0 && <div className={styles.divider} />}
+        </div>
+      )}
+
+      {/* Conversation list (scrollable) */}
+      <div className={styles.conversationList} ref={listRef}>
         {isLoading && conversations.length === 0 && (
           <>
             {[0, 1, 2, 3, 4].map((i) => (
@@ -65,39 +196,57 @@ export default function ConversationSidebar({
             No conversations yet
           </p>
         )}
+        {!isLoading && conversations.length > 0 && filteredConversations.length === 0 && (
+          <p className={styles.emptyText}>
+            No conversations found
+          </p>
+        )}
+
+        {/* Unpinned group */}
         <AnimatePresence initial={false}>
-          {conversations.map((conv) => (
-            <motion.button
-              key={conv.id}
-              animate={{ opacity: 1, height: 'auto', y: 0 }}
-              exit={{ opacity: 0, height: 0, y: -8 }}
-              transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-              onClick={() => onSelectConversation(conv.id)}
-              className={`${styles.conversationButton}${conv.id === activeConversationId ? ` ${styles.conversationButtonActive}` : ''}`}
-            >
-              <div className={styles.conversationText}>
-                <div
-                  className={`${styles.conversationTitle}${conv.id === activeConversationId ? ` ${styles.conversationTitleActive}` : ''}`}
-                >
-                  {conv.title}
-                </div>
-                <div className={styles.conversationTime}>
-                  {timeAgo(conv.updated_at)}
-                </div>
-              </div>
-              <span
-                data-delete
-                role="button"
-                title="Delete conversation"
-                onClick={(e) => { e.stopPropagation(); onDeleteConversation(conv.id) }}
-                className={styles.deleteIcon}
-              >
-                <svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-              </span>
-            </motion.button>
-          ))}
+          {unpinned.map(renderConversation)}
         </AnimatePresence>
       </div>
+
+      {/* Fixed dropdown (rendered outside scroll container to avoid clipping) */}
+      {menuOpenId && menuPos && (() => {
+        const conv = conversations.find((c) => c.id === menuOpenId)
+        if (!conv) return null
+        return (
+          <div
+            ref={menuRef}
+            className={styles.dropdown}
+            style={{ top: menuPos.top, left: menuPos.left }}
+          >
+            <button
+              className={styles.dropdownItem}
+              onClick={(e) => {
+                e.stopPropagation()
+                onPinConversation(conv.id, !conv.is_pinned)
+                setMenuOpenId(null)
+              }}
+            >
+              <svg viewBox="0 0 24 24" width={14} height={14} fill="currentColor">
+                <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" />
+              </svg>
+              {conv.is_pinned ? 'Unpin' : 'Pin'}
+            </button>
+            <button
+              className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`}
+              onClick={(e) => {
+                e.stopPropagation()
+                onDeleteConversation(conv.id)
+                setMenuOpenId(null)
+              }}
+            >
+              <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete
+            </button>
+          </div>
+        )
+      })()}
 
       {/* User info + sign out */}
       <div className={styles.userFooter}>

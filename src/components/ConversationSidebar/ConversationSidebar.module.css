@@ -7,6 +7,63 @@
   flex-shrink: 0;
 }
 
+.search-wrapper {
+  padding: 8px 8px 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 18px;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 7px 28px 7px 30px;
+  font-size: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+  color: #111827;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+.search-input:focus {
+  border-color: #4f2dd0;
+}
+
+.search-clear {
+  position: absolute;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border: none;
+  background: none;
+  color: #9ca3af;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.search-clear:hover {
+  color: #6b7280;
+}
+
+.pinned-section {
+  flex-shrink: 0;
+  padding: 8px 8px 0;
+}
+
 .conversation-list {
   flex: 1;
   overflow-y: auto;
@@ -100,21 +157,76 @@
   margin-top: 2px;
 }
 
-.delete-icon {
+.pin-indicator {
+  display: inline-block;
+  vertical-align: -1px;
+  margin-right: 4px;
   color: #9ca3af;
-  font-size: 14px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  opacity: 0;
-  transition: opacity 0.15s, color 0.15s;
 }
 
-.conversation-button:hover .delete-icon {
+.divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 4px 12px;
+}
+
+.menu-anchor {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.menu-trigger {
+  display: flex;
+  align-items: center;
+  color: #9ca3af;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.conversation-button:hover .menu-trigger {
   opacity: 1;
 }
 
-.delete-icon:hover {
+.menu-trigger:hover {
+  color: #6b7280;
+}
+
+.dropdown {
+  position: fixed;
+  transform: translateY(-100%);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1100;
+  min-width: 140px;
+  padding: 4px;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dropdown-item:hover {
+  background: #f3f4f6;
+}
+
+.dropdown-item-danger:hover {
+  background: #fef2f2;
   color: #dc2626;
 }
 
@@ -170,7 +282,7 @@
     box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
   }
 
-  .delete-icon {
+  .menu-trigger {
     opacity: 1;
   }
 }
