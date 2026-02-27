@@ -12,6 +12,15 @@ export default function AuthForm() {
   const [confirmationSent, setConfirmationSent] = useState(false)
   const [showGuide, setShowGuide] = useState(false)
 
+  useEffect(() => {
+    const link = document.createElement('link')
+    link.rel = 'prefetch'
+    link.as = 'video'
+    link.href = '/xbo-presentation-hq.mp4'
+    document.head.appendChild(link)
+    return () => { document.head.removeChild(link) }
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -191,7 +200,6 @@ function GuideModal({ onClose }: { onClose: () => void }) {
         <video
           ref={videoRef}
           src="/xbo-presentation-hq.mp4"
-          controls
           className={styles.modalVideo}
         />
       </div>
