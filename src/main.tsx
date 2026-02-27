@@ -1,13 +1,25 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import App from './App.tsx'
 import { AuthProvider } from './contexts/AuthContext.tsx'
+import SharedConversationView from './components/SharedConversationView'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <AuthProvider>
+              <App />
+            </AuthProvider>
+          }
+        />
+        <Route path="/conversation/:id" element={<SharedConversationView />} />
+      </Routes>
+    </BrowserRouter>
   </StrictMode>,
 )

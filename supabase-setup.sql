@@ -50,7 +50,25 @@ CREATE POLICY "Users can CRUD own messages"
     )
   );
 
--- 6. Performance indexes
+-- 6. Share feature: allow public read access to shared conversations
+ALTER TABLE conversations ADD COLUMN is_shared boolean NOT NULL DEFAULT false;
+CREATE INDEX idx_conversations_shared ON conversations(id) WHERE is_shared = true;
+
+CREATE POLICY "Anyone can read shared conversations"
+  ON conversations FOR SELECT
+  USING (is_shared = true);
+
+CREATE POLICY "Anyone can read messages of shared conversations"
+  ON messages FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM conversations
+      WHERE conversations.id = messages.conversation_id
+      AND conversations.is_shared = true
+    )
+  );
+
+-- 7. Performance indexes
 CREATE INDEX idx_conversations_user_id ON conversations(user_id, updated_at DESC);
 CREATE INDEX idx_messages_conversation_id ON messages(conversation_id, created_at);
 

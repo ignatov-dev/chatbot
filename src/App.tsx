@@ -7,12 +7,14 @@ import { useAuth } from './contexts/AuthContext'
 import { askClaude } from './services/chat';
 import XBO from '/XBO.svg';
 import styles from './App.module.css'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   fetchConversations,
   createConversation,
   fetchMessages,
   saveMessage,
   deleteConversation,
+  shareConversation,
   type ConversationSummary,
 } from './services/conversations'
 
@@ -116,6 +118,7 @@ function AuthenticatedApp({
   const [isLoadingConversations, setIsLoadingConversations] = useState(true)
   const skipFetchRef = useRef(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
 
   // Load conversations on mount and when theme changes
   useEffect(() => {
@@ -143,10 +146,26 @@ function AuthenticatedApp({
       .catch(console.error)
   }, [activeConversationId])
 
+  const showToast = useCallback((msg: string) => {
+    setToast(msg)
+    setTimeout(() => setToast(null), 2500)
+  }, [])
+
   const handleNewConversation = () => {
     setActiveConversationId(null)
     setMessages([])
   }
+
+  const handleShare = useCallback(async () => {
+    if (!activeConversationId) return
+    try {
+      const url = await shareConversation(activeConversationId)
+      await navigator.clipboard.writeText(url)
+      showToast('Link copied to clipboard!')
+    } catch {
+      showToast('Failed to share conversation')
+    }
+  }, [activeConversationId, showToast])
 
   const handleDeleteConversation = async (id: string) => {
     await deleteConversation(id)
@@ -264,6 +283,16 @@ function AuthenticatedApp({
                 Online
               </div>
             </div>
+            {activeConversationId && (
+              <button
+                onClick={handleShare}
+                aria-label="Share conversation"
+                title="Share conversation"
+                className={styles.newChatBtn}
+              >
+                <svg viewBox="0 0 20 20" width={18} height={18} fill="currentColor" aria-hidden="true"><path d="M12.232 4.232a2.5 2.5 0 0 1 3.536 3.536l-1.225 1.224a.75.75 0 0 0 1.061 1.06l1.224-1.224a4 4 0 0 0-5.656-5.656l-3 3a4 4 0 0 0 .225 5.865.75.75 0 0 0 .977-1.138 2.5 2.5 0 0 1-.142-3.667l3-3Z" /><path d="M11.603 7.963a.75.75 0 0 0-.977 1.138 2.5 2.5 0 0 1 .142 3.667l-3 3a2.5 2.5 0 0 1-3.536-3.536l1.225-1.224a.75.75 0 0 0-1.061-1.06l-1.224 1.224a4 4 0 1 0 5.656 5.656l3-3a4 4 0 0 0-.225-5.865Z" /></svg>
+              </button>
+            )}
             {(activeConversationId || messages.length > 0) && (
               <button
                 onClick={handleNewConversation}
@@ -300,6 +329,19 @@ function AuthenticatedApp({
         {/* Input */}
         <ChatInput onSend={handleSend} disabled={isLoading} placeholder={THEMES[activeTheme].label} />
       </main>
+
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className={styles.toast}
+          >
+            {toast}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }

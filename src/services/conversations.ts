@@ -5,6 +5,7 @@ export interface ConversationSummary {
   title: string
   source: string
   updated_at: string
+  is_shared?: boolean
 }
 
 export interface DbMessage {
@@ -17,7 +18,7 @@ export interface DbMessage {
 export async function fetchConversations(sources?: string[]): Promise<ConversationSummary[]> {
   let query = supabase
     .from('conversations')
-    .select('id, title, source, updated_at')
+    .select('id, title, source, updated_at, is_shared')
     .order('updated_at', { ascending: false })
   if (sources?.length) query = query.in('source', sources)
   const { data, error } = await query
@@ -71,4 +72,36 @@ export async function deleteConversation(id: string): Promise<void> {
     .delete()
     .eq('id', id)
   if (error) throw error
+}
+
+export async function shareConversation(id: string): Promise<string> {
+  const { error } = await supabase
+    .from('conversations')
+    .update({ is_shared: true })
+    .eq('id', id)
+  if (error) throw error
+  return `${window.location.origin}/conversation/${id}`
+}
+
+export async function fetchSharedConversation(id: string): Promise<{
+  conversation: { id: string; title: string; source: string; created_at: string }
+  messages: DbMessage[]
+} | null> {
+  const { data: conversation, error: convError } = await supabase
+    .from('conversations')
+    .select('id, title, source, created_at')
+    .eq('id', id)
+    .eq('is_shared', true)
+    .single()
+
+  if (convError || !conversation) return null
+
+  const { data: messages, error: msgError } = await supabase
+    .from('messages')
+    .select('id, role, content, created_at')
+    .eq('conversation_id', id)
+    .order('created_at', { ascending: true })
+
+  if (msgError) throw msgError
+  return { conversation, messages: (messages ?? []) as DbMessage[] }
 }
