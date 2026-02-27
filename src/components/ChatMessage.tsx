@@ -7,6 +7,8 @@ import XBO from '/XBO.svg';
 interface ChatMessageProps {
   role: 'user' | 'assistant'
   content: string
+  options?: string[]
+  onOptionClick?: (option: string) => void
 }
 
 marked.setOptions({ breaks: true })
@@ -43,7 +45,7 @@ function parseContent(html: string): Array<{ type: 'html'; value: string } | { t
   return parts
 }
 
-export default function ChatMessage({ role, content }: ChatMessageProps) {
+export default function ChatMessage({ role, content, options, onOptionClick }: ChatMessageProps) {
   const isUser = role === 'user'
 
   const parts = useMemo(() => {
@@ -79,22 +81,58 @@ export default function ChatMessage({ role, content }: ChatMessageProps) {
         {isUser ? (
           <span style={{ whiteSpace: 'pre-wrap' }}>{content}</span>
         ) : (
-          <div className="md">
-            {parts.map((part, i) =>
-              part.type === 'code' ? (
-                <div key={i} style={{ margin: '8px 0' }}>
-                  <SyntaxHighlighter language={part.language} style={stackoverflowLight}>
-                    {part.value}
-                  </SyntaxHighlighter>
-                </div>
-              ) : (
-                <div
-                  key={i}
-                  dangerouslySetInnerHTML={{ __html: part.value }}
-                />
-              )
+          <>
+            <div className="md">
+              {parts.map((part, i) =>
+                part.type === 'code' ? (
+                  <div key={i} style={{ margin: '8px 0' }}>
+                    <SyntaxHighlighter language={part.language} style={stackoverflowLight}>
+                      {part.value}
+                    </SyntaxHighlighter>
+                  </div>
+                ) : (
+                  <div
+                    key={i}
+                    dangerouslySetInnerHTML={{ __html: part.value }}
+                  />
+                )
+              )}
+            </div>
+            {options && options.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' }}>
+                {options.map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => onOptionClick?.(option)}
+                    style={{
+                      padding: '6px 14px',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      fontFamily: 'inherit',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '18px',
+                      background: '#f3f4f6',
+                      color: '#111827',
+                      cursor: 'pointer',
+                      transition: 'background 0.15s, color 0.15s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#4f2dd0'
+                      e.currentTarget.style.color = '#ffffff'
+                      e.currentTarget.style.borderColor = '#4f2dd0'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = '#f3f4f6'
+                      e.currentTarget.style.color = '#111827'
+                      e.currentTarget.style.borderColor = '#e5e7eb'
+                    }}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
             )}
-          </div>
+          </>
         )}
       </div>
     </div>

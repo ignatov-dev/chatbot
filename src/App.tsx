@@ -17,13 +17,10 @@ import {
 } from './services/conversations'
 
 const THEMES = [
-  // { label: 'XBO Token', sources: ['xbo-token-guide.pdf'] },
-  // { label: 'XBO CryptoPay', sources: ['xbo-cryptopay-guide.pdf'] },
   { label: 'CryptoPayX', sources: ['cryptopayx_api_documentation.txt'] },
   { label: 'Deposit & Withdrawal', sources: ['deposit-and-withdrawals.txt'] },
-  { label: 'Vefification', sources: ['verification.txt'] },
+  { label: 'Verification', sources: ['verification.txt'] },
   { label: 'Loyalty Program', sources: ['loyalty-program.txt'] },
-  // { label: 'All Products', sources: ['xbo-token-guide.pdf', 'xbo-cryptopay-guide.pdf'] },
 ]
 
 export default function App() {
@@ -139,16 +136,17 @@ function AuthenticatedApp({
 
       try {
         const history = messages.map(({ role, content }) => ({ role, content }))
-        const answer = await askClaude(userText, THEMES[activeTheme].sources, history)
+        const response = await askClaude(userText, THEMES[activeTheme].sources, history)
         const assistantMsg: Message = {
           id: `a-${Date.now()}`,
           role: 'assistant',
-          content: answer,
+          content: response.answer,
+          options: response.options,
         }
         setMessages((prev) => [...prev, assistantMsg])
 
-        // Persist assistant message
-        saveMessage(convId, 'assistant', answer).catch(console.error)
+        // Persist assistant message (text only, options are transient)
+        saveMessage(convId, 'assistant', response.answer).catch(console.error)
       } catch (err) {
         console.error('Chat error:', err)
         setMessages((prev) => [
@@ -167,6 +165,20 @@ function AuthenticatedApp({
       fetchConversations(THEMES[activeTheme].sources).then(setConversations).catch(console.error)
     },
     [activeConversationId, activeTheme],
+  )
+
+  const handleOptionClick = useCallback(
+    (messageId: string, option: string) => {
+      // Remove pills from the message
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === messageId ? { ...msg, options: undefined } : msg,
+        ),
+      )
+      // Send the selected option as a user message
+      handleSend(option)
+    },
+    [handleSend],
   )
 
   return (
@@ -303,7 +315,7 @@ function AuthenticatedApp({
             background: '#f9fafb',
           }}
         >
-          <ChatWindow messages={messages} isLoading={isLoading} />
+          <ChatWindow messages={messages} isLoading={isLoading} onOptionClick={handleOptionClick} />
         </div>
 
         {/* Input */}

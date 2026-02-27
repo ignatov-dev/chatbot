@@ -2,11 +2,16 @@ import { supabase } from '../lib/supabase'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string
 
+export interface ChatResponse {
+  answer: string
+  options?: string[]
+}
+
 export async function askClaude(
   question: string,
   sources?: string[],
   history?: Array<{ role: 'user' | 'assistant'; content: string }>,
-): Promise<string> {
+): Promise<ChatResponse> {
   const { data: { session } } = await supabase.auth.getSession()
 
   const res = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
@@ -24,6 +29,6 @@ export async function askClaude(
     throw new Error((err as { error?: string }).error ?? 'Request failed')
   }
 
-  const data = (await res.json()) as { answer: string }
-  return data.answer
+  const data = (await res.json()) as ChatResponse
+  return data
 }

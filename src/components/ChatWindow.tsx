@@ -1,19 +1,21 @@
 import { useEffect, useRef } from 'react'
-import { RiRobot2Line } from 'react-icons/ri'
+import XBO from '/XBO.svg';
 import ChatMessage from './ChatMessage'
 
 export interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
+  options?: string[]
 }
 
 interface ChatWindowProps {
   messages: Message[]
   isLoading: boolean
+  onOptionClick?: (messageId: string, option: string) => void
 }
 
-export default function ChatWindow({ messages, isLoading }: ChatWindowProps) {
+export default function ChatWindow({ messages, isLoading, onOptionClick }: ChatWindowProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -51,7 +53,13 @@ export default function ChatWindow({ messages, isLoading }: ChatWindowProps) {
       )}
 
       {messages.map((msg) => (
-        <ChatMessage key={msg.id} role={msg.role} content={msg.content} />
+        <ChatMessage
+          key={msg.id}
+          role={msg.role}
+          content={msg.content}
+          options={msg.options}
+          onOptionClick={onOptionClick ? (option: string) => onOptionClick(msg.id, option) : undefined}
+        />
       ))}
 
       {isLoading && (
@@ -72,7 +80,7 @@ export default function ChatWindow({ messages, isLoading }: ChatWindowProps) {
               alignSelf: 'flex-end',
             }}
           >
-            <RiRobot2Line size={18} />
+            <img src={XBO} alt="" style={{ width: '32px', height: '32px' }} />
           </div>
           <div
             style={{
