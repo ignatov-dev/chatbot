@@ -367,18 +367,19 @@ function AuthenticatedApp({
             </button>
           </div>
 
-          {/* Theme tabs */}
-          <div className={`${styles.themeTabs} theme-tabs`}>
-            {THEMES.map((theme, i) => (
-              <button
-                key={theme.label}
-                onClick={() => handleThemeChange(i)}
-                className={`${styles.themeTab}${i === activeTheme ? ` ${styles.themeTabActive}` : ''}`}
-              >
-                {theme.label}
-              </button>
-            ))}
-          </div>
+        </div>
+
+        {/* Theme tabs */}
+        <div className={`${styles.themeTabs} theme-tabs`}>
+          {THEMES.map((theme, i) => (
+            <button
+              key={theme.label}
+              onClick={() => handleThemeChange(i)}
+              className={`${styles.themeTab}${i === activeTheme ? ` ${styles.themeTabActive}` : ''}`}
+            >
+              {theme.label}
+            </button>
+          ))}
         </div>
 
         {/* Messages */}
