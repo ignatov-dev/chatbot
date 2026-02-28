@@ -231,14 +231,14 @@
   border: none;
   border-radius: 6px;
   background: none;
-  color: #4f2dd0;
+  color: rgb(105 150 213);
   cursor: pointer;
   transition: background 0.15s;
   flex-shrink: 0;
 }
 
 .save-btn:hover:not(:disabled) {
-  background: rgba(79, 45, 208, 0.1);
+  background: rgb(174 205 249 / 27%);
 }
 
 .save-btn:disabled {
@@ -284,12 +284,11 @@
 }
 
 .perm-pill-active {
-  background: rgba(79, 45, 208, 0.12);
-  color: #4f2dd0;
+  background: rgb(174 205 249 / 27%);
 }
 
 .perm-pill-active:hover {
-  background: rgba(79, 45, 208, 0.2);
+  background: rgb(174 205 249 / 57%);
 }
 
 .disabled-col {
