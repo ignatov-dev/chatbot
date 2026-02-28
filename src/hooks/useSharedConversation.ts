@@ -1,7 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { fetchSharedConversation, type DbMessage } from '../services/conversations'
+import {
+  checkSharedLinkStatus,
+  getOrCreateFingerprint,
+  submitAccessRequest,
+} from '../services/accessRequests'
 import { supabase } from '../lib/supabase'
 import { playNotificationSound } from '../utils/notificationSound'
+
+export type LinkStatus = 'loading' | 'active' | 'expired' | 'not_found'
 
 export function useSharedConversation(id: string | undefined) {
   const [loading, setLoading] = useState(true)
@@ -9,25 +16,38 @@ export function useSharedConversation(id: string | undefined) {
   const [messages, setMessages] = useState<DbMessage[]>([])
   const [notFound, setNotFound] = useState(false)
   const [expiresAt, setExpiresAt] = useState<string | null>(null)
+  const [linkStatus, setLinkStatus] = useState<LinkStatus>('loading')
+  const [requestSent, setRequestSent] = useState(() => {
+    if (!id) return false
+    return localStorage.getItem(`access_requested_${id}`) === 'true'
+  })
+  const [requestLoading, setRequestLoading] = useState(false)
 
   // Fetch initial conversation data
   useEffect(() => {
     if (!id) {
       setNotFound(true)
+      setLinkStatus('not_found')
       setLoading(false)
       return
     }
     fetchSharedConversation(id)
-      .then((result) => {
+      .then(async (result) => {
         if (!result) {
+          const status = await checkSharedLinkStatus(id)
+          setLinkStatus(status)
           setNotFound(true)
         } else {
           setTitle(result.conversation.title)
           setMessages(result.messages)
           setExpiresAt(result.conversation.shared_expires_at)
+          setLinkStatus('active')
         }
       })
-      .catch(() => setNotFound(true))
+      .catch(() => {
+        setNotFound(true)
+        setLinkStatus('not_found')
+      })
       .finally(() => setLoading(false))
   }, [id])
 
@@ -38,10 +58,14 @@ export function useSharedConversation(id: string | undefined) {
     const ms = new Date(expiresAt).getTime() - Date.now()
     if (ms <= 0) {
       setNotFound(true)
+      setLinkStatus('expired')
       return
     }
 
-    const timer = setTimeout(() => setNotFound(true), ms)
+    const timer = setTimeout(() => {
+      setNotFound(true)
+      setLinkStatus('expired')
+    }, ms)
     return () => clearTimeout(timer)
   }, [expiresAt])
 
@@ -53,6 +77,7 @@ export function useSharedConversation(id: string | undefined) {
     channel
       .on('broadcast', { event: 'revoked' }, () => {
         setNotFound(true)
+        setLinkStatus('not_found')
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
@@ -64,6 +89,34 @@ export function useSharedConversation(id: string | undefined) {
       supabase.removeChannel(channel)
     }
   }, [id, notFound])
+
+  // Listen for access_restored when link is expired (separate channel, no presence)
+  useEffect(() => {
+    if (!id || linkStatus !== 'expired') return
+
+    const channel = supabase.channel(`restore:${id}`)
+    channel
+      .on('broadcast', { event: 'access_restored' }, () => {
+        fetchSharedConversation(id).then((result) => {
+          if (result) {
+            setTitle(result.conversation.title)
+            setMessages(result.messages)
+            setExpiresAt(result.conversation.shared_expires_at)
+            setLinkStatus('active')
+            setNotFound(false)
+            // Clear request state so viewer can request again if it expires again
+            localStorage.removeItem(`access_requested_${id}`)
+            localStorage.removeItem(`access_fp_${id}`)
+            setRequestSent(false)
+          }
+        })
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [id, linkStatus])
 
   // Subscribe to new messages in real-time
   useEffect(() => {
@@ -95,5 +148,29 @@ export function useSharedConversation(id: string | undefined) {
     }
   }, [id, notFound])
 
-  return { loading, title, messages, notFound }
+  const requestAccess = useCallback(async () => {
+    if (!id || requestSent || requestLoading) return
+    setRequestLoading(true)
+    try {
+      const fingerprint = getOrCreateFingerprint(id)
+      const result = await submitAccessRequest(id, fingerprint)
+      if (result.success || result.alreadyRequested) {
+        localStorage.setItem(`access_requested_${id}`, 'true')
+        setRequestSent(true)
+      }
+    } finally {
+      setRequestLoading(false)
+    }
+  }, [id, requestSent, requestLoading])
+
+  return {
+    loading,
+    title,
+    messages,
+    notFound,
+    linkStatus,
+    requestSent,
+    requestLoading,
+    requestAccess,
+  }
 }

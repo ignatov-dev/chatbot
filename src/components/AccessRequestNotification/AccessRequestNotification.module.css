@@ -1,0 +1,91 @@
+.notification {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 8px 14px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+}
+
+.message {
+  font-size: 13px;
+  color: #374151;
+  line-height: 1;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.duration-picker {
+  display: flex;
+  gap: 4px;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+}
+
+.duration-btn {
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid #e5e7eb;
+  border-radius: 5px;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.duration-btn:hover {
+  border-color: #4f2dd0;
+  color: #4f2dd0;
+}
+
+.duration-btn-active {
+  background: #f3f0ff;
+  border-color: #4f2dd0;
+  color: #4f2dd0;
+}
+
+.deny-btn {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  background: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.deny-btn:hover {
+  background: rgba(220, 38, 38, 0.18);
+}
+
+.allow-btn {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  background: rgba(22, 163, 74, 0.1);
+  color: #16a34a;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.allow-btn:hover {
+  background: rgba(22, 163, 74, 0.18);
+}

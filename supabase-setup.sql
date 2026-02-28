@@ -92,3 +92,83 @@ CREATE TRIGGER on_message_insert
   AFTER INSERT ON messages
   FOR EACH ROW
   EXECUTE FUNCTION update_conversation_timestamp();
+
+-- 8. Access requests for expired shared link restoration
+CREATE TABLE access_requests (
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  conversation_id uuid NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+  fingerprint     text NOT NULL,
+  status          text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'denied')),
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  resolved_at     timestamptz
+);
+
+CREATE INDEX idx_access_requests_pending ON access_requests(conversation_id) WHERE status = 'pending';
+CREATE UNIQUE INDEX idx_access_requests_unique_pending ON access_requests(conversation_id, fingerprint) WHERE status = 'pending';
+ALTER TABLE access_requests ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anon can insert access request"
+  ON access_requests FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM conversations c
+      WHERE c.id = conversation_id
+        AND c.is_shared = true
+    )
+  );
+
+CREATE POLICY "Owner can read access requests"
+  ON access_requests FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM conversations c
+      WHERE c.id = conversation_id AND c.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Owner can update access requests"
+  ON access_requests FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM conversations c
+      WHERE c.id = conversation_id AND c.user_id = auth.uid()
+    )
+  );
+
+-- Function to submit access request (bypasses RLS for cross-table validation)
+CREATE OR REPLACE FUNCTION submit_access_request(p_conversation_id uuid, p_fingerprint text)
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM conversations WHERE id = p_conversation_id AND is_shared = true
+  ) THEN
+    RETURN jsonb_build_object('success', false, 'error', 'not_found');
+  END IF;
+
+  INSERT INTO access_requests (conversation_id, fingerprint)
+  VALUES (p_conversation_id, p_fingerprint);
+
+  RETURN jsonb_build_object('success', true);
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN jsonb_build_object('success', false, 'error', 'already_requested');
+END; $$;
+
+GRANT EXECUTE ON FUNCTION submit_access_request(uuid, text) TO anon, authenticated;
+
+-- Function to check share link status without exposing conversation data
+CREATE OR REPLACE FUNCTION check_shared_link_status(p_conversation_id uuid)
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE v_is_shared boolean; v_expires_at timestamptz;
+BEGIN
+  SELECT is_shared, shared_expires_at INTO v_is_shared, v_expires_at
+    FROM conversations WHERE id = p_conversation_id;
+  IF NOT FOUND THEN RETURN jsonb_build_object('status', 'not_found'); END IF;
+  IF NOT v_is_shared THEN RETURN jsonb_build_object('status', 'not_found'); END IF;
+  IF v_expires_at IS NOT NULL AND v_expires_at <= now() THEN RETURN jsonb_build_object('status', 'expired'); END IF;
+  RETURN jsonb_build_object('status', 'active');
+END; $$;
+
+GRANT EXECUTE ON FUNCTION check_shared_link_status(uuid) TO anon, authenticated;
+
+ALTER PUBLICATION supabase_realtime ADD TABLE access_requests;

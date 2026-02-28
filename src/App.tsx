@@ -4,7 +4,9 @@ import ChatInput from './components/ChatInput'
 import ConversationSidebar from './components/ConversationSidebar'
 import ConfirmDialog from './components/ConfirmDialog'
 import ShareDialog from './components/ShareDialog'
+import AccessRequestNotification from './components/AccessRequestNotification/AccessRequestNotification'
 import { useSharedViewers } from './hooks/useSharedViewers'
+import { useAccessRequestNotifications } from './hooks/useAccessRequestNotifications'
 import AuthForm from './components/AuthForm'
 import { useAuth } from './contexts/AuthContext'
 import { askClaude } from './services/chat';
@@ -127,6 +129,7 @@ function AuthenticatedApp({
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [showShareDialog, setShowShareDialog] = useState(false)
   const { hasViewers, revoke: revokeViewers } = useSharedViewers(activeConversationId)
+  const { notifications: accessRequests, approve: approveRequest, deny: denyRequest } = useAccessRequestNotifications(user.id)
 
   // Load conversations on mount and when theme changes
   useEffect(() => {
@@ -424,6 +427,25 @@ function AuthenticatedApp({
           </motion.div>
         )}
       </AnimatePresence>
+
+      <div className={styles.accessRequestStack}>
+        <AnimatePresence>
+          {accessRequests.map((req) => (
+            <motion.div
+              key={req.id}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <AccessRequestNotification
+                conversationTitle={req.conversationTitle}
+                onApprove={(hours) => approveRequest(req.conversationId, hours)}
+                onDeny={() => denyRequest(req.id)}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
     </>
   )
 }

@@ -8,7 +8,16 @@ import styles from './SharedConversationView.module.css'
 
 export default function SharedConversationView() {
   const { id } = useParams<{ id: string }>()
-  const { loading, title, messages, notFound } = useSharedConversation(id)
+  const {
+    loading,
+    title,
+    messages,
+    notFound,
+    linkStatus,
+    requestSent,
+    requestLoading,
+    requestAccess,
+  } = useSharedConversation(id)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -35,6 +44,40 @@ export default function SharedConversationView() {
   }
 
   if (notFound) {
+    if (linkStatus === 'expired') {
+      return (
+        <div className={styles.shell}>
+          <div className={styles.header}>
+            <img src={XBO} alt="" className={styles.logo} />
+            <div className={styles.headerInfo}>
+              <div className={styles.headerTitle}>Link expired</div>
+            </div>
+          </div>
+          <div className={styles.notFound}>
+            <div className={styles.notFoundIcon}>&#9203;</div>
+            <p className={styles.notFoundText}>This share link has expired.</p>
+            {requestSent ? (
+              <p className={styles.requestSentText}>
+                Access request sent.<br />
+                You'll see the conversation here if the owner restores access.
+              </p>
+            ) : (
+              <button
+                className={styles.requestAccessBtn}
+                onClick={requestAccess}
+                disabled={requestLoading}
+              >
+                {requestLoading ? 'Sending...' : 'Request access'}
+              </button>
+            )}
+            <a href="/" className={styles.ctaLink}>
+              Start your own conversation
+            </a>
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div className={styles.shell}>
         <div className={styles.header}>

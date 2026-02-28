@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import styles from './ShareDialog.module.css'
 
 const EXPIRATION_OPTIONS: { label: string; hours?: number }[] = [
+  ...(import.meta.env.DEV ? [{ label: '5 minutes', hours: 5 / 60 }] : []),
   { label: '1 hour', hours: 1 },
   { label: '12 hours', hours: 12 },
   { label: '24 hours', hours: 24 },
