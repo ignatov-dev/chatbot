@@ -83,22 +83,37 @@ export async function pinConversation(id: string, pinned: boolean): Promise<void
   if (error) throw error
 }
 
-export async function shareConversation(id: string): Promise<string> {
+export async function unshareConversation(id: string): Promise<void> {
   const { error } = await supabase
     .from('conversations')
-    .update({ is_shared: true })
+    .update({ is_shared: false, shared_expires_at: null })
+    .eq('id', id)
+  if (error) throw error
+}
+
+export async function shareConversation(
+  id: string,
+  expiresInHours?: number,
+): Promise<string> {
+  const shared_expires_at = expiresInHours
+    ? new Date(Date.now() + expiresInHours * 60 * 60 * 1000).toISOString()
+    : null
+
+  const { error } = await supabase
+    .from('conversations')
+    .update({ is_shared: true, shared_expires_at })
     .eq('id', id)
   if (error) throw error
   return `${window.location.origin}/conversation/${id}`
 }
 
 export async function fetchSharedConversation(id: string): Promise<{
-  conversation: { id: string; title: string; source: string; created_at: string }
+  conversation: { id: string; title: string; source: string; created_at: string; shared_expires_at: string | null }
   messages: DbMessage[]
 } | null> {
   const { data: conversation, error: convError } = await supabase
     .from('conversations')
-    .select('id, title, source, created_at')
+    .select('id, title, source, created_at, shared_expires_at')
     .eq('id', id)
     .eq('is_shared', true)
     .single()

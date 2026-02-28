@@ -92,6 +92,24 @@
   background: rgba(220, 38, 38, 0.18);
 }
 
+.share-active-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(22, 163, 74, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: #16a34a;
+}
+
+.share-active-btn:hover {
+  background: rgba(22, 163, 74, 0.18);
+}
+
 .theme-tabs {
   display: flex;
   gap: 4px;

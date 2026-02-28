@@ -3,6 +3,8 @@ import ChatWindow, { type Message } from './components/ChatWindow'
 import ChatInput from './components/ChatInput'
 import ConversationSidebar from './components/ConversationSidebar'
 import ConfirmDialog from './components/ConfirmDialog'
+import ShareDialog from './components/ShareDialog'
+import { useSharedViewers } from './hooks/useSharedViewers'
 import AuthForm from './components/AuthForm'
 import { useAuth } from './contexts/AuthContext'
 import { askClaude } from './services/chat';
@@ -17,6 +19,7 @@ import {
   deleteConversation,
   pinConversation,
   shareConversation,
+  unshareConversation,
   type ConversationSummary,
 } from './services/conversations'
 
@@ -122,6 +125,8 @@ function AuthenticatedApp({
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
+  const [showShareDialog, setShowShareDialog] = useState(false)
+  const { hasViewers, revoke: revokeViewers } = useSharedViewers(activeConversationId)
 
   // Load conversations on mount and when theme changes
   useEffect(() => {
@@ -159,18 +164,44 @@ function AuthenticatedApp({
     setMessages([])
   }
 
-  const handleShare = useCallback(() => {
+  const handleShareClick = useCallback(() => {
     if (!activeConversationId) return
+    setShowShareDialog(true)
+  }, [activeConversationId])
+
+  const handleShareSelect = useCallback((hours?: number) => {
+    if (!activeConversationId) return
+    setShowShareDialog(false)
     // Write clipboard synchronously within the gesture using ClipboardItem with
     // a deferred blob promise — this preserves the user-gesture context on iOS Safari.
-    const textPromise = shareConversation(activeConversationId).then(
-      (url) => new Blob([url], { type: 'text/plain' }),
+    const textPromise = shareConversation(activeConversationId, hours).then(
+      (url) => {
+        setConversations((prev) =>
+          prev.map((c) => c.id === activeConversationId ? { ...c, is_shared: true } : c),
+        )
+        return new Blob([url], { type: 'text/plain' })
+      },
     )
     navigator.clipboard
       .write([new ClipboardItem({ 'text/plain': textPromise })])
       .then(() => showToast('Link copied to clipboard!'))
       .catch(() => showToast('Failed to share conversation'))
   }, [activeConversationId, showToast])
+
+  const handleRevoke = useCallback(async () => {
+    if (!activeConversationId) return
+    setShowShareDialog(false)
+    try {
+      await unshareConversation(activeConversationId)
+      await revokeViewers()
+      setConversations((prev) =>
+        prev.map((c) => c.id === activeConversationId ? { ...c, is_shared: false } : c),
+      )
+      showToast('Share link revoked')
+    } catch {
+      showToast('Failed to revoke share link')
+    }
+  }, [activeConversationId, showToast, revokeViewers])
 
   const handleDeleteConversation = async (id: string) => {
     await deleteConversation(id)
@@ -314,10 +345,10 @@ function AuthenticatedApp({
             )}
             {activeConversationId && (
               <button
-                onClick={handleShare}
+                onClick={handleShareClick}
                 aria-label="Share conversation"
-                title="Share conversation"
-                className={styles.newChatBtn}
+                title={hasViewers ? 'Someone is viewing this conversation' : 'Share conversation'}
+                className={hasViewers ? styles.shareActiveBtn : styles.newChatBtn}
               >
                 <svg viewBox="0 0 20 20" width={18} height={18} fill="currentColor" aria-hidden="true"><path d="M12.232 4.232a2.5 2.5 0 0 1 3.536 3.536l-1.225 1.224a.75.75 0 0 0 1.061 1.06l1.224-1.224a4 4 0 0 0-5.656-5.656l-3 3a4 4 0 0 0 .225 5.865.75.75 0 0 0 .977-1.138 2.5 2.5 0 0 1-.142-3.667l3-3Z" /><path d="M11.603 7.963a.75.75 0 0 0-.977 1.138 2.5 2.5 0 0 1 .142 3.667l-3 3a2.5 2.5 0 0 1-3.536-3.536l1.225-1.224a.75.75 0 0 0-1.061-1.06l-1.224 1.224a4 4 0 1 0 5.656 5.656l3-3a4 4 0 0 0-.225-5.865Z" /></svg>
               </button>
@@ -368,6 +399,15 @@ function AuthenticatedApp({
             setDeleteConfirmId(null)
           }}
           onCancel={() => setDeleteConfirmId(null)}
+        />
+      )}
+
+      {showShareDialog && (
+        <ShareDialog
+          isShared={conversations.find((c) => c.id === activeConversationId)?.is_shared ?? false}
+          onSelect={handleShareSelect}
+          onRevoke={handleRevoke}
+          onCancel={() => setShowShareDialog(false)}
         />
       )}
 

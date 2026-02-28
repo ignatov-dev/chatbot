@@ -1,0 +1,127 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialog {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.message {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.option-btn {
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.option-btn:hover {
+  background: #f3f0ff;
+  border-color: #4f2dd0;
+  color: #4f2dd0;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.revoke-btn {
+  padding: 7px 16px;
+  font-size: 13px;
+  border: none;
+  border-radius: 8px;
+  background: #dc2626;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.revoke-btn:hover {
+  background: #b91c1c;
+}
+
+.cancel-btn {
+  padding: 7px 16px;
+  font-size: 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+}
+
+.cancel-btn:hover {
+  background: #f3f4f6;
+}
+
+@media (max-width: 768px) {
+  .overlay {
+    align-items: flex-end;
+  }
+
+  .dialog {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 16px 16px 0 0;
+    padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+  }
+
+  .options {
+    gap: 8px;
+  }
+
+  .option-btn {
+    padding: 14px 16px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+
+  .revoke-btn,
+  .cancel-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}

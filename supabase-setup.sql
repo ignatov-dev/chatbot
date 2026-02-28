@@ -54,9 +54,15 @@ CREATE POLICY "Users can CRUD own messages"
 ALTER TABLE conversations ADD COLUMN is_shared boolean NOT NULL DEFAULT false;
 CREATE INDEX idx_conversations_shared ON conversations(id) WHERE is_shared = true;
 
+-- 8. Share link expiration support
+ALTER TABLE conversations ADD COLUMN shared_expires_at timestamptz DEFAULT NULL;
+
 CREATE POLICY "Anyone can read shared conversations"
   ON conversations FOR SELECT
-  USING (is_shared = true);
+  USING (
+    is_shared = true
+    AND (shared_expires_at IS NULL OR shared_expires_at > now())
+  );
 
 CREATE POLICY "Anyone can read messages of shared conversations"
   ON messages FOR SELECT
@@ -65,6 +71,7 @@ CREATE POLICY "Anyone can read messages of shared conversations"
       SELECT 1 FROM conversations
       WHERE conversations.id = messages.conversation_id
       AND conversations.is_shared = true
+      AND (conversations.shared_expires_at IS NULL OR conversations.shared_expires_at > now())
     )
   );
 

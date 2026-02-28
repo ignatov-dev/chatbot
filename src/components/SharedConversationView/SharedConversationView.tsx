@@ -46,7 +46,7 @@ export default function SharedConversationView() {
         <div className={styles.notFound}>
           <div className={styles.notFoundIcon}>🔗</div>
           <p className={styles.notFoundText}>
-            This conversation doesn't exist or is no longer shared.
+            This conversation doesn't exist, is no longer shared, or the share link has expired.
           </p>
           <a href="/" className={styles.ctaLink}>
             Start your own conversation
