@@ -11,13 +11,20 @@ const EXPIRATION_OPTIONS: { label: string; hours?: number }[] = [
 
 interface ShareDialogProps {
   isShared: boolean
+  maxShareHours: number | null
   onSelect: (hours?: number) => void
   onRevoke: () => void
   onCancel: () => void
 }
 
-export default function ShareDialog({ isShared, onSelect, onRevoke, onCancel }: ShareDialogProps) {
+export default function ShareDialog({ isShared, maxShareHours, onSelect, onRevoke, onCancel }: ShareDialogProps) {
   const overlayRef = useRef<HTMLDivElement>(null)
+
+  const options = EXPIRATION_OPTIONS.filter((opt) => {
+    if (maxShareHours === null) return true
+    if (opt.hours === undefined) return false
+    return opt.hours <= maxShareHours
+  })
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -39,7 +46,7 @@ export default function ShareDialog({ isShared, onSelect, onRevoke, onCancel }: 
           Choose how long the share link should remain active:
         </div>
         <div className={styles.options}>
-          {EXPIRATION_OPTIONS.map((opt) => (
+          {options.map((opt) => (
             <button
               key={opt.label}
               className={styles.optionBtn}

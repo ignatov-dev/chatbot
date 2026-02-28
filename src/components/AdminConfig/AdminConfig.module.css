@@ -8,53 +8,97 @@
 }
 
 .header {
-  padding: 16px 20px 12px;
+  padding: 8px 16px 0;
   display: flex;
-  align-items: center;
-  gap: 12px;
+  align-items: stretch;
+  gap: 4px;
   border-bottom: 1px solid #e5e7eb;
+  position: relative;
 }
 
 .back-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border: none;
-  background: #f3f4f6;
+  background: transparent;
   border-radius: 8px;
   cursor: pointer;
   flex-shrink: 0;
-  color: #374151;
-  transition: background 0.15s;
+  color: #6b7280;
+  transition: background 0.15s, color 0.15s;
+  align-self: center;
 }
 
 .back-btn:hover {
-  background: #e5e7eb;
+  background: #f3f4f6;
+  color: #111827;
 }
 
-.title {
-  font-size: 15px;
-  font-weight: 600;
+.config-tabs {
+  display: flex;
+  gap: 0;
+  flex: 1;
+}
+
+.config-tab {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 400;
+  border: 1px solid transparent;
+  border-bottom: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+  position: relative;
+}
+
+.config-tab:hover {
+  background: #f9fafb;
   color: #111827;
-  margin: 0;
+}
+
+.config-tab-active {
+  color: #111827;
+  background: #f9fafb;
+  border-color: #e5e7eb;
+  border-bottom: 1px solid #f9fafb;
+  margin-bottom: -1px;
+  z-index: 1;
+}
+
+.config-tab-active::before,
+.config-tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  width: 8px;
+  height: 8px;
+  pointer-events: none;
+}
+
+.config-tab-active::before {
+  left: -8px;
+  background: radial-gradient(circle at 0 0, transparent 7px, #e5e7eb 7px, #e5e7eb 8px, #f9fafb 8px);
+}
+
+.config-tab-active::after {
+  right: -8px;
+  background: radial-gradient(circle at 100% 0, transparent 7px, #e5e7eb 7px, #e5e7eb 8px, #f9fafb 8px);
 }
 
 .content {
   flex: 1;
   overflow-y: auto;
   padding: 20px;
+  background-color: #f9fafb;
 }
 
-.section-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0 0 12px;
-}
 
 .loading-state,
 .error-state,
@@ -92,6 +136,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.you-tag {
+  font-size: 11px;
+  font-weight: 500;
+  color: #9ca3af;
+  background: #f3f4f6;
+  padding: 1px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
 }
 
 .role-tabs {
@@ -117,7 +174,8 @@
 }
 
 .role-tab:disabled {
-  cursor: default;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .role-tab-active {
@@ -133,8 +191,108 @@
   opacity: 1;
 }
 
-@media (max-width: 768px) {
-  .content {
-    padding: 16px;
-  }
+
+.perm-columns {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+}
+
+.perm-column {
+  flex: 1;
+  min-width: 0;
+  background: #f9fafb;
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.perm-col-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.perm-col-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.save-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: #4f2dd0;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.save-btn:hover:not(:disabled) {
+  background: rgba(79, 45, 208, 0.1);
+}
+
+.save-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.perm-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.perm-group-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.perm-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.perm-pill {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 8px;
+  background: #e5e7eb;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.perm-pill:hover {
+  background: #d1d5db;
+}
+
+.perm-pill-active {
+  background: rgba(79, 45, 208, 0.12);
+  color: #4f2dd0;
+}
+
+.perm-pill-active:hover {
+  background: rgba(79, 45, 208, 0.2);
+}
+
+.disabled-col {
+  opacity: 0.5;
+  pointer-events: none;
 }

@@ -11,16 +11,24 @@ const DURATION_OPTIONS: { label: string; hours?: number }[] = [
 
 interface AccessRequestNotificationProps {
   conversationTitle: string
+  maxShareHours: number | null
   onApprove: (hours?: number) => void
   onDeny: () => void
 }
 
 export default function AccessRequestNotification({
   conversationTitle,
+  maxShareHours,
   onApprove,
   onDeny,
 }: AccessRequestNotificationProps) {
   const [selectedHours, setSelectedHours] = useState<number | undefined>(undefined)
+
+  const options = DURATION_OPTIONS.filter((opt) => {
+    if (maxShareHours === null) return true
+    if (opt.hours === undefined) return false
+    return opt.hours <= maxShareHours
+  })
 
   return (
     <div className={styles.notification}>
@@ -29,7 +37,7 @@ export default function AccessRequestNotification({
       </span>
       <div className={styles.right}>
         <div className={styles.durationPicker}>
-          {DURATION_OPTIONS.map((opt) => (
+          {options.map((opt) => (
             <button
               key={opt.label}
               className={`${styles.durationBtn} ${selectedHours === opt.hours ? styles.durationBtnActive : ''}`}

@@ -2,12 +2,19 @@ import { createContext, useContext, useEffect, useState, useCallback, type React
 import { supabase } from '../lib/supabase'
 import type { User, Session } from '@supabase/supabase-js'
 import { fetchUsers, type AdminUser } from '../services/adminUsers'
+import { fetchAllPermissions, type RolePermission } from '../services/permissions'
 
 interface AuthContextType {
   user: User | null
   session: Session | null
   loading: boolean
   isAdmin: boolean
+  userRole: string | null
+  allowedSources: string[]
+  maxShareHours: number | null
+  canEditPermissions: boolean
+  allPermissions: RolePermission[]
+  refetchPermissions: () => void
   adminUsers: AdminUser[]
   adminUsersLoading: boolean
   adminUsersError: string | null
@@ -20,6 +27,13 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
+
+function notifyAuth(type: 'signup' | 'signin', email: string, provider: string) {
+  if (import.meta.env.VITE_SLACK_NOTIFICATIONS !== 'true') return
+  supabase.functions.invoke('notify-auth', {
+    body: { type, email, provider, origin: window.location.origin },
+  }).catch(() => { /* fire-and-forget */ })
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -34,9 +48,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
         setSession(session)
         setUser(session?.user ?? null)
+        if (event === 'SIGNED_IN' && session?.user?.app_metadata?.provider === 'google') {
+          notifyAuth('signin', session.user.email ?? '', 'google')
+        }
       },
     )
 
@@ -45,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signUp({ email, password })
+    if (!error) notifyAuth('signup', email, 'email')
     return {
       error: error?.message ?? null,
       confirmationRequired: !error && !data.session,
@@ -53,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
+    if (!error) notifyAuth('signin', email, 'email')
     return { error: error?.message ?? null }
   }
 
@@ -65,7 +84,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut()
   }
 
-  const isAdmin = user?.app_metadata?.user_role === 'admin'
+  const userRole = (user?.app_metadata?.user_role as string) ?? null
+  const isAdmin = userRole === 'admin' || userRole === 'manager'
 
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([])
   const [adminUsersLoading, setAdminUsersLoading] = useState(false)
@@ -84,8 +104,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (isAdmin) loadAdminUsers()
   }, [isAdmin, loadAdminUsers])
 
+  const [allowedSources, setAllowedSources] = useState<string[]>([])
+  const [maxShareHours, setMaxShareHours] = useState<number | null>(null)
+  const [canEditPermissions, setCanEditPermissions] = useState(false)
+  const [allPermissions, setAllPermissions] = useState<RolePermission[]>([])
+
+  const loadPermissions = useCallback(() => {
+    fetchAllPermissions()
+      .then((rows) => {
+        setAllPermissions(rows)
+        const myRole = userRole ?? 'user'
+        const myPerms = rows.find((r) => r.role === myRole)
+        if (myPerms) {
+          setAllowedSources(myPerms.allowed_sources)
+          setMaxShareHours(myPerms.max_share_hours)
+          setCanEditPermissions(myPerms.can_edit_permissions)
+        }
+      })
+      .catch(console.error)
+  }, [userRole])
+
+  useEffect(() => {
+    if (user) loadPermissions()
+  }, [user, loadPermissions])
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, isAdmin, adminUsers, adminUsersLoading, adminUsersError, refetchAdminUsers: loadAdminUsers, setAdminUsers, signUp, signIn, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, isAdmin, userRole, allowedSources, maxShareHours, canEditPermissions, allPermissions, refetchPermissions: loadPermissions, adminUsers, adminUsersLoading, adminUsersError, refetchAdminUsers: loadAdminUsers, setAdminUsers, signUp, signIn, signInWithGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   )

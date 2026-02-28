@@ -154,6 +154,11 @@ export function useSharedConversation(id: string | undefined) {
     try {
       const fingerprint = getOrCreateFingerprint(id)
       const result = await submitAccessRequest(id, fingerprint)
+      if (result.notFound) {
+        setLinkStatus('not_found')
+        setNotFound(true)
+        return
+      }
       if (result.success || result.alreadyRequested) {
         localStorage.setItem(`access_requested_${id}`, 'true')
         setRequestSent(true)

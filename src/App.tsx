@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import ChatWindow, { type Message } from './components/ChatWindow'
 import ChatInput from './components/ChatInput'
 import ConversationSidebar from './components/ConversationSidebar'
@@ -8,7 +8,7 @@ import AccessRequestNotification from './components/AccessRequestNotification/Ac
 import { useSharedViewers } from './hooks/useSharedViewers'
 import { useAccessRequestNotifications } from './hooks/useAccessRequestNotifications'
 import AuthForm from './components/AuthForm'
-import { useAuth, useIsAdmin } from './contexts/AuthContext'
+import { useAuth } from './contexts/AuthContext'
 import AdminConfig from './components/AdminConfig'
 import { askClaude } from './services/chat';
 import XBO from '/XBO.svg';
@@ -26,7 +26,7 @@ import {
   type ConversationSummary,
 } from './services/conversations'
 
-const THEMES = [
+export const THEMES = [
   { label: 'CryptoPayX', sources: ['cryptopayx_api_documentation.txt'] },
   { label: 'Deposit & Withdrawal', sources: ['deposit-and-withdrawals.txt'] },
   { label: 'Verification', sources: ['verification.txt'] },
@@ -118,9 +118,17 @@ function AuthenticatedApp({
   user: { id: string; email?: string }
   onSignOut: () => void
 }) {
-  const isAdmin = useIsAdmin()
+  const { isAdmin, allowedSources, maxShareHours } = useAuth()
   const [showConfig, setShowConfig] = useState(false)
   const [activeTheme, setActiveTheme] = useState(0)
+
+  const visibleThemes = useMemo(
+    () => allowedSources.length > 0
+      ? THEMES.filter((t) => t.sources.some((s) => allowedSources.includes(s)))
+      : THEMES,
+    [allowedSources],
+  )
+  const currentTheme = visibleThemes[activeTheme] ?? visibleThemes[0]
   const [conversations, setConversations] = useState<ConversationSummary[]>([])
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -134,10 +142,18 @@ function AuthenticatedApp({
   const { hasViewers, revoke: revokeViewers } = useSharedViewers(activeConversationId)
   const { notifications: accessRequests, approve: approveRequest, deny: denyRequest } = useAccessRequestNotifications(user.id)
 
+  // Reset theme index when visible themes change
+  useEffect(() => {
+    setActiveTheme(0)
+    setActiveConversationId(null)
+    setMessages([])
+  }, [visibleThemes])
+
   // Load conversations on mount and when theme changes
   useEffect(() => {
+    if (!currentTheme) return
     setIsLoadingConversations(true)
-    fetchConversations(THEMES[activeTheme].sources)
+    fetchConversations(currentTheme.sources)
       .then(setConversations)
       .catch(console.error)
       .finally(() => setIsLoadingConversations(false))
@@ -246,7 +262,7 @@ function AuthenticatedApp({
       // Create conversation if needed
       if (!convId) {
         const title = userText.length > 50 ? userText.slice(0, 50) + '...' : userText
-        convId = await createConversation(THEMES[activeTheme].sources[0], title)
+        convId = await createConversation(currentTheme.sources[0], title)
         skipFetchRef.current = true
         setActiveConversationId(convId)
       }
@@ -265,7 +281,7 @@ function AuthenticatedApp({
 
       try {
         const history = messages.map(({ role, content }) => ({ role, content }))
-        const response = await askClaude(userText, THEMES[activeTheme].sources, history)
+        const response = await askClaude(userText, currentTheme.sources, history)
         const assistantMsg: Message = {
           id: `a-${Date.now()}`,
           role: 'assistant',
@@ -291,7 +307,7 @@ function AuthenticatedApp({
       }
 
       // Refresh sidebar
-      fetchConversations(THEMES[activeTheme].sources).then(setConversations).catch(console.error)
+      fetchConversations(currentTheme.sources).then(setConversations).catch(console.error)
     },
     [activeConversationId, activeTheme, messages],
   )
@@ -356,7 +372,7 @@ function AuthenticatedApp({
                   <img src={XBO} alt="" className={styles.logo} />
                   <div className={styles.headerInfo}>
                     <div className={styles.headerTitle}>
-                      <span className={styles.headerThemeLabel}>{THEMES[activeTheme].label} </span>Assistant
+                      <span className={styles.headerThemeLabel}>{currentTheme.label} </span>Assistant
                     </div>
                     <div className={styles.statusRow}>
                       <span className={styles.statusDot} />
@@ -373,7 +389,7 @@ function AuthenticatedApp({
                       <svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                     </button>
                   )}
-                  {activeConversationId && (
+                  {activeConversationId && maxShareHours !== 0 && (
                     <button
                       onClick={handleShareClick}
                       aria-label="Share conversation"
@@ -401,7 +417,7 @@ function AuthenticatedApp({
 
               {/* Theme tabs */}
               <div className={`${styles.themeTabs} theme-tabs`}>
-                {THEMES.map((theme, i) => (
+                {visibleThemes.map((theme, i) => (
                   <button
                     key={theme.label}
                     onClick={() => handleThemeChange(i)}
@@ -414,11 +430,11 @@ function AuthenticatedApp({
 
               {/* Messages */}
               <div className={styles.messagesArea}>
-                <ChatWindow messages={messages} isLoading={isLoading} themeLabel={THEMES[activeTheme].label} onOptionClick={handleOptionClick} />
+                <ChatWindow messages={messages} isLoading={isLoading} themeLabel={currentTheme.label} onOptionClick={handleOptionClick} />
               </div>
 
               {/* Input */}
-              <ChatInput onSend={handleSend} disabled={isLoading} placeholder={THEMES[activeTheme].label} />
+              <ChatInput onSend={handleSend} disabled={isLoading} placeholder={currentTheme.label} />
             </main>
           </motion.div>
         )}
@@ -439,6 +455,7 @@ function AuthenticatedApp({
       {showShareDialog && (
         <ShareDialog
           isShared={conversations.find((c) => c.id === activeConversationId)?.is_shared ?? false}
+          maxShareHours={maxShareHours}
           onSelect={handleShareSelect}
           onRevoke={handleRevoke}
           onCancel={() => setShowShareDialog(false)}
@@ -469,6 +486,7 @@ function AuthenticatedApp({
             >
               <AccessRequestNotification
                 conversationTitle={req.conversationTitle}
+                maxShareHours={maxShareHours}
                 onApprove={(hours) => approveRequest(req.conversationId, hours)}
                 onDeny={() => denyRequest(req.id)}
               />

@@ -31,12 +31,15 @@ export function getOrCreateFingerprint(conversationId: string): string {
 export async function submitAccessRequest(
   conversationId: string,
   fingerprint: string,
-): Promise<{ success: boolean; alreadyRequested?: boolean }> {
+): Promise<{ success: boolean; alreadyRequested?: boolean; notFound?: boolean }> {
   const { data, error } = await supabase.rpc('submit_access_request', {
     p_conversation_id: conversationId,
     p_fingerprint: fingerprint,
   })
   if (error) throw error
+  if (data.error === 'not_found') {
+    return { success: false, notFound: true }
+  }
   if (data.error === 'already_requested') {
     return { success: false, alreadyRequested: true }
   }

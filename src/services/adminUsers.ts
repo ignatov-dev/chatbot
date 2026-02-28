@@ -17,7 +17,7 @@ export async function fetchUsers(): Promise<AdminUser[]> {
 
 export async function updateUserRole(
   userId: string,
-  role: 'admin' | null,
+  role: 'admin' | 'manager' | null,
 ): Promise<AdminUser[]> {
   const { data, error } = await supabase.rpc('update_user_role', {
     target_user_id: userId,
