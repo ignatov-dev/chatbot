@@ -9,6 +9,7 @@
 
 .message-row-assistant {
   justify-content: flex-start;
+  gap: 2px;
 }
 
 .avatar {
@@ -26,13 +27,13 @@
 }
 
 .bubble-user {
-  border-radius: 18px 18px 4px 18px;
+  border-radius: 18px;
   background: #4f2dd0;
   color: #ffffff;
 }
 
 .bubble-assistant {
-  border-radius: 18px 18px 18px 4px;
+  border-radius: 18px;
   background: #ffffff;
   color: #111827;
 }
