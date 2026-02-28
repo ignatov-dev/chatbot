@@ -199,23 +199,23 @@
   transform: translateY(-100%);
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   z-index: 1100;
-  min-width: 140px;
-  padding: 4px;
+  min-width: 160px;
+  padding: 6px;
 }
 
 .dropdown-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  padding: 7px 10px;
+  padding: 10px 12px;
   border: none;
   background: none;
-  border-radius: 6px;
-  font-size: 12px;
+  border-radius: 8px;
+  font-size: 13px;
   color: #374151;
   cursor: pointer;
   white-space: nowrap;
@@ -257,6 +257,25 @@
   color: #6b7280;
   cursor: pointer;
   flex-shrink: 0;
+}
+
+.admin-menu-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: #374151;
+  transition: background 0.15s;
+}
+
+.admin-menu-trigger:hover {
+  background: #f3f4f6;
 }
 
 .mobile-pin-btn {

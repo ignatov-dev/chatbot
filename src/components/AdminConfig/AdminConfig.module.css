@@ -1,0 +1,140 @@
+.container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.header {
+  padding: 16px 20px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: #f3f4f6;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: #374151;
+  transition: background 0.15s;
+}
+
+.back-btn:hover {
+  background: #e5e7eb;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 12px;
+}
+
+.loading-state,
+.error-state,
+.empty-state {
+  font-size: 13px;
+  color: #9ca3af;
+  text-align: center;
+  padding: 32px 0;
+}
+
+.error-state {
+  color: #dc2626;
+}
+
+.user-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.user-row:last-child {
+  border-bottom: none;
+}
+
+.user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-email {
+  font-size: 13px;
+  color: #111827;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.role-tabs {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.role-tab {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border: none;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.role-tab:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.role-tab:disabled {
+  cursor: default;
+}
+
+.role-tab-active {
+  background: rgba(79, 45, 208, 0.1);
+  color: #4f2dd0;
+}
+
+.role-tab-active:hover:not(:disabled) {
+  background: rgba(79, 45, 208, 0.18);
+}
+
+.role-tab-active:disabled {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .content {
+    padding: 16px;
+  }
+}

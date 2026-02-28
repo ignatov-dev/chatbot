@@ -1,11 +1,18 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react'
 import { supabase } from '../lib/supabase'
 import type { User, Session } from '@supabase/supabase-js'
+import { fetchUsers, type AdminUser } from '../services/adminUsers'
 
 interface AuthContextType {
   user: User | null
   session: Session | null
   loading: boolean
+  isAdmin: boolean
+  adminUsers: AdminUser[]
+  adminUsersLoading: boolean
+  adminUsersError: string | null
+  refetchAdminUsers: () => void
+  setAdminUsers: (users: AdminUser[]) => void
   signUp: (email: string, password: string) => Promise<{ error: string | null; confirmationRequired: boolean }>
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
   signInWithGoogle: () => Promise<{ error: string | null }>
@@ -58,8 +65,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut()
   }
 
+  const isAdmin = user?.app_metadata?.user_role === 'admin'
+
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([])
+  const [adminUsersLoading, setAdminUsersLoading] = useState(false)
+  const [adminUsersError, setAdminUsersError] = useState<string | null>(null)
+
+  const loadAdminUsers = useCallback(() => {
+    setAdminUsersLoading(true)
+    setAdminUsersError(null)
+    fetchUsers()
+      .then(setAdminUsers)
+      .catch((err) => setAdminUsersError(err.message))
+      .finally(() => setAdminUsersLoading(false))
+  }, [])
+
+  useEffect(() => {
+    if (isAdmin) loadAdminUsers()
+  }, [isAdmin, loadAdminUsers])
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, isAdmin, adminUsers, adminUsersLoading, adminUsersError, refetchAdminUsers: loadAdminUsers, setAdminUsers, signUp, signIn, signInWithGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   )
@@ -69,4 +95,9 @@ export function useAuth(): AuthContextType {
   const ctx = useContext(AuthContext)
   if (!ctx) throw new Error('useAuth must be used within AuthProvider')
   return ctx
+}
+
+export function useIsAdmin(): boolean {
+  const { isAdmin } = useAuth()
+  return isAdmin
 }

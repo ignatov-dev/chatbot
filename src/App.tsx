@@ -8,7 +8,8 @@ import AccessRequestNotification from './components/AccessRequestNotification/Ac
 import { useSharedViewers } from './hooks/useSharedViewers'
 import { useAccessRequestNotifications } from './hooks/useAccessRequestNotifications'
 import AuthForm from './components/AuthForm'
-import { useAuth } from './contexts/AuthContext'
+import { useAuth, useIsAdmin } from './contexts/AuthContext'
+import AdminConfig from './components/AdminConfig'
 import { askClaude } from './services/chat';
 import XBO from '/XBO.svg';
 import styles from './App.module.css'
@@ -117,6 +118,8 @@ function AuthenticatedApp({
   user: { id: string; email?: string }
   onSignOut: () => void
 }) {
+  const isAdmin = useIsAdmin()
+  const [showConfig, setShowConfig] = useState(false)
   const [activeTheme, setActiveTheme] = useState(0)
   const [conversations, setConversations] = useState<ConversationSummary[]>([])
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null)
@@ -309,90 +312,117 @@ function AuthenticatedApp({
 
   return (
     <>
-      {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
-      <ConversationSidebar
-        conversations={conversations}
-        activeConversationId={activeConversationId}
-        onSelectConversation={(id) => { setActiveConversationId(id); setSidebarOpen(false) }}
-        onDeleteConversation={(id) => setDeleteConfirmId(id)}
-        onPinConversation={handlePinConversation}
-        onSignOut={onSignOut}
-        userEmail={user.email ?? ''}
-        isOpen={sidebarOpen}
-        isLoading={isLoadingConversations}
-      />
+      <AnimatePresence mode="wait" initial={false}>
+        {showConfig ? (
+          <motion.div
+            key="config"
+            className={styles.mainColumn}
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)' }}
+          >
+            <AdminConfig onBack={() => setShowConfig(false)} />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="chat"
+            style={{ display: 'flex', width: '100%', height: '100%', borderRadius: 16, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)' }}
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+          >
+            {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
+            <ConversationSidebar
+              conversations={conversations}
+              activeConversationId={activeConversationId}
+              onSelectConversation={(id) => { setActiveConversationId(id); setSidebarOpen(false) }}
+              onDeleteConversation={(id) => setDeleteConfirmId(id)}
+              onPinConversation={handlePinConversation}
+              onSignOut={onSignOut}
+              userEmail={user.email ?? ''}
+              isOpen={sidebarOpen}
+              isLoading={isLoadingConversations}
+              isAdmin={isAdmin}
+              onOpenConfig={() => { setShowConfig(true); setSidebarOpen(false) }}
+            />
 
-      <main className={styles.mainColumn}>
-        {/* Header */}
-        <div className={styles.header}>
-          <div className={styles.headerRow}>
-            <img src={XBO} alt="" className={styles.logo} />
-            <div className={styles.headerInfo}>
-              <div className={styles.headerTitle}>
-                <span className={styles.headerThemeLabel}>{THEMES[activeTheme].label} </span>Assistant
+            <main className={styles.mainColumn}>
+              {/* Header */}
+              <div className={styles.header}>
+                <div className={styles.headerRow}>
+                  <img src={XBO} alt="" className={styles.logo} />
+                  <div className={styles.headerInfo}>
+                    <div className={styles.headerTitle}>
+                      <span className={styles.headerThemeLabel}>{THEMES[activeTheme].label} </span>Assistant
+                    </div>
+                    <div className={styles.statusRow}>
+                      <span className={styles.statusDot} />
+                      Online
+                    </div>
+                  </div>
+                  {activeConversationId && (
+                    <button
+                      onClick={() => setDeleteConfirmId(activeConversationId)}
+                      aria-label="Delete conversation"
+                      title="Delete conversation"
+                      className={styles.deleteBtn}
+                    >
+                      <svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                  )}
+                  {activeConversationId && (
+                    <button
+                      onClick={handleShareClick}
+                      aria-label="Share conversation"
+                      title={hasViewers ? 'Someone is viewing this conversation' : 'Share conversation'}
+                      className={hasViewers ? styles.shareActiveBtn : styles.newChatBtn}
+                    >
+                      <svg viewBox="0 0 20 20" width={18} height={18} fill="currentColor" aria-hidden="true"><path d="M12.232 4.232a2.5 2.5 0 0 1 3.536 3.536l-1.225 1.224a.75.75 0 0 0 1.061 1.06l1.224-1.224a4 4 0 0 0-5.656-5.656l-3 3a4 4 0 0 0 .225 5.865.75.75 0 0 0 .977-1.138 2.5 2.5 0 0 1-.142-3.667l3-3Z" /><path d="M11.603 7.963a.75.75 0 0 0-.977 1.138 2.5 2.5 0 0 1 .142 3.667l-3 3a2.5 2.5 0 0 1-3.536-3.536l1.225-1.224a.75.75 0 0 0-1.061-1.06l-1.224 1.224a4 4 0 1 0 5.656 5.656l3-3a4 4 0 0 0-.225-5.865Z" /></svg>
+                    </button>
+                  )}
+                  {(activeConversationId || messages.length > 0) && (
+                    <button
+                      onClick={handleNewConversation}
+                      aria-label="New chat"
+                      className={styles.newChatBtn}
+                    >
+                      <svg viewBox="0 0 20 20" width={18} height={18} fill="currentColor" aria-hidden="true"><path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" /><path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z" /></svg>
+                    </button>
+                  )}
+                  <button className="hamburger-btn" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
+                    ☰
+                  </button>
+                </div>
+
               </div>
-              <div className={styles.statusRow}>
-                <span className={styles.statusDot} />
-                Online
+
+              {/* Theme tabs */}
+              <div className={`${styles.themeTabs} theme-tabs`}>
+                {THEMES.map((theme, i) => (
+                  <button
+                    key={theme.label}
+                    onClick={() => handleThemeChange(i)}
+                    className={`${styles.themeTab}${i === activeTheme ? ` ${styles.themeTabActive}` : ''}`}
+                  >
+                    {theme.label}
+                  </button>
+                ))}
               </div>
-            </div>
-            {activeConversationId && (
-              <button
-                onClick={() => setDeleteConfirmId(activeConversationId)}
-                aria-label="Delete conversation"
-                title="Delete conversation"
-                className={styles.deleteBtn}
-              >
-                <svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-              </button>
-            )}
-            {activeConversationId && (
-              <button
-                onClick={handleShareClick}
-                aria-label="Share conversation"
-                title={hasViewers ? 'Someone is viewing this conversation' : 'Share conversation'}
-                className={hasViewers ? styles.shareActiveBtn : styles.newChatBtn}
-              >
-                <svg viewBox="0 0 20 20" width={18} height={18} fill="currentColor" aria-hidden="true"><path d="M12.232 4.232a2.5 2.5 0 0 1 3.536 3.536l-1.225 1.224a.75.75 0 0 0 1.061 1.06l1.224-1.224a4 4 0 0 0-5.656-5.656l-3 3a4 4 0 0 0 .225 5.865.75.75 0 0 0 .977-1.138 2.5 2.5 0 0 1-.142-3.667l3-3Z" /><path d="M11.603 7.963a.75.75 0 0 0-.977 1.138 2.5 2.5 0 0 1 .142 3.667l-3 3a2.5 2.5 0 0 1-3.536-3.536l1.225-1.224a.75.75 0 0 0-1.061-1.06l-1.224 1.224a4 4 0 1 0 5.656 5.656l3-3a4 4 0 0 0-.225-5.865Z" /></svg>
-              </button>
-            )}
-            {(activeConversationId || messages.length > 0) && (
-              <button
-                onClick={handleNewConversation}
-                aria-label="New chat"
-                className={styles.newChatBtn}
-              >
-                <svg viewBox="0 0 20 20" width={18} height={18} fill="currentColor" aria-hidden="true"><path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" /><path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z" /></svg>
-              </button>
-            )}
-            <button className="hamburger-btn" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
-              ☰
-            </button>
-          </div>
 
-        </div>
+              {/* Messages */}
+              <div className={styles.messagesArea}>
+                <ChatWindow messages={messages} isLoading={isLoading} themeLabel={THEMES[activeTheme].label} onOptionClick={handleOptionClick} />
+              </div>
 
-        {/* Theme tabs */}
-        <div className={`${styles.themeTabs} theme-tabs`}>
-          {THEMES.map((theme, i) => (
-            <button
-              key={theme.label}
-              onClick={() => handleThemeChange(i)}
-              className={`${styles.themeTab}${i === activeTheme ? ` ${styles.themeTabActive}` : ''}`}
-            >
-              {theme.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Messages */}
-        <div className={styles.messagesArea}>
-          <ChatWindow messages={messages} isLoading={isLoading} themeLabel={THEMES[activeTheme].label} onOptionClick={handleOptionClick} />
-        </div>
-
-        {/* Input */}
-        <ChatInput onSend={handleSend} disabled={isLoading} placeholder={THEMES[activeTheme].label} />
-      </main>
+              {/* Input */}
+              <ChatInput onSend={handleSend} disabled={isLoading} placeholder={THEMES[activeTheme].label} />
+            </main>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {deleteConfirmId && (
         <ConfirmDialog
