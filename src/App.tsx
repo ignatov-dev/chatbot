@@ -32,6 +32,8 @@ export const THEMES = [
   { label: 'Deposit & Withdrawal', sources: ['deposit-and-withdrawals.txt'] },
   { label: 'Verification', sources: ['verification.txt'] },
   { label: 'Loyalty Program', sources: ['loyalty-program.txt'] },
+  { label: 'Q & A', sources: ['questions.txt'] },
+  { label: 'Learn', sources: ['what_is_a_crypto_exchange.txt'] },
 ]
 
 export default function App() {

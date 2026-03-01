@@ -31,7 +31,9 @@ const DOCUMENTS = [
   'cryptopayx_api_documentation.txt',
   'deposit-and-withdrawals.txt',
   'verification.txt',
-  'loyalty-program.txt'
+  'loyalty-program.txt',
+  'questions.txt',
+  'what_is_a_crypto_exchange.txt'
 ]
 
 // Split by ===...SECTION: NAME...=== delimiters, then sub-chunk large sections

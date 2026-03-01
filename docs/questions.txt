@@ -1,0 +1,151 @@
+SECTION: WHAT IS CRYPTOPAYX?
+============================================================
+CryptoPayX is a crypto processing gateway for receiving crypto deposits and automatically processing them for merchants.
+
+SECTION: HOW IS CRYPTOPAYX DIFFERENT FROM A REGULAR CRYPTO DEPOSIT?
+============================================================
+CryptoPayX uses a payment intent that contains the exact currency, network, and address. A regular deposit is a standard top-up without an intent.
+
+SECTION: IN WHICH COUNTRIES IS CRYPTOPAYX AVAILABLE?
+============================================================
+Availability depends on the merchant; some brands may disable the method entirely.
+
+SECTION: WHICH CRYPTOCURRENCIES DOES CRYPTOPAYX SUPPORT?
+============================================================
+The full list is available via the API endpoint GET /v1/currencies.
+
+SECTION: CAN CRYPTOPAYX BE USED IN A MOBILE APPLICATION?
+============================================================
+Yes, via Iframe or using the API.
+
+SECTION: WHAT IS A PAYMENT INTENT?
+============================================================
+It is a payment task that contains the amount, currency, network, address, and deposit status control.
+
+SECTION: HOW DO I CREATE A PAYMENT INTENT?
+============================================================
+In the CryptoPayX section: XBO → Crypto PayX → Create payment link (or via API).
+
+SECTION: WHY DOES A PAYMENT INTENT HAVE THE STATUS FAILED?
+============================================================
+The reason is a currency or network mismatch, or a timeout.
+
+SECTION: WHY DOES A PAYMENT INTENT SHOW PARTIALLYCOMPLETED?
+============================================================
+When there is a minor amount mismatch within the threshold.
+
+SECTION: WHY WAS THE PAYMENT CREDITED AS A REGULAR DEPOSIT INSTEAD OF A PAYMENT INTENT?
+============================================================
+Because the deposit was sent in a different currency than specified in the payment intent.
+
+SECTION: CAN A PAYMENT INTENT BE REUSED?
+============================================================
+It depends on the merchant's settings. On a repeated deposit, a new payment intent will be created.
+
+SECTION: CAN THE AMOUNT BE CHANGED IN AN ALREADY CREATED INTENT?
+============================================================
+No, a new intent must be created.
+
+SECTION: CAN THE ADDRESS BE CHANGED IN AN ALREADY CREATED INTENT?
+============================================================
+No, the address is generated automatically.
+
+SECTION: HOW DO I CANCEL A PAYMENT INTENT?
+============================================================
+The status will automatically change to Failed if funds are not received within the set time period.
+
+SECTION: DO I NEED TO REGENERATE THE ADDRESS FOR A SINGLE ADDRESS DEPOSIT?
+============================================================
+No. The address has no expiration date and is used permanently.
+
+SECTION: DOES THE SINGLE DEPOSIT ADDRESS CHANGE?
+============================================================
+No, it is a permanent combination of coin + network + address (+memo/tag).
+
+SECTION: WHAT SHOULD I DO IF A DEPOSIT WAS SENT WITH A DIFFERENT COIN OR NETWORK?
+============================================================
+Such a deposit will not be linked to the intent and may require manual review.
+
+SECTION: CAN ONE ADDRESS BE USED FOR DIFFERENT CURRENCIES?
+============================================================
+No. Currency, network, and address are a unique combination.
+
+SECTION: IS A DESTINATION TAG / MEMO REQUIRED?
+============================================================
+Yes, for XRP, XLM, and similar currencies the tag is mandatory.
+
+SECTION: WHAT HAPPENS IF THE TAG WAS MISSED?
+============================================================
+The deposit will not enter the system; manual processing is required and support must be contacted.
+
+SECTION: WHERE CAN I FIND THE CRYPTOPAYX API KEYS?
+============================================================
+XBO → Profile → Security → CryptoPayX API.
+
+SECTION: WHY CAN'T A CLIENT CREATE A SANDBOX CRYPTOPAYX API KEY?
+============================================================
+Because they are in the ClientAPI section. They need to navigate to CryptoPayX API.
+
+SECTION: WHAT IS THE DIFFERENCE BETWEEN CLIENTAPI AND CRYPTOPAYX API?
+============================================================
+ClientAPI — for client operations within an account; allows making deposits, withdrawals, conversions, and spot trading. It is a Crypto as a Service product.CryptoPayX API — for crypto payment processing, with the ability to automatically convert incoming funds according to rules set by the Merchant. It also supports the reverse direction — Payout, meaning withdrawing funds to any crypto.
+
+SECTION: IS AN IP WHITELIST REQUIRED FOR CRYPTOPAYX?
+============================================================
+Yes, CryptoPayX Production requires a whitelist.
+
+SECTION: IS A WHITELIST REQUIRED FOR CLIENTAPI?
+============================================================
+No. It is never required.
+
+SECTION: IS A WHITELIST REQUIRED FOR SANDBOX?
+============================================================
+No — Sandbox does not require a whitelist.
+
+SECTION: WHY DOES THE API RETURN 401?
+============================================================
+Reasons: – incorrect API key; – incorrect signature or timestamp.
+
+SECTION: WHY DOES THE API RETURN NULL?
+============================================================
+It may be an incorrect endpoint or an incorrect integration configuration.
+
+SECTION: WHERE CAN I FIND THE SANDBOX ENDPOINTS?
+============================================================
+https://api.sandbox.cryptopayx.tech
+
+SECTION: IS IT NECESSARY TO SPECIFY A CALLBACK URL?
+============================================================
+Yes, to receive notifications about the transaction status.
+
+SECTION: WHAT IS THE MINIMUM DEPOSIT VIA CRYPTOPAYX?
+============================================================
+0.5 USD equivalent.
+
+SECTION: WHY IS THE DEPOSIT IN PENDING STATUS?
+============================================================
+The delay may be in the blockchain or network.
+
+SECTION: WHY HASN'T THE DEPOSIT APPEARED IN THE WALLET?
+============================================================
+If the currency or network differs from the intent — the deposit goes into the system as a regular deposit.
+
+SECTION: WHY IS THE DEPOSIT NOT SHOWING IN THE CRYPTOPAYX REPORT?
+============================================================
+Because it was a manual withdrawal or a regular deposit.
+
+SECTION: CAN A DEPOSIT BE MANUALLY LINKED TO AN INTENT?
+============================================================
+No, deposits are processed according to the system's logic.
+
+SECTION: CAN A MERCHANT RECEIVE AN EMAIL ABOUT A DEPOSIT?
+============================================================
+In the case of ManualActionRequired, a callback is sent. An email notification may be sent to the payer's email.
+
+SECTION: CAN TEST DEPOSITS BE MADE IN PRODUCTION?
+============================================================
+Not exactly — but small amounts can be tried. To test a deposit, make a withdrawal to the address obtained for CryptoPay, and for a withdrawal test, do the reverse.
+
+==============================================================
+END OF DOCUMENT
+==============================================================
