@@ -11,23 +11,22 @@ const DURATION_OPTIONS: { label: string; hours?: number }[] = [
 
 interface AccessRequestNotificationProps {
   conversationTitle: string
-  maxShareHours: number | null
+  allowedShareHours: number[]
   onApprove: (hours?: number) => void
   onDeny: () => void
 }
 
 export default function AccessRequestNotification({
   conversationTitle,
-  maxShareHours,
+  allowedShareHours,
   onApprove,
   onDeny,
 }: AccessRequestNotificationProps) {
   const [selectedHours, setSelectedHours] = useState<number | undefined>(undefined)
 
   const options = DURATION_OPTIONS.filter((opt) => {
-    if (maxShareHours === null) return true
-    if (opt.hours === undefined) return false
-    return opt.hours <= maxShareHours
+    if (opt.hours === undefined) return allowedShareHours.includes(0)
+    return allowedShareHours.includes(Math.round(opt.hours))
   })
 
   return (

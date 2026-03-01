@@ -5,12 +5,11 @@ import { useAuth } from '../../contexts/AuthContext'
 import { THEMES } from '../../App'
 import styles from './AdminConfig.module.css'
 
-const SHARE_LIMIT_OPTIONS: { label: string; hours: number | null }[] = [
-  { label: 'Forbidden', hours: 0 },
+const SHARE_OPTIONS: { label: string; hours: number }[] = [
   { label: '1h', hours: 1 },
   { label: '12h', hours: 12 },
   { label: '24h', hours: 24 },
-  { label: 'No limit', hours: null },
+  { label: 'No limit', hours: 0 },
 ]
 
 interface AdminConfigProps {
@@ -60,10 +59,16 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
     })
   }, [allPermissions])
 
-  const handleSetShareLimit = useCallback((role: string, hours: number | null) => {
+  const handleToggleShareHours = useCallback((role: string, hours: number, enabled: boolean) => {
     setLocalPerms((prev) => {
       const base = prev ?? allPermissions
-      return base.map((p) => p.role === role ? { ...p, max_share_hours: hours } : p)
+      return base.map((p) => {
+        if (p.role !== role) return p
+        const list = enabled
+          ? [...p.allowed_share_hours, hours]
+          : p.allowed_share_hours.filter((h) => h !== hours)
+        return { ...p, allowed_share_hours: list }
+      })
     })
   }, [allPermissions])
 
@@ -79,8 +84,8 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
     if (!perm) return
     setSavingRoles((prev) => new Set(prev).add(role))
     try {
-      await updatePermissions(role, perm.allowed_sources, perm.max_share_hours, perm.can_edit_permissions)
-      refetchPermissions()
+      await updatePermissions(role, perm.allowed_sources, perm.allowed_share_hours, perm.can_edit_permissions)
+      await refetchPermissions()
       setLocalPerms(null)
     } catch {
       // revert on failure
@@ -99,7 +104,7 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
     if (!local || !original) return false
     return (
       JSON.stringify(local.allowed_sources.slice().sort()) !== JSON.stringify(original.allowed_sources.slice().sort()) ||
-      local.max_share_hours !== original.max_share_hours ||
+      JSON.stringify(local.allowed_share_hours.slice().sort()) !== JSON.stringify(original.allowed_share_hours.slice().sort()) ||
       local.can_edit_permissions !== original.can_edit_permissions
     )
   }
@@ -203,76 +208,77 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
               const changed = hasChanges(perm.role)
 
               return (
-                <div key={perm.role} className={`${styles.permColumn} ${disabled ? styles.disabledCol : ''}`}>
-                  <div className={styles.permColHeader}>
-                    <span className={styles.permColName}>
-                      {perm.role.charAt(0).toUpperCase() + perm.role.slice(1)}
-                    </span>
-                    <button
-                      className={styles.saveBtn}
-                      onClick={() => handleSavePermissions(perm.role)}
-                      disabled={saving || !changed}
-                      style={changed ? undefined : { visibility: 'hidden' }}
-                      aria-label="Save permissions"
-                      title="Save"
-                    >
-                      <svg viewBox="0 0 16 16" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={1.5}>
-                        <path d="M12.5 14H3.5a1 1 0 01-1-1V3a1 1 0 011-1h7l2.5 2.5V13a1 1 0 01-1 1z" />
-                        <path d="M5.5 2v3h4V2" />
-                        <rect x="4.5" y="9" width="7" height="4" rx="0.5" />
-                      </svg>
-                    </button>
-                  </div>
+                <div key={perm.role} className={styles.permColumn}>
+                  <span className={styles.permColName}>
+                    {perm.role.charAt(0).toUpperCase() + perm.role.slice(1)}
+                  </span>
+                  <button
+                    className={styles.saveBtn}
+                    onClick={() => handleSavePermissions(perm.role)}
+                    disabled={saving || !changed}
+                    style={changed ? undefined : { visibility: 'hidden' }}
+                  >
+                    Save
+                  </button>
 
                   <div className={styles.permGroup}>
                     <span className={styles.permGroupLabel}>Themes</span>
-                    <div className={styles.permPills}>
-                      {THEMES.map((theme) => {
-                        const source = theme.sources[0]
-                        const active = perm.allowed_sources.includes(source)
-                        return (
-                          <button
-                            key={source}
-                            className={`${styles.permPill} ${active ? styles.permPillActive : ''}`}
-                            onClick={() => handleToggleSource(perm.role, source, !active)}
-                          >
-                            {theme.label}
-                          </button>
-                        )
-                      })}
-                    </div>
+                    {THEMES.map((theme) => {
+                      const source = theme.sources[0]
+                      const active = perm.allowed_sources.includes(source)
+                      return (
+                        <div key={source} className={styles.toggleRow}>
+                          <span className={styles.toggleLabel}>{theme.label}</span>
+                          <label className={styles.toggleSwitch}>
+                            <input
+                              type="checkbox"
+                              checked={active}
+                              disabled={disabled}
+                              onChange={() => handleToggleSource(perm.role, source, !active)}
+                            />
+                            <span className={styles.toggleTrack} />
+                            <span className={styles.toggleThumb} />
+                          </label>
+                        </div>
+                      )
+                    })}
                   </div>
 
                   <div className={styles.permGroup}>
-                    <span className={styles.permGroupLabel}>Share limit</span>
-                    <div className={styles.permPills}>
-                      {SHARE_LIMIT_OPTIONS.map((opt) => (
-                        <button
-                          key={opt.label}
-                          className={`${styles.permPill} ${perm.max_share_hours === opt.hours ? styles.permPillActive : ''}`}
-                          onClick={() => handleSetShareLimit(perm.role, opt.hours)}
-                        >
-                          {opt.label}
-                        </button>
-                      ))}
-                    </div>
+                    <span className={styles.permGroupLabel}>Share options</span>
+                    {SHARE_OPTIONS.map((opt) => {
+                      const active = perm.allowed_share_hours.includes(opt.hours)
+                      return (
+                        <div key={opt.label} className={styles.toggleRow}>
+                          <span className={styles.toggleLabel}>{opt.label}</span>
+                          <label className={styles.toggleSwitch}>
+                            <input
+                              type="checkbox"
+                              checked={active}
+                              disabled={disabled}
+                              onChange={() => handleToggleShareHours(perm.role, opt.hours, !active)}
+                            />
+                            <span className={styles.toggleTrack} />
+                            <span className={styles.toggleThumb} />
+                          </label>
+                        </div>
+                      )
+                    })}
                   </div>
 
                   <div className={styles.permGroup}>
-                    <span className={styles.permGroupLabel}>Edit perms</span>
-                    <div className={styles.permPills}>
-                      <button
-                        className={`${styles.permPill} ${perm.can_edit_permissions ? styles.permPillActive : ''}`}
-                        onClick={() => handleToggleEditPerms(perm.role, true)}
-                      >
-                        Yes
-                      </button>
-                      <button
-                        className={`${styles.permPill} ${!perm.can_edit_permissions ? styles.permPillActive : ''}`}
-                        onClick={() => handleToggleEditPerms(perm.role, false)}
-                      >
-                        No
-                      </button>
+                    <div className={styles.toggleRow}>
+                      <span className={styles.permGroupLabel}>Edit perms</span>
+                      <label className={styles.toggleSwitch}>
+                        <input
+                          type="checkbox"
+                          checked={perm.can_edit_permissions}
+                          disabled={disabled}
+                          onChange={() => handleToggleEditPerms(perm.role, !perm.can_edit_permissions)}
+                        />
+                        <span className={styles.toggleTrack} />
+                        <span className={styles.toggleThumb} />
+                      </label>
                     </div>
                   </div>
                 </div>

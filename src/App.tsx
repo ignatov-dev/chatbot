@@ -7,6 +7,7 @@ import ShareDialog from './components/ShareDialog'
 import AccessRequestNotification from './components/AccessRequestNotification/AccessRequestNotification'
 import { useSharedViewers } from './hooks/useSharedViewers'
 import { useAccessRequestNotifications } from './hooks/useAccessRequestNotifications'
+import { usePushNotifications } from './hooks/usePushNotifications'
 import AuthForm from './components/AuthForm'
 import { useAuth } from './contexts/AuthContext'
 import AdminConfig from './components/AdminConfig'
@@ -118,7 +119,7 @@ function AuthenticatedApp({
   user: { id: string; email?: string }
   onSignOut: () => void
 }) {
-  const { isAdmin, allowedSources, maxShareHours } = useAuth()
+  const { isAdmin, allowedSources, allowedShareHours } = useAuth()
   const [showConfig, setShowConfig] = useState(false)
   const [activeTheme, setActiveTheme] = useState(0)
 
@@ -141,6 +142,7 @@ function AuthenticatedApp({
   const [showShareDialog, setShowShareDialog] = useState(false)
   const { hasViewers, revoke: revokeViewers } = useSharedViewers(activeConversationId)
   const { notifications: accessRequests, approve: approveRequest, deny: denyRequest } = useAccessRequestNotifications(user.id)
+  const { supported: pushSupported, subscribed: pushSubscribed, loading: pushLoading, toggle: togglePush } = usePushNotifications()
 
   // Reset theme index when visible themes change
   useEffect(() => {
@@ -389,7 +391,7 @@ function AuthenticatedApp({
                       <svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                     </button>
                   )}
-                  {activeConversationId && maxShareHours !== 0 && (
+                  {activeConversationId && allowedShareHours.length > 0 && (
                     <button
                       onClick={handleShareClick}
                       aria-label="Share conversation"
@@ -454,11 +456,28 @@ function AuthenticatedApp({
 
       {showShareDialog && (
         <ShareDialog
-          isShared={conversations.find((c) => c.id === activeConversationId)?.is_shared ?? false}
-          maxShareHours={maxShareHours}
-          onSelect={handleShareSelect}
+          isShared={(() => {
+            const c = conversations.find((c) => c.id === activeConversationId)
+            if (!c?.is_shared) return false
+            if (c.shared_expires_at && new Date(c.shared_expires_at) <= new Date()) return false
+            return true
+          })()}
+          allowedShareHours={allowedShareHours}
+          onShare={handleShareSelect}
+          onCopyLink={() => {
+            if (!activeConversationId) return
+            const url = `${window.location.origin}/conversation/${activeConversationId}`
+            navigator.clipboard.writeText(url)
+              .then(() => showToast('Link copied to clipboard!'))
+              .catch(() => showToast('Failed to copy link'))
+            setShowShareDialog(false)
+          }}
           onRevoke={handleRevoke}
           onCancel={() => setShowShareDialog(false)}
+          pushSupported={pushSupported}
+          pushSubscribed={pushSubscribed}
+          pushLoading={pushLoading}
+          onEnablePush={togglePush}
         />
       )}
 
@@ -486,7 +505,7 @@ function AuthenticatedApp({
             >
               <AccessRequestNotification
                 conversationTitle={req.conversationTitle}
-                maxShareHours={maxShareHours}
+                allowedShareHours={allowedShareHours}
                 onApprove={(hours) => approveRequest(req.conversationId, hours)}
                 onDeny={() => denyRequest(req.id)}
               />

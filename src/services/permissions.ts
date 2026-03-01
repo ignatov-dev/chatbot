@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 export interface RolePermission {
   role: string
   allowed_sources: string[]
-  max_share_hours: number | null
+  allowed_share_hours: number[]
   can_edit_permissions: boolean
 }
 
@@ -16,13 +16,13 @@ export async function fetchAllPermissions(): Promise<RolePermission[]> {
 export async function updatePermissions(
   role: string,
   allowedSources: string[],
-  maxShareHours: number | null,
+  allowedShareHours: number[],
   canEditPermissions: boolean,
 ): Promise<void> {
   const { error } = await supabase.rpc('update_role_permissions', {
     p_role: role,
     p_allowed_sources: allowedSources,
-    p_max_share_hours: maxShareHours,
+    p_allowed_share_hours: allowedShareHours,
     p_can_edit_permissions: canEditPermissions,
   })
   if (error) throw error

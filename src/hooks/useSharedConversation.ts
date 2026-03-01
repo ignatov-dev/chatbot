@@ -5,6 +5,7 @@ import {
   getOrCreateFingerprint,
   submitAccessRequest,
 } from '../services/accessRequests'
+import { notifySharedView } from '../services/pushNotify'
 import { supabase } from '../lib/supabase'
 import { playNotificationSound } from '../utils/notificationSound'
 
@@ -42,6 +43,8 @@ export function useSharedConversation(id: string | undefined) {
           setMessages(result.messages)
           setExpiresAt(result.conversation.shared_expires_at)
           setLinkStatus('active')
+          // Notify conversation owner via push notification
+          notifySharedView(id!, getOrCreateFingerprint(id!))
         }
       })
       .catch(() => {

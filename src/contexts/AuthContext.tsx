@@ -11,10 +11,10 @@ interface AuthContextType {
   isAdmin: boolean
   userRole: string | null
   allowedSources: string[]
-  maxShareHours: number | null
+  allowedShareHours: number[]
   canEditPermissions: boolean
   allPermissions: RolePermission[]
-  refetchPermissions: () => void
+  refetchPermissions: () => Promise<void>
   adminUsers: AdminUser[]
   adminUsersLoading: boolean
   adminUsersError: string | null
@@ -105,19 +105,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [isAdmin, loadAdminUsers])
 
   const [allowedSources, setAllowedSources] = useState<string[]>([])
-  const [maxShareHours, setMaxShareHours] = useState<number | null>(null)
+  const [allowedShareHours, setAllowedShareHours] = useState<number[]>([])
+
   const [canEditPermissions, setCanEditPermissions] = useState(false)
   const [allPermissions, setAllPermissions] = useState<RolePermission[]>([])
 
   const loadPermissions = useCallback(() => {
-    fetchAllPermissions()
+    return fetchAllPermissions()
       .then((rows) => {
         setAllPermissions(rows)
         const myRole = userRole ?? 'user'
         const myPerms = rows.find((r) => r.role === myRole)
         if (myPerms) {
           setAllowedSources(myPerms.allowed_sources)
-          setMaxShareHours(myPerms.max_share_hours)
+          setAllowedShareHours(myPerms.allowed_share_hours)
           setCanEditPermissions(myPerms.can_edit_permissions)
         }
       })
@@ -129,7 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, loadPermissions])
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, isAdmin, userRole, allowedSources, maxShareHours, canEditPermissions, allPermissions, refetchPermissions: loadPermissions, adminUsers, adminUsersLoading, adminUsersError, refetchAdminUsers: loadAdminUsers, setAdminUsers, signUp, signIn, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, isAdmin, userRole, allowedSources, allowedShareHours, canEditPermissions, allPermissions, refetchPermissions: loadPermissions, adminUsers, adminUsersLoading, adminUsersError, refetchAdminUsers: loadAdminUsers, setAdminUsers, signUp, signIn, signInWithGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   )
