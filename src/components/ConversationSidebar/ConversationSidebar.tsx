@@ -39,7 +39,6 @@ export default function ConversationSidebar({
   userEmail,
   isOpen,
   isLoading,
-  isAdmin,
   onOpenConfig,
 }: ConversationSidebarProps) {
   const [searchQuery, setSearchQuery] = useState('')
@@ -47,9 +46,6 @@ export default function ConversationSidebar({
   const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
-  const [adminMenuOpen, setAdminMenuOpen] = useState(false)
-  const [adminMenuPos, setAdminMenuPos] = useState<{ top: number; left: number } | null>(null)
-  const adminMenuRef = useRef<HTMLDivElement>(null)
 
   // Close conversation dropdown on click outside or scroll
   useEffect(() => {
@@ -69,17 +65,6 @@ export default function ConversationSidebar({
     }
   }, [menuOpenId])
 
-  // Close admin dropdown on click outside
-  useEffect(() => {
-    if (!adminMenuOpen) return
-    const handleClick = (e: MouseEvent) => {
-      if (adminMenuRef.current && !adminMenuRef.current.contains(e.target as Node)) {
-        setAdminMenuOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [adminMenuOpen])
 
   const filteredConversations = useMemo(() => {
     if (!searchQuery.trim()) return conversations
@@ -282,75 +267,28 @@ export default function ConversationSidebar({
         )
       })()}
 
-      {/* Admin dropdown (rendered outside footer to avoid clipping) */}
-      {adminMenuOpen && adminMenuPos && (
-        <div
-          ref={adminMenuRef}
-          className={styles.dropdown}
-          style={{ top: adminMenuPos.top, left: adminMenuPos.left }}
-        >
-          <button
-            className={styles.dropdownItem}
-            onClick={() => {
-              onOpenConfig?.()
-              setAdminMenuOpen(false)
-            }}
-          >
-            <svg viewBox="0 0 20 20" width={14} height={14} fill="currentColor">
-              <path fillRule="evenodd" d="M7.84 1.804A1 1 0 0 1 8.82 1h2.36a1 1 0 0 1 .98.804l.331 1.652a6.993 6.993 0 0 1 1.929 1.115l1.598-.54a1 1 0 0 1 1.186.447l1.18 2.044a1 1 0 0 1-.205 1.251l-1.267 1.113a7.047 7.047 0 0 1 0 2.228l1.267 1.113a1 1 0 0 1 .206 1.25l-1.18 2.045a1 1 0 0 1-1.187.447l-1.598-.54a6.993 6.993 0 0 1-1.929 1.115l-.33 1.652a1 1 0 0 1-.98.804H8.82a1 1 0 0 1-.98-.804l-.331-1.652a6.993 6.993 0 0 1-1.929-1.115l-1.598.54a1 1 0 0 1-1.186-.447l-1.18-2.044a1 1 0 0 1 .205-1.251l1.267-1.114a7.05 7.05 0 0 1 0-2.227L1.821 7.773a1 1 0 0 1-.206-1.25l1.18-2.045a1 1 0 0 1 1.187-.447l1.598.54A6.993 6.993 0 0 1 7.51 3.456l.33-1.652ZM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clipRule="evenodd" />
-            </svg>
-            Configuration
-          </button>
-          <button
-            className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`}
-            onClick={() => {
-              onSignOut()
-              setAdminMenuOpen(false)
-            }}
-          >
-            <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3-3h-9m0 0 3-3m-3 3 3 3" />
-            </svg>
-            Sign out
-          </button>
-        </div>
-      )}
-
-      {/* User info + sign out / admin menu */}
+      {/* User info + config + sign out */}
       <div className={styles.userFooter}>
         <div className={styles.userEmail}>
           {userEmail}
         </div>
-        {isAdmin ? (
-          <span
-            role="button"
-            title="Menu"
-            onClick={(e) => {
-              e.stopPropagation()
-              if (adminMenuOpen) {
-                setAdminMenuOpen(false)
-              } else {
-                const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                setAdminMenuPos({ top: rect.top, left: rect.right - 140 })
-                setAdminMenuOpen(true)
-              }
-            }}
-            className={styles.adminMenuTrigger}
-          >
-            <svg viewBox="0 0 24 24" width={18} height={18} fill="currentColor">
-              <circle cx="12" cy="5" r="1.5" />
-              <circle cx="12" cy="12" r="1.5" />
-              <circle cx="12" cy="19" r="1.5" />
-            </svg>
-          </span>
-        ) : (
+        {onOpenConfig && (
           <button
-            onClick={onSignOut}
-            className={styles.signOutButton}
+            onClick={onOpenConfig}
+            className={styles.configButton}
+            title="Configuration"
           >
-            Sign out
+            <svg viewBox="0 0 20 20" width={16} height={16} fill="currentColor">
+              <path fillRule="evenodd" d="M7.84 1.804A1 1 0 0 1 8.82 1h2.36a1 1 0 0 1 .98.804l.331 1.652a6.993 6.993 0 0 1 1.929 1.115l1.598-.54a1 1 0 0 1 1.186.447l1.18 2.044a1 1 0 0 1-.205 1.251l-1.267 1.113a7.047 7.047 0 0 1 0 2.228l1.267 1.113a1 1 0 0 1 .206 1.25l-1.18 2.045a1 1 0 0 1-1.187.447l-1.598-.54a6.993 6.993 0 0 1-1.929 1.115l-.33 1.652a1 1 0 0 1-.98.804H8.82a1 1 0 0 1-.98-.804l-.331-1.652a6.993 6.993 0 0 1-1.929-1.115l-1.598.54a1 1 0 0 1-1.186-.447l-1.18-2.044a1 1 0 0 1 .205-1.251l1.267-1.114a7.05 7.05 0 0 1 0-2.227L1.821 7.773a1 1 0 0 1-.206-1.25l1.18-2.045a1 1 0 0 1 1.187-.447l1.598.54A6.993 6.993 0 0 1 7.51 3.456l.33-1.652ZM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clipRule="evenodd" />
+            </svg>
           </button>
         )}
+        <button
+          onClick={onSignOut}
+          className={styles.signOutButton}
+        >
+          Sign out
+        </button>
       </div>
     </div>
   )

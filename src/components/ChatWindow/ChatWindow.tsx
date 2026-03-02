@@ -16,9 +16,11 @@ interface ChatWindowProps {
   isLoading: boolean
   themeLabel?: string
   onOptionClick?: (messageId: string, option: string) => void
+  suggestions?: Array<{ id: string; text: string }>
+  onSuggestionClick?: (text: string) => void
 }
 
-export default function ChatWindow({ messages, isLoading, themeLabel, onOptionClick }: ChatWindowProps) {
+export default function ChatWindow({ messages, isLoading, themeLabel, onOptionClick, suggestions, onSuggestionClick }: ChatWindowProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -35,6 +37,19 @@ export default function ChatWindow({ messages, isLoading, themeLabel, onOptionCl
         <div className={styles.emptyState}>
           <div className={styles.emptyEmoji}>💬</div>
           <div>Ask me anything about {themeLabel ?? 'CryptoPayX'}</div>
+          {suggestions && suggestions.length > 0 && (
+            <div className={styles.suggestionsRow}>
+              {suggestions.map((s) => (
+                <button
+                  key={s.id}
+                  className={styles.suggestionChip}
+                  onClick={() => onSuggestionClick?.(s.text)}
+                >
+                  {s.text}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

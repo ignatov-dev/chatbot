@@ -235,7 +235,7 @@
   border-top: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   height: 70px;
 }
 
@@ -252,30 +252,37 @@
   background: none;
   border: 1px solid #d1d5db;
   border-radius: 6px;
-  padding: 4px 10px;
+  height: 26px;
+  padding: 0 10px;
   font-size: 12px;
   color: #6b7280;
   cursor: pointer;
   flex-shrink: 0;
 }
 
-.admin-menu-trigger {
+.sign-out-button:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.config-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border: none;
-  background: transparent;
-  border-radius: 8px;
+  background: none;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  color: #6b7280;
   cursor: pointer;
   flex-shrink: 0;
-  color: #374151;
-  transition: background 0.15s;
 }
 
-.admin-menu-trigger:hover {
+.config-button:hover {
   background: #f3f4f6;
+  color: #374151;
 }
 
 .mobile-pin-btn {
