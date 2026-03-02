@@ -11,6 +11,7 @@ import { useAccessRequestNotifications } from './hooks/useAccessRequestNotificat
 import { usePushNotifications } from './hooks/usePushNotifications'
 import AuthForm from './components/AuthForm'
 import { useAuth } from './contexts/AuthContext'
+import { useSmartlook } from './hooks/useSmartlook'
 import AdminConfig from './components/AdminConfig'
 import { askClaude } from './services/chat';
 import XBO from '/XBO.svg';
@@ -30,6 +31,7 @@ import {
 
 export default function App() {
   const { user, loading, signOut } = useAuth()
+  useSmartlook(user)
   const [view, setView] = useState<'auth' | 'auth-exit' | 'chat' | 'chat-exit'>(user ? 'chat' : 'auth')
   const [animateChat, setAnimateChat] = useState(false)
   const [animateAuth, setAnimateAuth] = useState(false)

@@ -9,7 +9,7 @@ function SendIcon() {
   )
 }
 
-const MAX_LENGTH = 100
+const MAX_LENGTH = 200
 
 interface ChatInputProps {
   onSend: (message: string) => void
