@@ -2,7 +2,9 @@ import { createContext, useContext, useEffect, useState, useCallback, type React
 import { supabase } from '../lib/supabase'
 import type { User, Session } from '@supabase/supabase-js'
 import { fetchUsers, type AdminUser } from '../services/adminUsers'
-import { fetchAllPermissions, type RolePermission } from '../services/permissions'
+import { fetchAllPermissions, type RolePermission, type AccessLevel } from '../services/permissions'
+import { fetchAvailableSources } from '../services/documents'
+import { fetchAllSuggestions, fetchSuggestionsForRole, type Suggestion } from '../services/suggestions'
 
 interface AuthContextType {
   user: User | null
@@ -12,9 +14,17 @@ interface AuthContextType {
   userRole: string | null
   allowedSources: string[]
   allowedShareHours: number[]
-  canEditPermissions: boolean
+  permissionsAccess: AccessLevel
+  documentsAccess: AccessLevel
+  suggestionsAccess: AccessLevel
   allPermissions: RolePermission[]
   refetchPermissions: () => Promise<void>
+  allSources: string[]
+  refetchSources: () => Promise<void>
+  suggestions: Suggestion[]
+  allSuggestions: Suggestion[]
+  refetchSuggestions: () => Promise<void>
+  refetchMySuggestions: () => Promise<void>
   adminUsers: AdminUser[]
   adminUsersLoading: boolean
   adminUsersError: string | null
@@ -107,8 +117,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [allowedSources, setAllowedSources] = useState<string[]>([])
   const [allowedShareHours, setAllowedShareHours] = useState<number[]>([])
 
-  const [canEditPermissions, setCanEditPermissions] = useState(false)
+  const [permissionsAccess, setPermissionsAccess] = useState<AccessLevel>('none')
+  const [documentsAccess, setDocumentsAccess] = useState<AccessLevel>('none')
+  const [suggestionsAccess, setSuggestionsAccess] = useState<AccessLevel>('none')
   const [allPermissions, setAllPermissions] = useState<RolePermission[]>([])
+  const [allSources, setAllSources] = useState<string[]>([])
+
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
+  const [allSuggestions, setAllSuggestions] = useState<Suggestion[]>([])
+
+  const loadMySuggestions = useCallback(() => {
+    return fetchSuggestionsForRole()
+      .then(setSuggestions)
+      .catch(console.error)
+  }, [])
+
+  const loadAllSuggestions = useCallback(() => {
+    return fetchAllSuggestions()
+      .then(setAllSuggestions)
+      .catch(console.error)
+  }, [])
+
+  useEffect(() => {
+    if (user) loadMySuggestions()
+  }, [user, loadMySuggestions])
+
+  useEffect(() => {
+    if (isAdmin) loadAllSuggestions()
+  }, [isAdmin, loadAllSuggestions])
+
+  const loadSources = useCallback(() => {
+    return fetchAvailableSources()
+      .then(setAllSources)
+      .catch(console.error)
+  }, [])
+
+  useEffect(() => {
+    if (user) loadSources()
+  }, [user, loadSources])
 
   const loadPermissions = useCallback(() => {
     return fetchAllPermissions()
@@ -125,7 +171,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const next = myPerms.allowed_share_hours
             return JSON.stringify(prev) === JSON.stringify(next) ? prev : next
           })
-          setCanEditPermissions(myPerms.can_edit_permissions)
+          setPermissionsAccess(myPerms.permissions_access ?? 'none')
+          setDocumentsAccess(myPerms.documents_access ?? 'none')
+          setSuggestionsAccess(myPerms.suggestions_access ?? 'none')
         }
       })
       .catch(console.error)
@@ -136,7 +184,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, loadPermissions])
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, isAdmin, userRole, allowedSources, allowedShareHours, canEditPermissions, allPermissions, refetchPermissions: loadPermissions, adminUsers, adminUsersLoading, adminUsersError, refetchAdminUsers: loadAdminUsers, setAdminUsers, signUp, signIn, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, isAdmin, userRole, allowedSources, allowedShareHours, permissionsAccess, documentsAccess, suggestionsAccess, allPermissions, refetchPermissions: loadPermissions, allSources, refetchSources: loadSources, suggestions, allSuggestions, refetchSuggestions: loadAllSuggestions, refetchMySuggestions: loadMySuggestions, adminUsers, adminUsersLoading, adminUsersError, refetchAdminUsers: loadAdminUsers, setAdminUsers, signUp, signIn, signInWithGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   )

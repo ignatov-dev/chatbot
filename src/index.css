@@ -154,11 +154,4 @@ body {
     z-index: 999;
   }
 
-  .theme-tabs {
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .theme-tabs::-webkit-scrollbar { display: none; }
 }

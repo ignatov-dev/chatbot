@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import ChatWindow, { type Message } from './components/ChatWindow'
 import ChatInput from './components/ChatInput'
 import ConversationSidebar from './components/ConversationSidebar'
@@ -26,16 +27,6 @@ import {
   unshareConversation,
   type ConversationSummary,
 } from './services/conversations'
-
-export const THEMES = [
-  { label: 'CryptoPayX', sources: ['cryptopayx_api_documentation.txt'] },
-  { label: 'Deposit & Withdrawal', sources: ['deposit-and-withdrawals.txt'] },
-  { label: 'Verification', sources: ['verification.txt'] },
-  { label: 'Loyalty Program', sources: ['loyalty-program.txt'] },
-  { label: 'Q & A', sources: ['questions.txt'] },
-  { label: 'Learn', sources: ['what_is_a_crypto_exchange.txt'] },
-  { label: 'Tutorial', sources: ['xbo_tutorials_full.txt'] },
-]
 
 export default function App() {
   const { user, loading, signOut } = useAuth()
@@ -122,17 +113,22 @@ function AuthenticatedApp({
   user: { id: string; email?: string }
   onSignOut: () => void
 }) {
-  const { isAdmin, allowedSources, allowedShareHours } = useAuth()
-  const [showConfig, setShowConfig] = useState(false)
-  const [activeTheme, setActiveTheme] = useState(0)
+  const { isAdmin, allowedSources, allowedShareHours, suggestions } = useAuth()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const showConfig = isAdmin && location.pathname === '/config'
 
-  const visibleThemes = useMemo(
-    () => allowedSources.length > 0
-      ? THEMES.filter((t) => t.sources.some((s) => allowedSources.includes(s)))
-      : THEMES,
+  // Redirect non-admins away from /config
+  useEffect(() => {
+    if (!isAdmin && location.pathname === '/config') {
+      navigate('/', { replace: true })
+    }
+  }, [isAdmin, location.pathname, navigate])
+
+  const effectiveSources = useMemo(
+    () => allowedSources.length > 0 ? allowedSources : undefined,
     [allowedSources],
   )
-  const currentTheme = visibleThemes[activeTheme] ?? visibleThemes[0]
   const [conversations, setConversations] = useState<ConversationSummary[]>([])
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -147,22 +143,14 @@ function AuthenticatedApp({
   const { notifications: accessRequests, approve: approveRequest, deny: denyRequest } = useAccessRequestNotifications(user.id)
   const { supported: pushSupported, subscribed: pushSubscribed, loading: pushLoading, toggle: togglePush } = usePushNotifications()
 
-  // Reset theme index when visible themes change
+  // Load conversations on mount
   useEffect(() => {
-    setActiveTheme(0)
-    setActiveConversationId(null)
-    setMessages([])
-  }, [visibleThemes])
-
-  // Load conversations on mount and when theme changes
-  useEffect(() => {
-    if (!currentTheme) return
     setIsLoadingConversations(true)
-    fetchConversations(currentTheme.sources)
+    fetchConversations()
       .then(setConversations)
       .catch(console.error)
       .finally(() => setIsLoadingConversations(false))
-  }, [activeTheme])
+  }, [])
 
   // Load messages when conversation changes
   useEffect(() => {
@@ -252,14 +240,6 @@ function AuthenticatedApp({
     }
   }, [])
 
-  const handleThemeChange = (index: number) => {
-    if (index === activeTheme) return
-    setActiveTheme(index)
-    setActiveConversationId(null)
-    setMessages([])
-    // conversations reload via useEffect on activeTheme
-  }
-
   const handleSend = useCallback(
     async (userText: string) => {
       let convId = activeConversationId
@@ -267,7 +247,7 @@ function AuthenticatedApp({
       // Create conversation if needed
       if (!convId) {
         const title = userText.length > 50 ? userText.slice(0, 50) + '...' : userText
-        convId = await createConversation(currentTheme.sources[0], title)
+        convId = await createConversation('general', title)
         skipFetchRef.current = true
         setActiveConversationId(convId)
       }
@@ -286,7 +266,7 @@ function AuthenticatedApp({
 
       try {
         const history = messages.map(({ role, content }) => ({ role, content }))
-        const response = await askClaude(userText, currentTheme.sources, history)
+        const response = await askClaude(userText, effectiveSources, history)
         const assistantMsg: Message = {
           id: `a-${Date.now()}`,
           role: 'assistant',
@@ -312,10 +292,14 @@ function AuthenticatedApp({
       }
 
       // Refresh sidebar
-      fetchConversations(currentTheme.sources).then(setConversations).catch(console.error)
+      fetchConversations().then(setConversations).catch(console.error)
     },
-    [activeConversationId, activeTheme, messages],
+    [activeConversationId, effectiveSources, messages],
   )
+
+  const handleSuggestionClick = useCallback((text: string) => {
+    handleSend(text)
+  }, [handleSend])
 
   const handleOptionClick = useCallback(
     (messageId: string, option: string) => {
@@ -344,7 +328,7 @@ function AuthenticatedApp({
             transition={{ duration: 0.25, ease: 'easeOut' }}
             style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)' }}
           >
-            <AdminConfig onBack={() => setShowConfig(false)} />
+            <AdminConfig onBack={() => navigate('/')} />
           </motion.div>
         ) : (
           <motion.div
@@ -367,7 +351,7 @@ function AuthenticatedApp({
               isOpen={sidebarOpen}
               isLoading={isLoadingConversations}
               isAdmin={isAdmin}
-              onOpenConfig={() => { setShowConfig(true); setSidebarOpen(false) }}
+              onOpenConfig={isAdmin ? () => { navigate('/config'); setSidebarOpen(false) } : undefined}
             />
 
             <main className={styles.mainColumn}>
@@ -377,7 +361,7 @@ function AuthenticatedApp({
                   <img src={XBO} alt="" className={styles.logo} />
                   <div className={styles.headerInfo}>
                     <div className={styles.headerTitle}>
-                      <span className={styles.headerThemeLabel}>{currentTheme.label} </span>Assistant
+                      <span className={styles.headerThemeLabel}>XBO </span>Assistant
                     </div>
                     <div className={styles.statusRow}>
                       <span className={styles.statusDot} />
@@ -420,26 +404,13 @@ function AuthenticatedApp({
 
               </div>
 
-              {/* Theme tabs */}
-              <div className={`${styles.themeTabs} theme-tabs`}>
-                {visibleThemes.map((theme, i) => (
-                  <button
-                    key={theme.label}
-                    onClick={() => handleThemeChange(i)}
-                    className={`${styles.themeTab}${i === activeTheme ? ` ${styles.themeTabActive}` : ''}`}
-                  >
-                    {theme.label}
-                  </button>
-                ))}
-              </div>
-
               {/* Messages */}
               <div className={styles.messagesArea}>
-                <ChatWindow messages={messages} isLoading={isLoading} themeLabel={currentTheme.label} onOptionClick={handleOptionClick} />
+                <ChatWindow messages={messages} isLoading={isLoading} themeLabel="XBO" onOptionClick={handleOptionClick} suggestions={suggestions} onSuggestionClick={handleSuggestionClick} />
               </div>
 
               {/* Input */}
-              <ChatInput onSend={handleSend} disabled={isLoading} placeholder={currentTheme.label} />
+              <ChatInput onSend={handleSend} disabled={isLoading} placeholder="XBO" />
             </main>
           </motion.div>
         )}
