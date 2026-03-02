@@ -1,0 +1,553 @@
+============================================================
+SECTION: HOW TO BUY TOKENIZED STOCKS ON XBO.COM
+============================================================
+
+Tokenized stocks let you trade major companies (Nvidia, Tesla, Microsoft, Meta and more) directly using USDT, with 24/7 access and lower barriers.
+
+How to buy tokenized stocks:
+1. Sign in and navigate your XBO.com trading account.
+2. Buy tokenized stocks instantly using Convert — select the tokenized asset and the amount.
+3. Trade tokenized asset pairs (e.g., NVDAX/USDT) via Spot Trading for more control.
+4. View, track, and manage your tokenized stocks in your wallet.
+
+Page: https://www.xbo.com/en/tutorials/how-to-buy-tokenized-stocks-on-xbo-com
+
+Video Tutorial — How to Buy Tokenized Stocks on XBO.com:
+When a user asks about buying tokenized stocks on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=Fx3Nl_81lFc" controls playsinline></video>
+
+============================================================
+SECTION: HOW TO MAKE A DEPOSIT WITH CRYPTOPAYX
+============================================================
+
+CryptoPayX lets you deposit crypto into your XBO.com account quickly and easily. Whether you are new to crypto or just getting started on XBO, this walkthrough will help you fund your wallet in minutes.
+
+Page: https://www.xbo.com/en/tutorials/how-to-make-a-deposit-with-cryptopayx
+
+Video Tutorial — How to Make a Deposit with CryptoPayX:
+When a user asks about making a deposit with CryptoPayX, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=OBbXbhRGVZU" controls playsinline></video>
+
+============================================================
+SECTION: HOW TO OPEN AN XBO.COM CORPORATE ACCOUNT
+============================================================
+
+Step-by-step guide to registering a corporate account on XBO.com for businesses, startups, and professional trading entities.
+
+How to open a corporate account:
+1. Create a corporate account on XBO.com by clicking Register and selecting Corporate Account.
+2. Complete the registration form with your company details.
+3. Submit the required business documents for verification.
+4. Set up security settings for your company account.
+5. Complete the KYC/compliance steps for corporate profiles.
+6. Navigate your new corporate trading dashboard.
+
+Page: https://www.xbo.com/en/tutorials/how-to-open-an-xbo-com-corporate-account-in-minutes
+
+Video Tutorial — How to Open an XBO.com Corporate Account:
+When a user asks about opening a corporate account on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=7pORYRdAsJo" controls playsinline></video>
+
+============================================================
+SECTION: HOW TO READ THE ORDER BOOK ON XBO.COM
+============================================================
+
+The order book shows all open buy and sell orders for a trading pair, helping you make smarter trading decisions.
+
+Key concepts:
+- Bids (buy orders) vs. Asks (sell orders) — bids show demand, asks show supply.
+- Spread — the gap between the highest bid and lowest ask. A tight spread means high liquidity.
+- Market depth — shows the volume of orders at each price level, indicating potential support and resistance.
+- Buy/sell pressure — more bids than asks signals buying pressure (price may rise), and vice versa.
+- Market orders execute instantly at the current price; limit orders execute at a price you set.
+
+Tips: Watch the spread for market sentiment. Use limit orders to control your entry/exit price. Avoid large market orders in thin order books to reduce slippage.
+
+Page: https://www.xbo.com/en/tutorials/the-secret-behind-every-trade-learn-the-order-book-on-xbo-com
+
+Video Tutorial — Learn the Order Book on XBO.com:
+When a user asks about the order book on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=Bvvsm8azJrI" controls playsinline></video>
+
+============================================================
+SECTION: HOW TO FAST-TRACK EARNINGS WITH XBO CORPORATE REFERRALS
+============================================================
+
+The XBO Corporate Referral program lets businesses, marketers, and content creators monetize their network.
+
+How to get started:
+1. Create your XBO Partners account.
+2. Access banners, funnels, and affiliate links in the Marketing Tools section.
+3. Share your referral link with contacts.
+4. Track performance, reports, and conversions in your dashboard.
+5. Withdraw your earnings quickly and easily.
+
+Page: https://www.xbo.com/en/tutorials/how-to-fast-track-earnings-with-xbo-corporate-referrals
+
+Video Tutorial — How to Fast-Track Earnings with XBO Corporate Referrals:
+When a user asks about corporate referrals on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=kcKQK0xzb2M" controls playsinline></video>
+
+============================================================
+SECTION: HOW TO INVITE FRIENDS AND BECOME AN XBO PARTNER
+============================================================
+
+XBO.com lets you invite friends to trade and earn rewards through its referral program.
+
+How to use the referral program:
+1. Go to xbo.com and click "Become a Partner".
+2. Choose "Refer a Client" for individual referrals, or "Contact Us" for corporate partnerships.
+3. Log in, copy your unique referral link, and share it on social platforms or directly.
+4. Track clicks, sign-ups, conversions, and country-specific data in your Referral Dashboard.
+5. Use the Marketing Tools tab for pre-made graphics, landing pages, and captions.
+6. View your earnings (CPA, CPL, revenue share) on the Earnings page.
+7. To withdraw, go to "Payout to Wallet" — funds transfer to your XBO.com wallet.
+
+Page: https://www.xbo.com/en/tutorials/earn-more-with-xbo-com-invite-friends-become-a-partner
+
+Video Tutorial — Earn More with XBO.com - Invite Friends and Become a Partner:
+When a user asks about inviting friends or the referral program on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=jaZ-6zApnNU" controls playsinline></video>
+
+============================================================
+SECTION: HOW TO GET YOUR CRYPTO TRADING STATEMENT ON XBO.COM
+============================================================
+
+XBO.com lets you generate and export trading statements for accounting and tax purposes.
+
+How to issue a statement report:
+1. Log in to XBO.com.
+2. Go to the "Statements" section on your dashboard.
+3. Select the date range for the period you need.
+4. Choose the transaction types to include (e.g., conversions, trades, transactions).
+5. Click "Show" to preview your statement.
+6. Export it as a PDF or CSV file and save it to your computer.
+
+Page: https://www.xbo.com/en/tutorials/need-your-crypto-trading-statement-for-accounting-we-got-you-covered
+
+Video Tutorial — How to Get Your Crypto Trading Statement:
+When a user asks about trading statements or accounting on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=-VuGzeMz7XY" controls playsinline></video>
+
+============================================================
+SECTION: HOW TO WHITELIST YOUR WALLET ADDRESS ON XBO.COM
+============================================================
+
+Whitelisting wallet addresses makes your withdrawals faster, smoother, and more secure.
+
+How to whitelist a wallet address:
+1. Log into your XBO account at xbo.com.
+2. Go to Dashboard, then navigate to the Withdrawal Address section.
+3. Click "Add Address" to begin.
+4. Paste the wallet address you want to whitelist and select the correct cryptocurrency.
+5. Add a clear nickname to easily recognize the address later.
+6. Toggle the Whitelist option if needed and confirm your entry.
+7. Complete any required 2FA or email confirmations to finalize the setup.
+
+Your whitelisted address is now saved, making future withdrawals faster and more secure.
+
+Page: https://www.xbo.com/en/tutorials/whitelisting-your-wallet-address-a-step-by-step-guide
+
+Video Tutorial — Whitelisting Your Wallet Address:
+When a user asks about whitelisting a wallet address on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=X4zHNnuoTK0" controls playsinline></video>
+
+============================================================
+SECTION: HOW TO LINK YOUR WEB3 WALLET TO XBO.COM
+============================================================
+
+Connect your Web3 wallet (MetaMask, Trust Wallet, etc.) to XBO.com for seamless deposits, withdrawals, and trading.
+
+How to connect your Web3 wallet:
+1. Log into your XBO account (sign up if you don't have one).
+2. Go to the Deposit or Withdrawal Crypto section.
+3. Click the "Connect Wallet" button.
+4. Select your Web3 wallet from the supported options.
+5. Make sure you are on the official XBO.com site — double-check the URL.
+6. A pop-up will appear. Choose the account to connect, review permissions, then click "Next" and "Connect."
+
+Your Web3 wallet is now connected. You can deposit, withdraw, and trade directly.
+
+Page: https://www.xbo.com/en/tutorials/why-and-how-to-link-your-web3-wallet-to-xbo-com
+
+Video Tutorial — How to Link Your Web3 Wallet to XBO.com:
+When a user asks about linking a Web3 wallet to XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=CmetqlzfKhs" controls playsinline></video>
+
+============================================================
+SECTION: HOW TO PROFIT WITH GAINERS AND LOSERS ON XBO.COM
+============================================================
+
+The Gainers and Losers sections help you spot market trends and identify trading opportunities.
+
+Gainers Section:
+- Highlights cryptocurrencies with the biggest price increases.
+- Great for spotting trends, but a rapid surge could mean the asset is overbought.
+- Consider that a correction may follow, or it could signal a short-selling opportunity.
+
+Losers Section:
+- Shows cryptocurrencies that dropped the most in value.
+- A steep decline might signal a potential buying opportunity if the asset is undervalued.
+- A sharp drop could present an entry point before a price recovery.
+
+Use these features to spot market trends early, avoid overpaying, and identify investment opportunities.
+
+Page: https://www.xbo.com/en/tutorials/how-to-profit-with-gainers-losers-on-xbo-com
+
+Video Tutorial — How to Profit with Gainers and Losers on XBO.com:
+When a user asks about gainers and losers on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=_pTvUoM4y4Q" controls playsinline></video>
+
+============================================================
+SECTION: SWAP VS EXCHANGE TRADES ON XBO.COM
+============================================================
+
+XBO.com offers two ways to convert crypto: Trading and Exchange (Swapping).
+
+Trading:
+- Takes place in a market where buyers and sellers interact.
+- Place a market order (buy/sell at current price) or a limit order (at a price you set).
+- Ideal for users who want more control or aim to profit from price fluctuations.
+
+Exchange (Swapping):
+- A fast, straightforward way to convert one cryptocurrency into another.
+- Simply exchange at the current rate without dealing with order books or market trends.
+- Perfect for users who prioritize speed and convenience.
+
+Key differences: Trading gives you flexibility and control but requires market knowledge. Swapping is about simplicity and transparency, ideal for quick conversions. Both options are available on XBO.com.
+
+Page: https://www.xbo.com/en/tutorials/swap-vs-exchange-trades-whats-the-difference-on-xbo
+
+Video Tutorial — SWAP vs Exchange Trades on XBO.com:
+When a user asks about the difference between SWAP and exchange trades on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=w_zD3eVbF0o" controls playsinline></video>
+
+============================================================
+SECTION: XBO.COM LOYALTY PROGRAM EXPLAINED
+============================================================
+
+The XBO Loyalty Program rewards active traders with XP (experience points). The more XP you accumulate, the higher your tier and the better your rewards.
+
+How to earn XP:
+- Trading cryptocurrencies
+- Completing your account verification
+- Participating in special promotions and events
+
+How to check your tier: Log in, open the menu, and locate the Loyalty Program section.
+
+Rewards by tier:
+- Higher exchange cashback (percentage of trading fees back)
+- More free fiat withdrawals
+- Lower spot trading fees
+- Priority access to launch pools and VIP events
+
+How to claim rewards: Go to the Rewards Center, view available rewards based on your tier, and claim unclaimed rewards (bonus coins, exclusive access to new listings).
+
+Page: https://www.xbo.com/en/tutorials/xbo-com-loyalty-program-explained-earn-more-with-crypto-rewards
+
+Video Tutorial — XBO.com Loyalty Program Explained:
+When a user asks about the loyalty program on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=0XowfSxnXN0" controls playsinline></video>
+
+============================================================
+SECTION: XBO SECURITY - KEEPING YOUR ACCOUNT SAFE
+============================================================
+
+XBO requires multi-factor authentication (MFA) for both logging in and making withdrawals.
+
+Security features you can enable:
+- SMS Authentication: No setup needed. You receive a verification code via SMS when logging in or withdrawing funds.
+- Google Authenticator: Generates a unique code in the app for an extra layer of security.
+
+How to set up Google Authenticator:
+1. Download Google Authenticator from the App Store or Google Play.
+2. Open XBO and scan the QR code provided.
+3. Enter the generated code in XBO to complete the setup.
+4. Choose which actions to secure — login, withdrawals, or both.
+
+Page: https://www.xbo.com/en/tutorials/your-crypto-our-priority-explore-xbo-com-top-security-features
+
+Video Tutorial — XBO Security - Keeping Your Account Safe:
+When a user asks about security features on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=r-igSsm2mIQ" controls playsinline></video>
+
+============================================================
+SECTION: XBO PARTNER PROGRAM - HOW TO GET STARTED
+============================================================
+
+XBO offers two types of partnerships:
+
+Referrer Program:
+- Inside your XBO dashboard, find the "Invite a Friend" option.
+- Share your referral link. When your friend signs up and trades, you earn a commission.
+- Quick, simple, and great for sharing XBO with others while earning rewards.
+
+Full Partner Program:
+- For users with a large audience (website, social media, or another platform).
+- Become a full-fledged XBO partner and monetize your influence.
+- Work directly with the XBO team for a custom partnership with exclusive benefits.
+
+Page: https://www.xbo.com/en/tutorials/become-an-xbo-com-partner-earn-crypto-by-referring-your-audience
+
+Video Tutorial — XBO Partner Program - How to Get Started:
+When a user asks about the XBO partner program, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=ZSwQbDGaoa4" controls playsinline></video>
+
+============================================================
+SECTION: CRYPTOPAYX FOR BUSINESSES - STREAMLINING CRYPTO PAYMENTS
+============================================================
+
+CryptoPayX is a seamless crypto payment solution for businesses.
+
+Accepting payments in crypto:
+1. Your customer initiates a payment — you set the price (e.g., 35 EUR).
+2. They choose any cryptocurrency to pay with (BTC, ETH, USDT, etc.).
+3. XBO handles the conversion — no volatility risk. If you charge 35 EUR, you receive exactly that.
+4. A one-time wallet address or QR code is generated and the customer completes the transaction.
+
+Payouts to customers:
+1. You set the amount to send (e.g., 35 EUR).
+2. The customer chooses the crypto they want to receive.
+3. The funds are sent directly to their wallet.
+
+Complete transaction visibility: Full tracking and reporting for all processed payments in EUR, USD, GBP, or any supported fiat currency. Customers pay in crypto, but you receive stable fiat settlements — zero volatility, zero risk.
+
+Page: https://www.xbo.com/en/tutorials/using-cryptopayx-on-xbo-com-seamless-crypto-payments-tutorial
+
+Video Tutorial — CryptoPayX for Businesses:
+When a user asks about CryptoPayX for businesses, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=gJsDSTHiB4E" controls playsinline></video>
+
+============================================================
+SECTION: FUTURES TRADING ON XBO.COM FOR BEGINNERS
+============================================================
+
+Futures trading lets you trade with leverage, increasing your trading power with smaller capital.
+
+How to start futures trading:
+1. Sign in to XBO and click "Trade", then select "Futures".
+2. View the trading chart with technical analysis tools and market analytics.
+3. Adjust leverage (higher leverage = higher risk and reward).
+4. Select your trading pair (e.g., Ethereum/USDT).
+5. Place a market order to buy at the current price, or use a limit order to buy at a specific price.
+
+Risk management:
+- Set Take Profit to automatically secure profits at a target price.
+- Set Stop Loss to limit potential losses.
+- The position auto-closes when these levels are reached.
+
+Tips: Use risk management tools on every trade. Monitor the market and adjust strategies. Start with lower leverage until you are comfortable.
+
+Page: https://www.xbo.com/en/tutorials/futures-trading-on-xbo-com-comprehensive-tutorial-for-beginners
+
+Video Tutorial — Futures Trading on XBO.com:
+When a user asks about futures trading on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=UU3U3vbl8HM" controls playsinline></video>
+
+============================================================
+SECTION: SPOT TRADING ON XBO.COM FOR BEGINNERS
+============================================================
+
+Spot trading lets you buy and sell cryptocurrencies at current market prices or at a price you set.
+
+How to spot trade:
+1. Log in to XBO.com and navigate to the trading interface.
+2. Familiarize yourself with the Trading View chart, trade execution section, and trading history.
+3. Select your trading pair (e.g., Bitcoin-Euro).
+4. Place a market order to buy at the current price — Bitcoin is added to your balance instantly.
+5. Use a limit order to sell at a higher target price — the order executes automatically when the market reaches your price.
+6. Limit orders also work for buying at lower prices.
+
+Tips: Use the trading tools to analyze market trends. Adjust your strategy based on price movements.
+
+Page: https://www.xbo.com/en/tutorials/spot-trading-on-xbo-a-beginners-guide-to-easy-crypto-trading
+
+Video Tutorial — Spot Trading on XBO.com:
+When a user asks about spot trading on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=dD6ahe1SQro" controls playsinline></video>
+
+============================================================
+SECTION: HOW TO WITHDRAW FUNDS FROM XBO.COM
+============================================================
+
+You can withdraw both cryptocurrency and fiat currency from XBO.com.
+
+Withdrawing cryptocurrency:
+1. Log in and go to the Dashboard page.
+2. Click "Withdraw Address" on the left to access your address book.
+3. If no addresses are saved, click "Add Address" and input the required details.
+4. Click "Wallet" at the bottom, choose the cryptocurrency to withdraw.
+5. Click "More", then select "Withdraw".
+6. Enter the amount, choose the network, select a saved wallet address.
+7. Click "Continue", then "Confirm" to finalize.
+
+Withdrawing fiat currency:
+1. Log in and go to the Dashboard page.
+2. Click "Wallet" at the bottom, choose the fiat currency to withdraw.
+3. Click "More", then select "Withdraw".
+4. Enter the amount and provide your bank transfer details.
+5. Click "Withdraw", review the information, and click "Confirm".
+
+Track your withdrawal status in the Transaction History section.
+
+Page: https://www.xbo.com/en/tutorials/how-to-withdraw-funds-from-xbo-step-by-step-guide
+
+Video Tutorial — How to Withdraw Funds from XBO.com:
+When a user asks about withdrawing funds from XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=VCJpz_GtMzs" controls playsinline></video>
+
+============================================================
+SECTION: HOW TO DEPOSIT FUNDS ON XBO.COM
+============================================================
+
+XBO.com supports three deposit methods: Crypto, Card, and Bank.
+
+Deposit Crypto:
+1. Log in, click "Deposit", and select "Deposit Crypto".
+2. Choose your cryptocurrency and network.
+3. A QR code and wallet address will be generated.
+4. Send funds from your external wallet to the provided address.
+
+Deposit via Card:
+1. Select "Card" as your deposit method.
+2. Enter your card details and the deposit amount.
+3. Click "Deposit", enter your CVV when prompted, and click "Confirm".
+
+Deposit via Bank:
+1. Select "Bank" as your deposit method.
+2. Choose your currency and enter the deposit amount.
+3. Enter your bank account details and select the recipient bank.
+4. Click "Proceed" and "Save PDF" to download the details your bank needs to complete the transfer.
+
+Page: https://www.xbo.com/en/tutorials/how-to-deposit-funds-from-xbo-step-by-step-guide
+
+Video Tutorial — How to Deposit Funds on XBO.com:
+When a user asks about depositing funds on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=M3UV_2Eg6Vk" controls playsinline></video>
+
+============================================================
+SECTION: HOW TO EXCHANGE CRYPTOCURRENCIES ON XBO.COM
+============================================================
+
+The Exchange feature lets you swap one cryptocurrency for another at real-time market rates.
+
+How to exchange crypto:
+1. Log in and go to the Dashboard page.
+2. Scroll to the bottom and click the "Exchange" button.
+3. Select the cryptocurrency you want to spend from the dropdown and enter the amount.
+4. Select the cryptocurrency you want to receive — the system shows the amount based on real-time data.
+5. Click "Exchange" to finalize the transaction.
+
+Note: If you don't have crypto in your wallet, see the "Buying Crypto with a Card" tutorial.
+
+Page: https://www.xbo.com/en/tutorials/how-to-exchange-cryptocurrencies-on-xbo
+
+Video Tutorial — How to Exchange Cryptocurrencies on XBO.com:
+When a user asks about exchanging cryptocurrencies on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=3dNu0VLJ26w" controls playsinline></video>
+
+============================================================
+SECTION: HOW TO USE XBO.COM EARN FEATURE
+============================================================
+
+The Earn feature lets you earn passive income on your cryptocurrency holdings.
+
+How to start earning:
+1. Log in and go to the Dashboard page.
+2. Scroll to the bottom and click the "Earn" button.
+3. Choose the cryptocurrency you want to earn interest on.
+4. Click "Start Earn" next to it.
+5. In the pop-up, enter the amount you wish to invest.
+6. Click "Start Earning" to activate.
+
+You are now earning passive income on your chosen cryptocurrency.
+
+Page: https://www.xbo.com/en/tutorials/maximize-your-earnings-how-to-use-xbo-earn-feature
+
+Video Tutorial — How to Use XBO.com Earn Feature:
+When a user asks about the Earn feature on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=0SUrB0yo2FQ" controls playsinline></video>
+
+============================================================
+SECTION: BUYING CRYPTO WITH A CARD ON XBO.COM
+============================================================
+
+Purchase cryptocurrency directly using your credit or debit card on XBO.com.
+
+How to buy crypto with a card:
+1. Log in and navigate to the Dashboard page.
+2. Click "Buy Crypto" on the left side of the screen.
+3. Choose your fiat currency for the purchase.
+4. Select the cryptocurrency you want to buy.
+5. Enter the amount of fiat to spend — the system shows the equivalent crypto amount.
+6. Click "Card" and select a saved card or enter new card details.
+7. Enter your card's CVV to verify.
+8. Click "Proceed" to complete the purchase.
+
+Your cryptocurrency will be instantly deposited into your XBO.com wallet.
+
+Page: https://www.xbo.com/en/tutorials/buying-crypto-with-a-card-on-xbo-step-by-step-tutorial
+
+Video Tutorial — Buying Crypto with a Card on XBO.com:
+When a user asks about buying crypto with a card on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=S67nzZIgqfY" controls playsinline></video>
+
+============================================================
+SECTION: CORPORATE ACCOUNT SETUP GUIDE ON XBO.COM
+============================================================
+
+Follow these steps to create and verify your corporate account on XBO.com.
+
+Step 1 - Create your corporate account:
+1. Go to XBO.com and click "Register" in the top-right corner.
+2. At the bottom of the registration page, click "Create Corporate Account".
+3. Enter your business name, business email, and phone number.
+4. Agree to the Terms and Conditions and click "Send Request".
+5. Complete the CAPTCHA verification.
+
+Step 2 - Submit required documentation:
+1. Open the email from XBO.com and click the link to access the submission form.
+2. Fill in all required fields: proof of identity for authorized personnel, information on shareholders, and any additional compliance details.
+
+Once verified, your corporate account is activated with access to CryptoPayX, Wealth Management, and more.
+
+Page: https://www.xbo.com/en/tutorials/corporate-account-setup-guide-on-xbo
+
+Video Tutorial — Corporate Account Setup Guide on XBO.com:
+When a user asks about corporate account setup on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=n0fmdjgZWj8" controls playsinline></video>
+
+============================================================
+SECTION: HOW TO GET STARTED - USER ONBOARDING ON XBO.COM
+============================================================
+
+Follow these steps to create your account and unlock the full functionality of XBO.com.
+
+Step 1 - Create your account:
+1. Go to XBO.com and click "Registration" in the top-right corner.
+2. Enter your email, create a strong password, and agree to the Terms and Conditions.
+3. Click "Create Account" and complete the CAPTCHA.
+
+Step 2 - Basic verification:
+1. Check your inbox and click "Confirm Email" in the verification email.
+2. Enter your phone number, click "Confirm", and enter the PIN sent to your phone.
+3. Provide your first name, last name, and date of birth.
+
+You now have basic access. To deposit fiat and trade unlimited crypto, complete additional verification.
+
+Step 3 - Additional verification:
+1. Select your country, enter your home address, city, and ZIP code.
+2. Review your details and click "Confirm".
+3. Scan the QR code with your smartphone and upload a photo of your ID (driver's license, passport, or ID card).
+
+Once verified, you have full access to fiat deposits and unlimited cryptocurrency trading.
+
+Page: https://www.xbo.com/en/tutorials/how-to-get-started-user-onboarding-on-xbo
+
+Video Tutorial — How to Get Started on XBO.com:
+When a user asks about getting started, signing up, or onboarding on XBO.com, always include this video in your response exactly as written:
+<video src="https://www.youtube.com/watch?v=rEJ8wzRPYCw" controls playsinline></video>
+
+==============================================================
+END OF DOCUMENT
+==============================================================

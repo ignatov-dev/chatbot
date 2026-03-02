@@ -43,6 +43,19 @@ END OF DOCUMENT
    - Keep paragraphs separated by blank lines for readability
    - Preserve lists, steps, and structured data
    - Remove any source formatting artifacts (HTML tags, markdown symbols if not appropriate, etc.)
+   - **Preserve video tutorial directives exactly as-is.** If the source contains a video tutorial block with an instruction like "When a user asks about X, always include this video in your response exactly as written:" followed by a `<video>` tag, keep the entire block (instruction + tag) verbatim in the formatted output. These directives tell the LLM to embed the video in chat responses. Example:
+     ```
+     Video Tutorial — How to Make a CryptoPayX Deposit:
+     When a user asks about how to make a deposit, always include this video in your response exactly as written:
+     <video src="https://www.xbo.com/_astro/video--1.CTEIxdIn.mp4" controls playsinline></video>
+     ```
+   - When the source contains video/page URLs associated with a topic (e.g., tutorial listings), and no explicit LLM directive exists, add one using this pattern:
+     ```
+     Video Tutorial — <Topic Title>:
+     When a user asks about <topic>, always include this video in your response exactly as written:
+     <video src="<VIDEO_URL>" controls playsinline></video>
+     ```
+     Only add this directive when a direct video URL (e.g., YouTube or .mp4) is available for the topic.
 6. **Keep sections under ~1500 characters** when possible — the ingestion script sub-chunks sections exceeding 1600 chars, so shorter sections produce cleaner chunks.
 7. **Write the formatted result** back to the same file path, overwriting the original.
 8. **After formatting**, remind the user to:

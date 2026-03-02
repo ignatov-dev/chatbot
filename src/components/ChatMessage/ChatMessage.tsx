@@ -14,6 +14,15 @@ interface ChatMessageProps {
 
 marked.setOptions({ breaks: true })
 
+// Convert <video> tags with YouTube URLs to <iframe> embeds
+function convertYouTubeVideos(html: string): string {
+  return html.replace(
+    /<video[^>]*\ssrc=["'](https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)[^"']*)["'][^>]*>(?:<\/video>)?/gi,
+    (_, _url, videoId) =>
+      `<iframe width="100%" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius:8px;margin:8px 0;aspect-ratio:16/9"></iframe>`
+  )
+}
+
 // Split markdown HTML into text segments and code blocks
 function parseContent(html: string): Array<{ type: 'html'; value: string } | { type: 'code'; language: string; value: string }> {
   const parts: Array<{ type: 'html'; value: string } | { type: 'code'; language: string; value: string }> = []
@@ -52,7 +61,7 @@ export default function ChatMessage({ role, content, options, onOptionClick }: C
   const parts = useMemo(() => {
     if (isUser) return []
     const html = marked.parse(content) as string
-    return parseContent(html)
+    return parseContent(convertYouTubeVideos(html))
   }, [content, isUser])
 
   return (

@@ -117,8 +117,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const myRole = userRole ?? 'user'
         const myPerms = rows.find((r) => r.role === myRole)
         if (myPerms) {
-          setAllowedSources(myPerms.allowed_sources)
-          setAllowedShareHours(myPerms.allowed_share_hours)
+          setAllowedSources((prev) => {
+            const next = myPerms.allowed_sources
+            return JSON.stringify(prev) === JSON.stringify(next) ? prev : next
+          })
+          setAllowedShareHours((prev) => {
+            const next = myPerms.allowed_share_hours
+            return JSON.stringify(prev) === JSON.stringify(next) ? prev : next
+          })
           setCanEditPermissions(myPerms.can_edit_permissions)
         }
       })

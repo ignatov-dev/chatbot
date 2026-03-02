@@ -33,7 +33,8 @@ const DOCUMENTS = [
   'verification.txt',
   'loyalty-program.txt',
   'questions.txt',
-  'what_is_a_crypto_exchange.txt'
+  'what_is_a_crypto_exchange.txt',
+  'xbo_tutorials_full.txt'
 ]
 
 // Split by ===...SECTION: NAME...=== delimiters, then sub-chunk large sections
