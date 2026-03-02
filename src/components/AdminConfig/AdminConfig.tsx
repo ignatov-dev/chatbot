@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, type ChangeEvent } from 'react'
+import { useState, useMemo, useCallback, useRef, type ChangeEvent } from 'react'
 import { updateUserRole } from '../../services/adminUsers'
 import { updatePermissions, type RolePermission, type AccessLevel } from '../../services/permissions'
 import { ingestDocument, deleteDocument, formatDocument, splitIntoChunks, type PreviewChunk } from '../../services/documents'
@@ -27,6 +27,14 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
   const [savingRoles, setSavingRoles] = useState<Set<string>>(new Set())
   const [localPerms, setLocalPerms] = useState<RolePermission[] | null>(null)
   const isManager = userRole === 'manager'
+
+  // Users tab state
+  const [userSearchQuery, setUserSearchQuery] = useState('')
+  const filteredUsers = useMemo(() => {
+    if (!userSearchQuery.trim()) return users
+    const q = userSearchQuery.toLowerCase()
+    return users.filter((u) => u.email.toLowerCase().includes(q))
+  }, [users, userSearchQuery])
 
   // Documents tab state
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -354,10 +362,28 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
               <div className={styles.emptyState}>No other users found</div>
             )}
 
+            {users.length > 0 && (
+              <div className={styles.userSearchWrapper}>
+                <svg className={styles.userSearchIcon} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input
+                  type="text"
+                  className={styles.userSearchInput}
+                  placeholder="Search users..."
+                  value={userSearchQuery}
+                  onChange={(e) => setUserSearchQuery(e.target.value)}
+                />
+                {userSearchQuery && (
+                  <button className={styles.userSearchClear} onClick={() => setUserSearchQuery('')}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                )}
+              </div>
+            )}
+
             <div style={loading ? { opacity: 0.6, pointerEvents: 'none' } : undefined}>
               {(() => {
-                const selfUser = users.find((u) => u.id === currentUser?.id)
-                const otherUsers = users.filter((u) => u.id !== currentUser?.id)
+                const selfUser = filteredUsers.find((u) => u.id === currentUser?.id)
+                const otherUsers = filteredUsers.filter((u) => u.id !== currentUser?.id)
 
                 const renderRow = (user: typeof users[0], isSelf: boolean) => (
                   <div key={user.id} className={styles.userRow}>
@@ -367,23 +393,23 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
                         {isSelf && <span className={styles.youTag}>you</span>}
                       </div>
                     </div>
-                    <div className={styles.roleTabs}>
+                    <div className={styles.accessSwitcher}>
                       <button
-                        className={`${styles.roleTab} ${!user.user_role ? styles.roleTabActive : ''}`}
+                        className={`${styles.accessOption} ${!user.user_role ? styles.accessOptionActive : ''}`}
                         disabled={isSelf || updatingIds.has(user.id) || !user.user_role || (isManager && user.user_role === 'admin')}
                         onClick={() => handleSetRole(user.id, null)}
                       >
                         User
                       </button>
                       <button
-                        className={`${styles.roleTab} ${user.user_role === 'manager' ? styles.roleTabActive : ''}`}
+                        className={`${styles.accessOption} ${user.user_role === 'manager' ? styles.accessOptionActive : ''}`}
                         disabled={isSelf || updatingIds.has(user.id) || user.user_role === 'manager' || (isManager && user.user_role === 'admin')}
                         onClick={() => handleSetRole(user.id, 'manager')}
                       >
                         Manager
                       </button>
                       <button
-                        className={`${styles.roleTab} ${user.user_role === 'admin' ? styles.roleTabActive : ''}`}
+                        className={`${styles.accessOption} ${user.user_role === 'admin' ? styles.accessOptionActive : ''}`}
                         disabled={isSelf || updatingIds.has(user.id) || user.user_role === 'admin' || isManager}
                         onClick={() => handleSetRole(user.id, 'admin')}
                       >
