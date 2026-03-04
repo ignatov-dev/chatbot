@@ -11,7 +11,8 @@ export function useSmartlook(user: { id: string; email?: string } | null) {
     if (identifiedRef.current === user.id) return
 
     if (!Smartlook.initialized()) {
-      Smartlook.init(SMARTLOOK_KEY)
+      Smartlook.init(SMARTLOOK_KEY);
+      Smartlook.record({ forms: true, numbers: true, emails: true, ips: true })
     }
 
     Smartlook.identify(user.id, {
