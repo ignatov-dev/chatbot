@@ -4,14 +4,15 @@ import { fetchFeedbackAnalytics, type FeedbackAnalytics } from '../../services/f
 import { updatePermissions, type RolePermission, type AccessLevel } from '../../services/permissions'
 import { ingestDocument, deleteDocument, formatDocument, splitIntoChunks, type PreviewChunk } from '../../services/documents'
 import { createSuggestion, updateSuggestion, deleteSuggestion } from '../../services/suggestions'
+import { createAutocompleteSuggestion, updateAutocompleteSuggestion, deleteAutocompleteSuggestion } from '../../services/autocompleteSuggestions'
 import { useAuth } from '../../contexts/AuthContext'
 import ConfirmDialog from '../ConfirmDialog'
 import styles from './AdminConfig.module.css'
 
 const SHARE_OPTIONS: { label: string; hours: number }[] = [
-  { label: '1h', hours: 1 },
-  { label: '12h', hours: 12 },
-  { label: '24h', hours: 24 },
+  { label: '1 Hour', hours: 1 },
+  { label: '12 Hours', hours: 12 },
+  { label: '24 Hours', hours: 24 },
   { label: 'No limit', hours: 0 },
 ]
 
@@ -19,23 +20,48 @@ interface AdminConfigProps {
   onBack: () => void
 }
 
-type ConfigTab = 'users' | 'permissions' | 'documents' | 'suggestions' | 'feedback'
+type ConfigTab = 'users' | 'permissions' | 'documents' | 'suggestions' | 'autocomplete' | 'feedback'
 
 export default function AdminConfig({ onBack }: AdminConfigProps) {
-  const { user: currentUser, adminUsers: users, adminUsersLoading: loading, adminUsersError: error, setAdminUsers, userRole, permissionsAccess, documentsAccess, suggestionsAccess, allPermissions, refetchPermissions, allSources, refetchSources, allSuggestions, refetchSuggestions, refetchMySuggestions } = useAuth()
+  const { user: currentUser, adminUsers: users, adminUsersLoading: loading, adminUsersError: error, setAdminUsers, userRole, permissionsAccess, documentsAccess, suggestionsAccess, autocompleteAccess, rolesAccess, feedbackAccess, allPermissions, refetchPermissions, allSources, refetchSources, allSuggestions, refetchSuggestions, refetchMySuggestions, allAutocompleteSuggestions, refetchAutocompleteSuggestions, refetchMyAutocompleteSuggestions } = useAuth()
   const [activeTab, setActiveTab] = useState<ConfigTab>('users')
   const [updatingIds, setUpdatingIds] = useState<Set<string>>(new Set())
-  const [savingRoles, setSavingRoles] = useState<Set<string>>(new Set())
   const [localPerms, setLocalPerms] = useState<RolePermission[] | null>(null)
   const isManager = userRole === 'manager'
 
+  // Set initial tab to the first one the user has access to
+  const initialTabSet = useRef(false)
+  useEffect(() => {
+    if (initialTabSet.current) return
+    const tabs: { key: ConfigTab; access: string }[] = [
+      { key: 'users', access: rolesAccess },
+      { key: 'permissions', access: permissionsAccess },
+      { key: 'documents', access: documentsAccess },
+      { key: 'suggestions', access: suggestionsAccess },
+      { key: 'autocomplete', access: autocompleteAccess },
+      { key: 'feedback', access: feedbackAccess },
+    ]
+    const first = tabs.find((t) => t.access !== 'none')
+    if (first) {
+      setActiveTab(first.key)
+      initialTabSet.current = true
+    }
+  }, [rolesAccess, permissionsAccess, documentsAccess, suggestionsAccess, autocompleteAccess, feedbackAccess])
+
   // Users tab state
   const [userSearchQuery, setUserSearchQuery] = useState('')
+  const [editingUserId, setEditingUserId] = useState<string | null>(null)
+  const [selectedRole, setSelectedRole] = useState<string | null>(null)
   const filteredUsers = useMemo(() => {
     if (!userSearchQuery.trim()) return users
     const q = userSearchQuery.toLowerCase()
     return users.filter((u) => u.email.toLowerCase().includes(q))
   }, [users, userSearchQuery])
+  const usersByRole = useMemo(() => ({
+    user: filteredUsers.filter((u) => !u.user_role),
+    manager: filteredUsers.filter((u) => u.user_role === 'manager'),
+    admin: filteredUsers.filter((u) => u.user_role === 'admin'),
+  }), [filteredUsers])
 
   // Documents tab state
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -52,12 +78,16 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
   const [deletingSource, setDeletingSource] = useState<string | null>(null)
 
   // Suggestions tab state
-  const [newSuggestionText, setNewSuggestionText] = useState('')
-  const [isAddingSuggestion, setIsAddingSuggestion] = useState(false)
   const [editingSuggestionId, setEditingSuggestionId] = useState<string | null>(null)
   const [editingSuggestionText, setEditingSuggestionText] = useState('')
-  const [deletingSuggestionId, setDeletingSuggestionId] = useState<string | null>(null)
   const [confirmDeleteSuggestion, setConfirmDeleteSuggestion] = useState<string | null>(null)
+
+  // Autocomplete tab state
+  const [editingAutocompleteId, setEditingAutocompleteId] = useState<string | null>(null)
+  const [editingAutocompleteQuestion, setEditingAutocompleteQuestion] = useState('')
+  const [editingAutocompleteKeywords, setEditingAutocompleteKeywords] = useState<string[]>([])
+  const [editKeywordInput, setEditKeywordInput] = useState('')
+  const [confirmDeleteAutocomplete, setConfirmDeleteAutocomplete] = useState<string | null>(null)
 
   // Feedback tab state
   const [feedbackData, setFeedbackData] = useState<FeedbackAnalytics | null>(null)
@@ -124,31 +154,35 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
     })
   }, [allPermissions])
 
-  const handleSetAccess = useCallback((role: string, field: 'permissions_access' | 'documents_access' | 'suggestions_access', value: AccessLevel) => {
+  const handleSetAccess = useCallback((role: string, field: 'permissions_access' | 'documents_access' | 'suggestions_access' | 'autocomplete_access' | 'roles_access' | 'feedback_access', value: AccessLevel) => {
     setLocalPerms((prev) => {
       const base = prev ?? allPermissions
       return base.map((p) => p.role === role ? { ...p, [field]: value } : p)
     })
   }, [allPermissions])
 
-  const handleSavePermissions = useCallback(async (role: string) => {
-    const perm = permissions.find((p) => p.role === role)
-    if (!perm) return
-    setSavingRoles((prev) => new Set(prev).add(role))
+  const [savingAll, setSavingAll] = useState(false)
+  const handleSaveAllPermissions = useCallback(async () => {
+    // Save all roles that have local edits
+    const changedRoles = permissions.filter((perm) => {
+      const original = allPermissions.find((p) => p.role === perm.role)
+      if (!original) return false
+      return JSON.stringify(perm) !== JSON.stringify(original)
+    })
+    if (changedRoles.length === 0) return
+    setSavingAll(true)
     try {
-      await updatePermissions(role, perm.allowed_sources, perm.allowed_share_hours, perm.permissions_access ?? 'none', perm.documents_access ?? 'none', perm.suggestions_access ?? 'none', perm.allowed_suggestions ?? [])
+      await Promise.all(changedRoles.map((perm) =>
+        updatePermissions(perm.role, perm.allowed_sources, perm.allowed_share_hours, perm.permissions_access ?? 'none', perm.documents_access ?? 'none', perm.suggestions_access ?? 'none', perm.allowed_suggestions ?? [], perm.autocomplete_access ?? 'none', perm.allowed_autocomplete ?? [], perm.roles_access ?? 'none', perm.feedback_access ?? 'none')
+      ))
       await refetchPermissions()
       setLocalPerms(null)
     } catch {
       // revert on failure
     } finally {
-      setSavingRoles((prev) => {
-        const next = new Set(prev)
-        next.delete(role)
-        return next
-      })
+      setSavingAll(false)
     }
-  }, [permissions, refetchPermissions])
+  }, [permissions, allPermissions, refetchPermissions])
 
   const handleFileSelect = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -257,19 +291,17 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
   }, [refetchSources])
 
   const handleAddSuggestion = useCallback(async () => {
-    if (!newSuggestionText.trim()) return
-    setIsAddingSuggestion(true)
+    if (!editingSuggestionText.trim()) return
     try {
-      await createSuggestion(newSuggestionText.trim())
-      setNewSuggestionText('')
+      await createSuggestion(editingSuggestionText.trim())
+      setEditingSuggestionId(null)
+      setEditingSuggestionText('')
       await refetchSuggestions()
       await refetchMySuggestions()
     } catch {
       // add failed
-    } finally {
-      setIsAddingSuggestion(false)
     }
-  }, [newSuggestionText, refetchSuggestions, refetchMySuggestions])
+  }, [editingSuggestionText, refetchSuggestions, refetchMySuggestions])
 
   const handleSaveEditSuggestion = useCallback(async () => {
     if (!editingSuggestionId || !editingSuggestionText.trim()) return
@@ -285,7 +317,6 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
   }, [editingSuggestionId, editingSuggestionText, refetchSuggestions, refetchMySuggestions])
 
   const handleDeleteSuggestion = useCallback(async (id: string) => {
-    setDeletingSuggestionId(id)
     try {
       await deleteSuggestion(id)
       await refetchSuggestions()
@@ -293,10 +324,70 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
     } catch {
       // deletion failed
     } finally {
-      setDeletingSuggestionId(null)
       setConfirmDeleteSuggestion(null)
+      setEditingSuggestionId(null)
+      setEditingSuggestionText('')
     }
   }, [refetchSuggestions, refetchMySuggestions])
+
+  const handleAddAutocomplete = useCallback(async () => {
+    if (!editingAutocompleteQuestion.trim()) return
+    try {
+      await createAutocompleteSuggestion(editingAutocompleteQuestion.trim(), editingAutocompleteKeywords)
+      setEditingAutocompleteId(null)
+      setEditingAutocompleteQuestion('')
+      setEditingAutocompleteKeywords([])
+      setEditKeywordInput('')
+      await refetchAutocompleteSuggestions()
+      await refetchMyAutocompleteSuggestions()
+    } catch {
+      // add failed
+    }
+  }, [editingAutocompleteQuestion, editingAutocompleteKeywords, refetchAutocompleteSuggestions, refetchMyAutocompleteSuggestions])
+
+  const handleSaveEditAutocomplete = useCallback(async () => {
+    if (!editingAutocompleteId || !editingAutocompleteQuestion.trim()) return
+    try {
+      await updateAutocompleteSuggestion(editingAutocompleteId, editingAutocompleteQuestion.trim(), editingAutocompleteKeywords)
+      setEditingAutocompleteId(null)
+      setEditingAutocompleteQuestion('')
+      setEditingAutocompleteKeywords([])
+      setEditKeywordInput('')
+      await refetchAutocompleteSuggestions()
+      await refetchMyAutocompleteSuggestions()
+    } catch {
+      // edit failed
+    }
+  }, [editingAutocompleteId, editingAutocompleteQuestion, editingAutocompleteKeywords, refetchAutocompleteSuggestions, refetchMyAutocompleteSuggestions])
+
+  const handleDeleteAutocomplete = useCallback(async (id: string) => {
+    try {
+      await deleteAutocompleteSuggestion(id)
+      await refetchAutocompleteSuggestions()
+      await refetchMyAutocompleteSuggestions()
+    } catch {
+      // deletion failed
+    } finally {
+      setConfirmDeleteAutocomplete(null)
+      setEditingAutocompleteId(null)
+      setEditingAutocompleteQuestion('')
+      setEditingAutocompleteKeywords([])
+      setEditKeywordInput('')
+    }
+  }, [refetchAutocompleteSuggestions, refetchMyAutocompleteSuggestions])
+
+  const handleToggleAutocomplete = useCallback((role: string, autocompleteId: string, enabled: boolean) => {
+    setLocalPerms((prev) => {
+      const base = prev ?? allPermissions
+      return base.map((p) => {
+        if (p.role !== role) return p
+        const autocomplete = enabled
+          ? [...(p.allowed_autocomplete ?? []), autocompleteId]
+          : (p.allowed_autocomplete ?? []).filter((id) => id !== autocompleteId)
+        return { ...p, allowed_autocomplete: autocomplete }
+      })
+    })
+  }, [allPermissions])
 
   const handleToggleSuggestion = useCallback((role: string, suggestionId: string, enabled: boolean) => {
     setLocalPerms((prev) => {
@@ -321,29 +412,56 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
       local.permissions_access !== original.permissions_access ||
       local.documents_access !== original.documents_access ||
       local.suggestions_access !== original.suggestions_access ||
-      JSON.stringify((local.allowed_suggestions ?? []).slice().sort()) !== JSON.stringify((original.allowed_suggestions ?? []).slice().sort())
+      JSON.stringify((local.allowed_suggestions ?? []).slice().sort()) !== JSON.stringify((original.allowed_suggestions ?? []).slice().sort()) ||
+      local.autocomplete_access !== original.autocomplete_access ||
+      JSON.stringify((local.allowed_autocomplete ?? []).slice().sort()) !== JSON.stringify((original.allowed_autocomplete ?? []).slice().sort()) ||
+      local.roles_access !== original.roles_access ||
+      local.feedback_access !== original.feedback_access
     )
   }
+
+  const hasAnyChanges = permissions.some((p) => hasChanges(p.role))
+
+  // Warn on browser reload / tab close when there are unsaved changes
+  useEffect(() => {
+    if (!hasAnyChanges) return
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault() }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [hasAnyChanges])
+
+  // Unsaved changes confirm dialog state
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null)
+
+  const guardUnsavedChanges = useCallback((action: () => void) => {
+    if (hasAnyChanges) {
+      setPendingAction(() => action)
+    } else {
+      action()
+    }
+  }, [hasAnyChanges])
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <button onClick={onBack} className={styles.backBtn} aria-label="Back to chat">
+        <button onClick={() => guardUnsavedChanges(onBack)} className={styles.backBtn} aria-label="Back to chat">
           <svg viewBox="0 0 20 20" width={18} height={18} fill="currentColor">
             <path fillRule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clipRule="evenodd" />
           </svg>
         </button>
         <div className={styles.configTabs}>
-          <button
-            className={`${styles.configTab} ${activeTab === 'users' ? styles.configTabActive : ''}`}
-            onClick={() => setActiveTab('users')}
-          >
-            Roles
-          </button>
+          {rolesAccess !== 'none' && (
+            <button
+              className={`${styles.configTab} ${activeTab === 'users' ? styles.configTabActive : ''}`}
+              onClick={() => guardUnsavedChanges(() => setActiveTab('users'))}
+            >
+              Roles
+            </button>
+          )}
           {permissionsAccess !== 'none' && permissions.length > 0 && (
             <button
               className={`${styles.configTab} ${activeTab === 'permissions' ? styles.configTabActive : ''}`}
-              onClick={() => setActiveTab('permissions')}
+              onClick={() => guardUnsavedChanges(() => setActiveTab('permissions'))}
             >
               Permissions
             </button>
@@ -351,7 +469,7 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
           {documentsAccess !== 'none' && (
             <button
               className={`${styles.configTab} ${activeTab === 'documents' ? styles.configTabActive : ''}`}
-              onClick={() => setActiveTab('documents')}
+              onClick={() => guardUnsavedChanges(() => setActiveTab('documents'))}
             >
               Documents
             </button>
@@ -359,17 +477,27 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
           {suggestionsAccess !== 'none' && (
             <button
               className={`${styles.configTab} ${activeTab === 'suggestions' ? styles.configTabActive : ''}`}
-              onClick={() => setActiveTab('suggestions')}
+              onClick={() => guardUnsavedChanges(() => setActiveTab('suggestions'))}
             >
               Suggestions
             </button>
           )}
-          <button
-            className={`${styles.configTab} ${activeTab === 'feedback' ? styles.configTabActive : ''}`}
-            onClick={() => setActiveTab('feedback')}
-          >
-            Feedback
-          </button>
+          {autocompleteAccess !== 'none' && (
+            <button
+              className={`${styles.configTab} ${activeTab === 'autocomplete' ? styles.configTabActive : ''}`}
+              onClick={() => guardUnsavedChanges(() => setActiveTab('autocomplete'))}
+            >
+              Autocomplete
+            </button>
+          )}
+          {feedbackAccess !== 'none' && (
+            <button
+              className={`${styles.configTab} ${activeTab === 'feedback' ? styles.configTabActive : ''}`}
+              onClick={() => guardUnsavedChanges(() => setActiveTab('feedback'))}
+            >
+              Analytics
+            </button>
+          )}
         </div>
       </div>
 
@@ -406,63 +534,56 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
               </div>
             )}
 
-            <div style={loading ? { opacity: 0.6, pointerEvents: 'none' } : undefined}>
-              {(() => {
-                const selfUser = filteredUsers.find((u) => u.id === currentUser?.id)
-                const otherUsers = filteredUsers.filter((u) => u.id !== currentUser?.id)
-
-                const renderRow = (user: typeof users[0], isSelf: boolean) => (
-                  <div key={user.id} className={styles.userRow}>
-                    <div className={styles.userInfo}>
-                      <div className={styles.userEmail}>
-                        {user.email}
-                        {isSelf && <span className={styles.youTag}>you</span>}
+            <div className={styles.permColumns} style={loading ? { opacity: 0.6, pointerEvents: 'none' } : undefined}>
+              {(['admin', 'manager', 'user'] as const).map((role) => (
+                <div key={role} className={styles.permColumn}>
+                  <span className={styles.permColName}>
+                    {role.charAt(0).toUpperCase() + role.slice(1)}
+                  </span>
+                  <span style={{ visibility: 'hidden' }} className={styles.saveBtn}>-</span>
+                  {usersByRole[role].map((user) => {
+                    const isSelf = user.id === currentUser?.id
+                    return (
+                      <div key={user.id} className={styles.toggleRow}>
+                        <button
+                          type="button"
+                          className={rolesAccess === 'edit' ? styles.toggleLabelLink : styles.toggleLabel}
+                          onClick={() => {
+                            if (rolesAccess === 'edit') setEditingUserId(user.id)
+                          }}
+                          style={rolesAccess !== 'edit' ? { cursor: 'default' } : undefined}
+                        >
+                          {user.email}
+                          {isSelf && <span className={styles.youTag}>you</span>}
+                        </button>
                       </div>
-                    </div>
-                    <div className={styles.accessSwitcher}>
-                      <button
-                        className={`${styles.accessOption} ${!user.user_role ? styles.accessOptionActive : ''}`}
-                        disabled={isSelf || updatingIds.has(user.id) || !user.user_role || (isManager && user.user_role === 'admin')}
-                        onClick={() => handleSetRole(user.id, null)}
-                      >
-                        User
-                      </button>
-                      <button
-                        className={`${styles.accessOption} ${user.user_role === 'manager' ? styles.accessOptionActive : ''}`}
-                        disabled={isSelf || updatingIds.has(user.id) || user.user_role === 'manager' || (isManager && user.user_role === 'admin')}
-                        onClick={() => handleSetRole(user.id, 'manager')}
-                      >
-                        Manager
-                      </button>
-                      <button
-                        className={`${styles.accessOption} ${user.user_role === 'admin' ? styles.accessOptionActive : ''}`}
-                        disabled={isSelf || updatingIds.has(user.id) || user.user_role === 'admin' || isManager}
-                        onClick={() => handleSetRole(user.id, 'admin')}
-                      >
-                        Admin
-                      </button>
-                    </div>
-                  </div>
-                )
-
-                return (
-                  <>
-                    {selfUser && renderRow(selfUser, true)}
-                    {otherUsers.map((user) => renderRow(user, false))}
-                  </>
-                )
-              })()}
+                    )
+                  })}
+                  {usersByRole[role].length === 0 && (
+                    <div className={styles.emptyState} style={{ padding: '12px 0' }}>No users</div>
+                  )}
+                </div>
+              ))}
             </div>
           </>
         )}
 
         {activeTab === 'permissions' && (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+              <button
+                className={styles.saveChangesChip}
+                onClick={handleSaveAllPermissions}
+                disabled={savingAll || !hasAnyChanges}
+                style={hasAnyChanges ? undefined : { opacity: 0.6 }}
+              >
+                {savingAll ? 'Saving...' : 'Save changes'}
+              </button>
+            </div>
           <div className={styles.permColumns}>
             {permissions.map((perm) => {
               const isSelfRole = perm.role === (userRole ?? 'user') && userRole !== 'admin'
               const disabled = isSelfRole || permissionsAccess !== 'edit' || (isManager && perm.role === 'admin')
-              const saving = savingRoles.has(perm.role)
-              const changed = hasChanges(perm.role)
 
               const ACCESS_OPTIONS: { value: AccessLevel; label: string }[] = [
                 { value: 'none', label: 'None' },
@@ -470,19 +591,21 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
                 { value: 'edit', label: 'Edit' },
               ]
 
-              const renderAccessSwitcher = (field: 'permissions_access' | 'documents_access' | 'suggestions_access') => {
+              const renderAccessSwitcher = (field: 'permissions_access' | 'documents_access' | 'suggestions_access' | 'autocomplete_access' | 'roles_access' | 'feedback_access') => {
                 const isProtected = perm.role === 'admin' && field === 'permissions_access'
                 return (
                   <div className={styles.accessSwitcher}>
-                    {ACCESS_OPTIONS.map((opt) => (
-                      <button
-                        key={opt.value}
-                        className={`${styles.accessOption} ${perm[field] === opt.value ? styles.accessOptionActive : ''}`}
-                        disabled={disabled || (isProtected && opt.value !== 'edit')}
-                        onClick={() => handleSetAccess(perm.role, field, opt.value)}
-                      >
-                        {opt.label}
-                      </button>
+                    {ACCESS_OPTIONS.map((opt, i) => (
+                      <span key={opt.value} style={{ display: 'contents' }}>
+                        {i > 0 && <span className={styles.accessSeparator}>|</span>}
+                        <button
+                          className={`${styles.accessOption} ${perm[field] === opt.value ? styles.accessOptionActive : ''}`}
+                          disabled={disabled || (isProtected && opt.value !== 'edit')}
+                          onClick={() => handleSetAccess(perm.role, field, opt.value)}
+                        >
+                          {opt.label}
+                        </button>
+                      </span>
                     ))}
                   </div>
                 )
@@ -493,17 +616,13 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
                   <span className={styles.permColName}>
                     {perm.role.charAt(0).toUpperCase() + perm.role.slice(1)}
                   </span>
-                  <button
-                    className={styles.saveBtn}
-                    onClick={() => handleSavePermissions(perm.role)}
-                    disabled={saving || !changed}
-                    style={changed ? undefined : { visibility: 'hidden' }}
-                  >
-                    Save
-                  </button>
 
                   <div className={styles.permGroup}>
                     <span className={styles.permGroupLabel}>Tab access</span>
+                    <div className={styles.toggleRow}>
+                      <span className={styles.toggleLabel}>ROLES</span>
+                      {renderAccessSwitcher('roles_access')}
+                    </div>
                     <div className={styles.toggleRow}>
                       <span className={styles.toggleLabel}>PERMISSIONS</span>
                       {renderAccessSwitcher('permissions_access')}
@@ -515,6 +634,14 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
                     <div className={styles.toggleRow}>
                       <span className={styles.toggleLabel}>SUGGESTIONS</span>
                       {renderAccessSwitcher('suggestions_access')}
+                    </div>
+                    <div className={styles.toggleRow}>
+                      <span className={styles.toggleLabel}>AUTOCOMPLETE</span>
+                      {renderAccessSwitcher('autocomplete_access')}
+                    </div>
+                    <div className={styles.toggleRow}>
+                      <span className={styles.toggleLabel}>ANALYTICS</span>
+                      {renderAccessSwitcher('feedback_access')}
                     </div>
                   </div>
 
@@ -566,6 +693,7 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
               )
             })}
           </div>
+          </>
         )}
 
         {activeTab === 'documents' && (
@@ -616,109 +744,147 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
 
         {activeTab === 'suggestions' && (
           <>
-            {suggestionsAccess === 'edit' && (
-              <div className={styles.suggestionAddRow}>
-                <input
-                  type="text"
-                  className={styles.suggestionInput}
-                  placeholder="Type a suggestion question..."
-                  value={newSuggestionText}
-                  onChange={(e) => setNewSuggestionText(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleAddSuggestion() }}
-                  disabled={isAddingSuggestion}
-                />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginBottom: 16 }}>
+              {suggestionsAccess === 'edit' && (
                 <button
-                  className={styles.publishBtn}
-                  onClick={handleAddSuggestion}
-                  disabled={isAddingSuggestion || !newSuggestionText.trim()}
+                  className={styles.addQuestionChip}
+                  onClick={() => {
+                    setEditingSuggestionId('new')
+                    setEditingSuggestionText('')
+                  }}
                 >
-                  {isAddingSuggestion ? 'Adding...' : 'Add'}
+                  + New suggestion
                 </button>
-              </div>
-            )}
+              )}
+              <button
+                className={styles.saveChangesChip}
+                onClick={handleSaveAllPermissions}
+                disabled={savingAll || !hasAnyChanges}
+                style={hasAnyChanges ? undefined : { opacity: 0.6 }}
+              >
+                {savingAll ? 'Saving...' : 'Save changes'}
+              </button>
+            </div>
 
             {allSuggestions.length === 0 && (
               <div className={styles.emptyState}>No suggestions yet</div>
             )}
 
-            {suggestionsAccess === 'edit' && allSuggestions.map((s) => (
-              <div key={s.id} className={styles.sourceRow}>
-                {editingSuggestionId === s.id ? (
-                  <div className={styles.suggestionEditRow}>
-                    <input
-                      type="text"
-                      className={styles.suggestionInput}
-                      value={editingSuggestionText}
-                      onChange={(e) => setEditingSuggestionText(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === 'Enter') handleSaveEditSuggestion() }}
-                      autoFocus
-                    />
-                    <button className={styles.chunkEditSave} onClick={handleSaveEditSuggestion}>Save</button>
-                    <button className={styles.chunkEditCancel} onClick={() => { setEditingSuggestionId(null); setEditingSuggestionText('') }}>Cancel</button>
-                  </div>
-                ) : (
-                  <>
-                    <span className={styles.sourceName}>{s.text}</span>
-                    {suggestionsAccess === 'edit' && (
-                      <>
-                        <button
-                          className={styles.chunkEditBtn}
-                          onClick={() => { setEditingSuggestionId(s.id); setEditingSuggestionText(s.text) }}
-                          aria-label="Edit suggestion"
-                        >
-                          <svg viewBox="0 0 20 20" width={14} height={14} fill="currentColor">
-                            <path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" />
-                          </svg>
-                        </button>
-                        <button
-                          className={styles.sourceDeleteBtn}
-                          disabled={deletingSuggestionId === s.id}
-                          onClick={() => setConfirmDeleteSuggestion(s.id)}
-                          aria-label="Delete suggestion"
-                        >
-                          <svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </>
-                    )}
-                  </>
-                )}
-              </div>
-            ))}
-
             {allSuggestions.length > 0 && permissions.length > 0 && (
               <div className={styles.permColumns}>
                 {permissions.map((perm) => {
                   const disabled = permissionsAccess !== 'edit' || (isManager && perm.role === 'admin')
-                  const saving = savingRoles.has(perm.role)
-                  const changed = hasChanges(perm.role)
 
                   return (
                     <div key={perm.role} className={styles.permColumn}>
                       <span className={styles.permColName}>
                         {perm.role.charAt(0).toUpperCase() + perm.role.slice(1)}
                       </span>
-                      <button
-                        className={styles.saveBtn}
-                        onClick={() => handleSavePermissions(perm.role)}
-                        disabled={saving || !changed}
-                        style={changed ? undefined : { visibility: 'hidden' }}
-                      >
-                        Save
-                      </button>
 
                       {allSuggestions.map((s) => {
                         const active = (perm.allowed_suggestions ?? []).includes(s.id)
                         return (
                           <div key={s.id} className={styles.toggleRow}>
-                            <span className={styles.toggleLabel}>{s.text}</span>
+                            <button
+                              type="button"
+                              className={suggestionsAccess === 'edit' ? styles.toggleLabelLink : styles.toggleLabel}
+                              onClick={() => {
+                                if (suggestionsAccess === 'edit') {
+                                  setEditingSuggestionId(s.id)
+                                  setEditingSuggestionText(s.text)
+                                }
+                              }}
+                              style={suggestionsAccess !== 'edit' ? { cursor: 'default' } : undefined}
+                            >
+                              {s.text}
+                            </button>
                             <label className={styles.toggleSwitch}>
                               <input
                                 type="checkbox"
                                 checked={active}
                                 disabled={disabled}
                                 onChange={() => handleToggleSuggestion(perm.role, s.id, !active)}
+                              />
+                              <span className={styles.toggleTrack} />
+                              <span className={styles.toggleThumb} />
+                            </label>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </>
+        )}
+
+        {activeTab === 'autocomplete' && (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginBottom: 16 }}>
+              {autocompleteAccess === 'edit' && (
+                <button
+                  className={styles.addQuestionChip}
+                  onClick={() => {
+                    setEditingAutocompleteId('new')
+                    setEditingAutocompleteQuestion('')
+                    setEditingAutocompleteKeywords([])
+                    setEditKeywordInput('')
+                  }}
+                >
+                  + New question
+                </button>
+              )}
+              <button
+                className={styles.saveChangesChip}
+                onClick={handleSaveAllPermissions}
+                disabled={savingAll || !hasAnyChanges}
+                style={hasAnyChanges ? undefined : { opacity: 0.6 }}
+              >
+                {savingAll ? 'Saving...' : 'Save changes'}
+              </button>
+            </div>
+
+            {allAutocompleteSuggestions.length === 0 && (
+              <div className={styles.emptyState}>No autocomplete suggestions yet</div>
+            )}
+
+            {allAutocompleteSuggestions.length > 0 && permissions.length > 0 && (
+              <div className={styles.permColumns}>
+                {permissions.map((perm) => {
+                  const disabled = permissionsAccess !== 'edit' || (isManager && perm.role === 'admin')
+
+                  return (
+                    <div key={perm.role} className={styles.permColumn}>
+                      <span className={styles.permColName}>
+                        {perm.role.charAt(0).toUpperCase() + perm.role.slice(1)}
+                      </span>
+
+                      {allAutocompleteSuggestions.map((s) => {
+                        const active = (perm.allowed_autocomplete ?? []).includes(s.id)
+                        return (
+                          <div key={s.id} className={styles.toggleRow}>
+                            <button
+                              type="button"
+                              className={autocompleteAccess === 'edit' ? styles.toggleLabelLink : styles.toggleLabel}
+                              onClick={() => {
+                                if (autocompleteAccess === 'edit') {
+                                  setEditingAutocompleteId(s.id)
+                                  setEditingAutocompleteQuestion(s.question)
+                                  setEditingAutocompleteKeywords([...s.keywords])
+                                  setEditKeywordInput('')
+                                }
+                              }}
+                              style={autocompleteAccess !== 'edit' ? { cursor: 'default' } : undefined}
+                            >
+                              {s.question}
+                            </button>
+                            <label className={styles.toggleSwitch}>
+                              <input
+                                type="checkbox"
+                                checked={active}
+                                disabled={disabled}
+                                onChange={() => handleToggleAutocomplete(perm.role, s.id, !active)}
                               />
                               <span className={styles.toggleTrack} />
                               <span className={styles.toggleThumb} />
@@ -961,6 +1127,146 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
         />
       )}
 
+      {/* Add/Edit autocomplete suggestion popup */}
+      {editingAutocompleteId && autocompleteAccess === 'edit' && (
+        <div className={styles.autocompletePopupOverlay} onClick={() => { setEditingAutocompleteId(null); setEditingAutocompleteQuestion(''); setEditingAutocompleteKeywords([]); setEditKeywordInput('') }}>
+          <div className={styles.autocompletePopup} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.autocompletePopupHeader}>
+              <span className={styles.autocompletePopupTitle}>{editingAutocompleteId === 'new' ? 'New suggestion' : 'Edit suggestion'}</span>
+            </div>
+            <div className={styles.autocompletePopupBody}>
+              <div>
+                <div className={styles.autocompleteFieldLabel}>Question</div>
+                <input
+                  type="text"
+                  className={styles.suggestionInput}
+                  value={editingAutocompleteQuestion}
+                  onChange={(e) => setEditingAutocompleteQuestion(e.target.value)}
+                  placeholder="Question..."
+                  autoFocus
+                  style={{ width: '100%', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div>
+                <div className={styles.autocompleteFieldLabel}>Keywords</div>
+                <div
+                  className={styles.tagInputWrapper}
+                  onClick={(e) => { (e.currentTarget.querySelector('input') as HTMLInputElement)?.focus() }}
+                >
+                  {editingAutocompleteKeywords.map((kw, i) => (
+                    <span key={i} className={styles.tagChip}>
+                      {kw}
+                      <button
+                        type="button"
+                        className={styles.tagChipRemove}
+                        onClick={(e) => { e.stopPropagation(); setEditingAutocompleteKeywords((prev) => prev.filter((_, idx) => idx !== i)) }}
+                      >
+                        &times;
+                      </button>
+                    </span>
+                  ))}
+                  <input
+                    type="text"
+                    className={styles.tagInputField}
+                    placeholder={editingAutocompleteKeywords.length === 0 ? 'Add keywords...' : ''}
+                    value={editKeywordInput}
+                    onChange={(e) => setEditKeywordInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        const val = editKeywordInput.trim()
+                        if (val && !editingAutocompleteKeywords.includes(val)) {
+                          setEditingAutocompleteKeywords((prev) => [...prev, val])
+                          setEditKeywordInput('')
+                        }
+                      } else if (e.key === 'Backspace' && !editKeywordInput && editingAutocompleteKeywords.length > 0) {
+                        setEditingAutocompleteKeywords((prev) => prev.slice(0, -1))
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className={styles.autocompletePopupActions}>
+              {editingAutocompleteId !== 'new' ? (
+                <button
+                  className={styles.sourceDeleteBtn}
+                  style={{ width: 'auto', height: 'auto', padding: '6px 12px', borderRadius: 8, background: '#fef2f2', color: '#dc2626', fontSize: 12, fontWeight: 500 }}
+                  onClick={() => { setConfirmDeleteAutocomplete(editingAutocompleteId) }}
+                >
+                  Delete
+                </button>
+              ) : <span />}
+              <div className={styles.autocompletePopupActionsRight}>
+                <button className={styles.cancelBtn} onClick={() => { setEditingAutocompleteId(null); setEditingAutocompleteQuestion(''); setEditingAutocompleteKeywords([]); setEditKeywordInput('') }}>Cancel</button>
+                <button
+                  className={styles.publishBtn}
+                  disabled={!editingAutocompleteQuestion.trim()}
+                  onClick={editingAutocompleteId === 'new' ? handleAddAutocomplete : handleSaveEditAutocomplete}
+                >
+                  {editingAutocompleteId === 'new' ? 'Add' : 'Save'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete autocomplete suggestion confirmation */}
+      {confirmDeleteAutocomplete && (
+        <ConfirmDialog
+          title="Delete autocomplete suggestion"
+          message="This autocomplete suggestion will be permanently deleted from all roles. This cannot be undone."
+          onConfirm={() => handleDeleteAutocomplete(confirmDeleteAutocomplete)}
+          onCancel={() => setConfirmDeleteAutocomplete(null)}
+        />
+      )}
+
+      {/* Add/Edit suggestion popup */}
+      {editingSuggestionId && suggestionsAccess === 'edit' && (
+        <div className={styles.autocompletePopupOverlay} onClick={() => { setEditingSuggestionId(null); setEditingSuggestionText('') }}>
+          <div className={styles.autocompletePopup} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.autocompletePopupHeader}>
+              <span className={styles.autocompletePopupTitle}>{editingSuggestionId === 'new' ? 'New suggestion' : 'Edit suggestion'}</span>
+            </div>
+            <div className={styles.autocompletePopupBody}>
+              <div>
+                <input
+                  type="text"
+                  className={styles.suggestionInput}
+                  value={editingSuggestionText}
+                  onChange={(e) => setEditingSuggestionText(e.target.value)}
+                  placeholder="Suggestion text..."
+                  autoFocus
+                  style={{ width: '100%', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+            <div className={styles.autocompletePopupActions}>
+              {editingSuggestionId !== 'new' ? (
+                <button
+                  className={styles.sourceDeleteBtn}
+                  style={{ width: 'auto', height: 'auto', padding: '6px 12px', borderRadius: 8, background: '#fef2f2', color: '#dc2626', fontSize: 12, fontWeight: 500 }}
+                  onClick={() => { setConfirmDeleteSuggestion(editingSuggestionId) }}
+                >
+                  Delete
+                </button>
+              ) : <span />}
+              <div className={styles.autocompletePopupActionsRight}>
+                <button className={styles.cancelBtn} onClick={() => { setEditingSuggestionId(null); setEditingSuggestionText('') }}>Cancel</button>
+                <button
+                  className={styles.publishBtn}
+                  disabled={!editingSuggestionText.trim()}
+                  onClick={editingSuggestionId === 'new' ? handleAddSuggestion : handleSaveEditSuggestion}
+                >
+                  {editingSuggestionId === 'new' ? 'Add' : 'Save'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Delete suggestion confirmation */}
       {confirmDeleteSuggestion && (
         <ConfirmDialog
@@ -969,6 +1275,138 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
           onConfirm={() => handleDeleteSuggestion(confirmDeleteSuggestion)}
           onCancel={() => setConfirmDeleteSuggestion(null)}
         />
+      )}
+
+      {/* Edit user role popup */}
+      {editingUserId && rolesAccess === 'edit' && (() => {
+        const editUser = users.find((u) => u.id === editingUserId)
+        if (!editUser) return null
+        const isSelf = editUser.id === currentUser?.id
+        const currentRole = editUser.user_role ?? 'user'
+        const isUpdating = updatingIds.has(editUser.id)
+        const picked = selectedRole ?? currentRole
+        const roleOptions: { key: string; label: string; description: string; value: 'manager' | 'admin' | null; disabled: boolean }[] = [
+          {
+            key: 'user',
+            label: 'User',
+            description: 'Can use the chatbot. No admin access.',
+            value: null,
+            disabled: isSelf || isUpdating || (isManager && editUser.user_role === 'admin'),
+          },
+          {
+            key: 'manager',
+            label: 'Manager',
+            description: 'Can manage users, documents, and settings.',
+            value: 'manager',
+            disabled: isSelf || isUpdating || (isManager && editUser.user_role === 'admin'),
+          },
+          {
+            key: 'admin',
+            label: 'Admin',
+            description: 'Full access including role management.',
+            value: 'admin',
+            disabled: isSelf || isUpdating || isManager,
+          },
+        ]
+        const hasChanged = picked !== currentRole
+        return (
+          <div className={styles.autocompletePopupOverlay} onClick={() => { setEditingUserId(null); setSelectedRole(null) }}>
+            <div className={styles.autocompletePopup} onClick={(e) => e.stopPropagation()}>
+              <div className={styles.autocompletePopupHeader}>
+                <span className={styles.autocompletePopupTitle}>Change role</span>
+              </div>
+              <div className={styles.autocompletePopupBody}>
+                <div className={styles.rolePopupEmail}>{editUser.email}</div>
+                <div className={styles.roleCards}>
+                  {roleOptions.map((opt) => {
+                    const isSelected = picked === opt.key
+                    return (
+                      <button
+                        key={opt.key}
+                        className={`${styles.roleCard}${isSelected ? ` ${styles.roleCardActive}` : ''}${opt.disabled ? ` ${styles.roleCardDisabled}` : ''}`}
+                        disabled={opt.disabled}
+                        onClick={() => setSelectedRole(opt.key)}
+                      >
+                        <div className={styles.roleCardHeader}>
+                          <div className={`${styles.roleCardRadio}${isSelected ? ` ${styles.roleCardRadioActive}` : ''}`}>
+                            {isSelected && <div className={styles.roleCardRadioDot} />}
+                          </div>
+                          <span className={styles.roleCardLabel}>{opt.label}</span>
+                        </div>
+                        <span className={styles.roleCardDesc}>{opt.description}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+              <div className={styles.autocompletePopupActions}>
+                <span />
+                <div className={styles.autocompletePopupActionsRight}>
+                  <button className={styles.cancelBtn} onClick={() => { setEditingUserId(null); setSelectedRole(null) }}>Cancel</button>
+                  <button
+                    className={styles.publishBtn}
+                    disabled={!hasChanged || isUpdating}
+                    onClick={async () => {
+                      const opt = roleOptions.find((o) => o.key === picked)
+                      if (opt) await handleSetRole(editUser.id, opt.value)
+                      setEditingUserId(null)
+                      setSelectedRole(null)
+                    }}
+                  >
+                    {isUpdating ? 'Saving…' : 'Confirm'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Unsaved changes warning */}
+      {pendingAction && (
+        <div className={styles.autocompletePopupOverlay} onClick={() => setPendingAction(null)}>
+          <div className={styles.autocompletePopup} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.autocompletePopupHeader}>
+              <span className={styles.autocompletePopupTitle}>Unsaved changes</span>
+            </div>
+            <div className={styles.autocompletePopupBody}>
+              <p style={{ fontSize: 13, color: '#6b7280', lineHeight: 1.5, margin: 0 }}>
+                You have unsaved changes. What would you like to do?
+              </p>
+            </div>
+            <div className={styles.autocompletePopupActions}>
+              <button className={styles.cancelBtn} style={{ whiteSpace: 'nowrap' }} onClick={() => setPendingAction(null)}>
+                Cancel
+              </button>
+              <div className={styles.autocompletePopupActionsRight}>
+                <button
+                  className={styles.cancelBtn}
+                  style={{ color: '#dc2626', borderColor: '#fecaca', whiteSpace: 'nowrap' }}
+                  onClick={() => {
+                    const action = pendingAction
+                    setPendingAction(null)
+                    setLocalPerms(null)
+                    action()
+                  }}
+                >
+                  Discard changes
+                </button>
+                <button
+                  className={styles.publishBtn}
+                  style={{ whiteSpace: 'nowrap' }}
+                  onClick={async () => {
+                    const action = pendingAction
+                    setPendingAction(null)
+                    await handleSaveAllPermissions()
+                    action()
+                  }}
+                >
+                  Save changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

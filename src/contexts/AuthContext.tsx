@@ -5,6 +5,7 @@ import { fetchUsers, type AdminUser } from '../services/adminUsers'
 import { fetchAllPermissions, type RolePermission, type AccessLevel } from '../services/permissions'
 import { fetchAvailableSources } from '../services/documents'
 import { fetchAllSuggestions, fetchSuggestionsForRole, type Suggestion } from '../services/suggestions'
+import { fetchAllAutocompleteSuggestions, fetchAutocompleteForRole, type AutocompleteSuggestion } from '../services/autocompleteSuggestions'
 
 interface AuthContextType {
   user: User | null
@@ -17,6 +18,9 @@ interface AuthContextType {
   permissionsAccess: AccessLevel
   documentsAccess: AccessLevel
   suggestionsAccess: AccessLevel
+  autocompleteAccess: AccessLevel
+  rolesAccess: AccessLevel
+  feedbackAccess: AccessLevel
   allPermissions: RolePermission[]
   refetchPermissions: () => Promise<void>
   allSources: string[]
@@ -25,6 +29,10 @@ interface AuthContextType {
   allSuggestions: Suggestion[]
   refetchSuggestions: () => Promise<void>
   refetchMySuggestions: () => Promise<void>
+  autocompleteSuggestions: AutocompleteSuggestion[]
+  allAutocompleteSuggestions: AutocompleteSuggestion[]
+  refetchAutocompleteSuggestions: () => Promise<void>
+  refetchMyAutocompleteSuggestions: () => Promise<void>
   adminUsers: AdminUser[]
   adminUsersLoading: boolean
   adminUsersError: string | null
@@ -120,11 +128,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [permissionsAccess, setPermissionsAccess] = useState<AccessLevel>('none')
   const [documentsAccess, setDocumentsAccess] = useState<AccessLevel>('none')
   const [suggestionsAccess, setSuggestionsAccess] = useState<AccessLevel>('none')
+  const [autocompleteAccess, setAutocompleteAccess] = useState<AccessLevel>('none')
+  const [rolesAccess, setRolesAccess] = useState<AccessLevel>('none')
+  const [feedbackAccess, setFeedbackAccess] = useState<AccessLevel>('none')
   const [allPermissions, setAllPermissions] = useState<RolePermission[]>([])
   const [allSources, setAllSources] = useState<string[]>([])
 
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [allSuggestions, setAllSuggestions] = useState<Suggestion[]>([])
+
+  const [autocompleteSuggestions, setAutocompleteSuggestions] = useState<AutocompleteSuggestion[]>([])
+  const [allAutocompleteSuggestions, setAllAutocompleteSuggestions] = useState<AutocompleteSuggestion[]>([])
 
   const loadMySuggestions = useCallback(() => {
     return fetchSuggestionsForRole()
@@ -145,6 +159,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isAdmin) loadAllSuggestions()
   }, [isAdmin, loadAllSuggestions])
+
+  const loadMyAutocomplete = useCallback(() => {
+    return fetchAutocompleteForRole()
+      .then(setAutocompleteSuggestions)
+      .catch(console.error)
+  }, [])
+
+  const loadAllAutocomplete = useCallback(() => {
+    return fetchAllAutocompleteSuggestions()
+      .then(setAllAutocompleteSuggestions)
+      .catch(console.error)
+  }, [])
+
+  useEffect(() => {
+    if (user) loadMyAutocomplete()
+  }, [user, loadMyAutocomplete])
+
+  useEffect(() => {
+    if (isAdmin) loadAllAutocomplete()
+  }, [isAdmin, loadAllAutocomplete])
 
   const loadSources = useCallback(() => {
     return fetchAvailableSources()
@@ -174,6 +208,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setPermissionsAccess(myPerms.permissions_access ?? 'none')
           setDocumentsAccess(myPerms.documents_access ?? 'none')
           setSuggestionsAccess(myPerms.suggestions_access ?? 'none')
+          setAutocompleteAccess(myPerms.autocomplete_access ?? 'none')
+          setRolesAccess(myPerms.roles_access ?? 'none')
+          setFeedbackAccess(myPerms.feedback_access ?? 'none')
         }
       })
       .catch(console.error)
@@ -184,7 +221,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, loadPermissions])
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, isAdmin, userRole, allowedSources, allowedShareHours, permissionsAccess, documentsAccess, suggestionsAccess, allPermissions, refetchPermissions: loadPermissions, allSources, refetchSources: loadSources, suggestions, allSuggestions, refetchSuggestions: loadAllSuggestions, refetchMySuggestions: loadMySuggestions, adminUsers, adminUsersLoading, adminUsersError, refetchAdminUsers: loadAdminUsers, setAdminUsers, signUp, signIn, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, isAdmin, userRole, allowedSources, allowedShareHours, permissionsAccess, documentsAccess, suggestionsAccess, autocompleteAccess, rolesAccess, feedbackAccess, allPermissions, refetchPermissions: loadPermissions, allSources, refetchSources: loadSources, suggestions, allSuggestions, refetchSuggestions: loadAllSuggestions, refetchMySuggestions: loadMySuggestions, autocompleteSuggestions, allAutocompleteSuggestions, refetchAutocompleteSuggestions: loadAllAutocomplete, refetchMyAutocompleteSuggestions: loadMyAutocomplete, adminUsers, adminUsersLoading, adminUsersError, refetchAdminUsers: loadAdminUsers, setAdminUsers, signUp, signIn, signInWithGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   )

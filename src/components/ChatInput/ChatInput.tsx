@@ -1,10 +1,14 @@
-import { useState, type KeyboardEvent } from 'react'
+import { useState, useRef, useEffect, useMemo, type KeyboardEvent } from 'react'
+import Fuse from 'fuse.js'
+import { AnimatePresence } from 'framer-motion'
+import type { AutocompleteSuggestion } from '../../services/autocompleteSuggestions'
+import SuggestionBubble from './SuggestionBubble'
 import styles from './ChatInput.module.css'
 
 function SendIcon() {
   return (
-    <svg viewBox="0 0 512 512" width={18} height={18} fill="currentColor">
-      <path d="m476.59 227.05-.16-.07L49.35 49.84A23.56 23.56 0 0 0 27.14 52 24.65 24.65 0 0 0 16 72.59v113.29a24 24 0 0 0 19.52 23.57l232.93 43.07a4 4 0 0 1 0 7.86L35.53 303.45A24 24 0 0 0 16 327v113.31A23.57 23.57 0 0 0 26.59 460a23.94 23.94 0 0 0 13.22 4 24.55 24.55 0 0 0 9.52-1.93L476.4 285.94l.19-.09a32 32 0 0 0 0-58.8z" />
+    <svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
     </svg>
   )
 }
@@ -15,10 +19,47 @@ interface ChatInputProps {
   onSend: (message: string) => void
   disabled: boolean
   placeholder?: string
+  focusTrigger?: string | null
+  autocompleteSuggestions?: AutocompleteSuggestion[]
 }
 
-export default function ChatInput({ onSend, disabled, placeholder }: ChatInputProps) {
+export default function ChatInput({ onSend, disabled, placeholder, focusTrigger, autocompleteSuggestions = [] }: ChatInputProps) {
   const [value, setValue] = useState('')
+  const [debouncedValue, setDebouncedValue] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [focusTrigger])
+
+  // Debounce input value for fuzzy matching
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), 150)
+    return () => clearTimeout(timer)
+  }, [value])
+
+  // Fuse.js instance
+  const fuse = useMemo(
+    () =>
+      new Fuse(autocompleteSuggestions, {
+        keys: [
+          { name: 'question', weight: 0.7 },
+          { name: 'keywords', weight: 0.3 },
+        ],
+        threshold: 0.3,
+        includeScore: true,
+      }),
+    [autocompleteSuggestions],
+  )
+
+  // Top fuzzy match
+  const topMatch = useMemo(() => {
+    const trimmed = debouncedValue.trim()
+    if (trimmed.length < 3) return null
+    const results = fuse.search(trimmed, { limit: 1 })
+    if (results.length === 0) return null
+    return results[0].item
+  }, [debouncedValue, fuse])
 
   const handleSend = () => {
     const trimmed = value.trim()
@@ -36,10 +77,27 @@ export default function ChatInput({ onSend, disabled, placeholder }: ChatInputPr
 
   const isOverLimit = value.length > MAX_LENGTH
 
+  const handleBubbleClick = () => {
+    if (!topMatch) return
+    onSend(topMatch.question)
+    setValue('')
+  }
+
   return (
-    <div className={styles.inputBar}>
+    <div className={styles.inputBar} onClick={() => inputRef.current?.focus()}>
+      <AnimatePresence>
+        {topMatch && !disabled && (
+          <SuggestionBubble
+            key={topMatch.id}
+            text={topMatch.question}
+            onClick={handleBubbleClick}
+          />
+        )}
+      </AnimatePresence>
       <div className={styles.inputWrapper}>
         <input
+          ref={inputRef}
+          autoFocus
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}

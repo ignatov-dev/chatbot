@@ -4,6 +4,7 @@ export interface ConversationSummary {
   id: string
   title: string
   source: string
+  created_at: string
   updated_at: string
   is_shared?: boolean
   shared_expires_at?: string | null
@@ -20,7 +21,7 @@ export interface DbMessage {
 export async function fetchConversations(sources?: string[]): Promise<ConversationSummary[]> {
   let query = supabase
     .from('conversations')
-    .select('id, title, source, updated_at, is_shared, shared_expires_at, is_pinned')
+    .select('id, title, source, created_at, updated_at, is_shared, shared_expires_at, is_pinned')
     .order('updated_at', { ascending: false })
   if (sources?.length) query = query.in('source', sources)
   const { data, error } = await query

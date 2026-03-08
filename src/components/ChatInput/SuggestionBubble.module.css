@@ -1,0 +1,34 @@
+.bubble {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: calc(100% - 80px);
+  padding: 8px 16px;
+  background: #eaecfc;
+  color: #4f2dd0;
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.bubble:hover {
+  background: #d9dcf7;
+}
+
+.icon {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -10,6 +10,10 @@ export interface RolePermission {
   documents_access: AccessLevel
   suggestions_access: AccessLevel
   allowed_suggestions: string[]
+  autocomplete_access: AccessLevel
+  allowed_autocomplete: string[]
+  roles_access: AccessLevel
+  feedback_access: AccessLevel
 }
 
 export async function fetchAllPermissions(): Promise<RolePermission[]> {
@@ -26,6 +30,10 @@ export async function updatePermissions(
   documentsAccess: AccessLevel,
   suggestionsAccess: AccessLevel,
   allowedSuggestions: string[] = [],
+  autocompleteAccess: AccessLevel = 'none',
+  allowedAutocomplete: string[] = [],
+  rolesAccess: AccessLevel = 'none',
+  feedbackAccess: AccessLevel = 'none',
 ): Promise<void> {
   const { error } = await supabase.rpc('update_role_permissions', {
     p_role: role,
@@ -35,6 +43,10 @@ export async function updatePermissions(
     p_documents_access: documentsAccess,
     p_suggestions_access: suggestionsAccess,
     p_allowed_suggestions: allowedSuggestions,
+    p_autocomplete_access: autocompleteAccess,
+    p_allowed_autocomplete: allowedAutocomplete,
+    p_roles_access: rolesAccess,
+    p_feedback_access: feedbackAccess,
   })
   if (error) throw error
 }

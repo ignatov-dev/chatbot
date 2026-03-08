@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { ConversationSummary } from '../../services/conversations'
 import styles from './ConversationSidebar.module.css'
@@ -17,54 +17,52 @@ interface ConversationSidebarProps {
   onOpenConfig?: () => void
 }
 
-function timeAgo(dateStr: string): string {
-  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
-  if (seconds < 60) return 'just now'
-  const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.floor(hours / 24)
-  if (days < 30) return `${days}d ago`
-  return new Date(dateStr).toLocaleDateString()
-}
-
 export default function ConversationSidebar({
   conversations,
   activeConversationId,
   onSelectConversation,
-  onDeleteConversation,
+  onDeleteConversation: _onDeleteConversation,
   onPinConversation,
   onSignOut,
   userEmail,
   isOpen,
   isLoading,
+  isAdmin,
   onOpenConfig,
 }: ConversationSidebarProps) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [menuOpenId, setMenuOpenId] = useState<string | null>(null)
-  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const listRef = useRef<HTMLDivElement>(null)
+  const settingsRef = useRef<HTMLDivElement>(null)
 
-  // Close conversation dropdown on click outside or scroll
+  // Track scroll position to show/hide fade shadows
+  const updateScrollShadows = useCallback((el: HTMLElement) => {
+    const canScrollUp = el.scrollTop > 0
+    const canScrollDown = el.scrollTop + el.clientHeight < el.scrollHeight - 1
+    el.classList.toggle(styles.scrollShadowTop, canScrollUp)
+    el.classList.toggle(styles.scrollShadowBottom, canScrollDown)
+  }, [])
+
   useEffect(() => {
-    if (!menuOpenId) return
+    const el = listRef.current
+    if (!el) return
+    const handler = (e: Event) => updateScrollShadows(e.target as HTMLElement)
+    updateScrollShadows(el)
+    el.addEventListener('scroll', handler, { passive: true })
+    return () => el.removeEventListener('scroll', handler)
+  }, [updateScrollShadows, conversations])
+
+  // Close settings popover on click outside
+  useEffect(() => {
+    if (!settingsOpen) return
     const handleClick = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpenId(null)
+      if (settingsRef.current && !settingsRef.current.contains(e.target as Node)) {
+        setSettingsOpen(false)
       }
     }
-    const handleScroll = () => setMenuOpenId(null)
-    const listEl = listRef.current
     document.addEventListener('mousedown', handleClick)
-    listEl?.addEventListener('scroll', handleScroll)
-    return () => {
-      document.removeEventListener('mousedown', handleClick)
-      listEl?.removeEventListener('scroll', handleScroll)
-    }
-  }, [menuOpenId])
-
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [settingsOpen])
 
   const filteredConversations = useMemo(() => {
     if (!searchQuery.trim()) return conversations
@@ -81,72 +79,50 @@ export default function ConversationSidebar({
     [filteredConversations],
   )
 
-  const renderConversation = (conv: ConversationSummary) => (
-    <motion.button
-      key={conv.id}
-      layout
-      animate={{ opacity: 1, height: 'auto', y: 0 }}
-      transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-      onClick={() => onSelectConversation(conv.id)}
-      className={`${styles.conversationButton}${conv.id === activeConversationId ? ` ${styles.conversationButtonActive}` : ''}`}
-    >
-      <div className={styles.conversationText}>
-        <div
-          className={`${styles.conversationTitle}${conv.id === activeConversationId ? ` ${styles.conversationTitleActive}` : ''}`}
-        >
-          {conv.is_pinned && (
-            <svg className={styles.pinIndicator} viewBox="0 0 24 24" width={12} height={12} fill="currentColor">
-              <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" />
-            </svg>
-          )}
-          {conv.title}
-        </div>
-        <div className={styles.conversationTime}>
-          {timeAgo(conv.updated_at)}
-        </div>
-      </div>
+  const renderConversation = (conv: ConversationSummary) => {
+    const isActive = conv.id === activeConversationId
+    const isPinned = conv.is_pinned
 
-      {/* 3-dot menu (desktop) */}
-      <div className={styles.menuAnchor}>
+    const classNames = [
+      styles.conversationButton,
+      isActive && styles.conversationButtonActive,
+      isPinned && styles.conversationButtonPinned,
+    ].filter(Boolean).join(' ')
+
+    return (
+      <motion.button
+        key={conv.id}
+        layout
+        animate={{ opacity: 1, height: 'auto', y: 0 }}
+        transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+        onClick={() => onSelectConversation(conv.id)}
+        className={classNames}
+      >
+        <div className={styles.conversationText}>
+          <div
+            className={`${styles.conversationTitle}${isActive ? ` ${styles.conversationTitleActive}` : ''}`}
+          >
+            {conv.title}
+          </div>
+        </div>
+
+        {/* Pin toggle */}
         <span
           role="button"
-          title="Options"
+          title={isPinned ? 'Unpin' : 'Pin'}
           onClick={(e) => {
             e.stopPropagation()
-            if (menuOpenId === conv.id) {
-              setMenuOpenId(null)
-            } else {
-              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-              setMenuPos({ top: rect.top, left: rect.right - 140 })
-              setMenuOpenId(conv.id)
-            }
+            onPinConversation(conv.id, !isPinned)
           }}
-          className={styles.menuTrigger}
+          className={`${styles.pinBtn}${isPinned ? ` ${styles.pinBtnActive}` : ''}`}
         >
-          <svg viewBox="0 0 24 24" width={18} height={18} fill="currentColor">
-            <circle cx="12" cy="5" r="1.5" />
-            <circle cx="12" cy="12" r="1.5" />
-            <circle cx="12" cy="19" r="1.5" />
+          <svg viewBox="0 0 24 24" width={14} height={14} fill="currentColor" style={{ transform: 'rotate(45deg)' }}>
+            <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" />
           </svg>
         </span>
-      </div>
-
-      {/* Pin toggle (mobile) */}
-      <span
-        role="button"
-        title={conv.is_pinned ? 'Unpin' : 'Pin'}
-        onClick={(e) => {
-          e.stopPropagation()
-          onPinConversation(conv.id, !conv.is_pinned)
-        }}
-        className={`${styles.mobilePinBtn}${conv.is_pinned ? ` ${styles.mobilePinBtnActive}` : ''}`}
-      >
-        <svg viewBox="0 0 24 24" width={16} height={16} fill="currentColor">
-          <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" />
-        </svg>
-      </span>
-    </motion.button>
-  )
+      </motion.button>
+    )
+  }
 
   return (
     <div
@@ -155,9 +131,9 @@ export default function ConversationSidebar({
       {/* Search */}
       {conversations.length > 0 && (
         <div className={styles.searchWrapper}>
-          <svg className={styles.searchIcon} viewBox="0 0 20 20" width={14} height={14} fill="currentColor">
+          {/* <svg className={styles.searchIcon} viewBox="0 0 20 20" width={14} height={14} fill="currentColor">
             <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-          </svg>
+          </svg> */}
           <input
             type="text"
             className={styles.searchInput}
@@ -179,17 +155,7 @@ export default function ConversationSidebar({
         </div>
       )}
 
-      {/* Pinned group (non-scrolling) */}
-      {pinned.length > 0 && (
-        <div className={styles.pinnedSection}>
-          <AnimatePresence initial={false}>
-            {pinned.map(renderConversation)}
-          </AnimatePresence>
-          {unpinned.length > 0 && <div className={styles.divider} />}
-        </div>
-      )}
-
-      {/* Conversation list (scrollable) */}
+      {/* Conversations — single scroll */}
       <div className={styles.conversationList} ref={listRef}>
         {isLoading && conversations.length === 0 && (
           <>
@@ -220,76 +186,78 @@ export default function ConversationSidebar({
             No conversations found
           </p>
         )}
-
-        {/* Unpinned group */}
+        <AnimatePresence initial={false}>
+          {pinned.map(renderConversation)}
+        </AnimatePresence>
+        {pinned.length > 0 && unpinned.length > 0 && <div className={styles.sectionDivider} />}
         <AnimatePresence initial={false}>
           {unpinned.map(renderConversation)}
         </AnimatePresence>
       </div>
 
-      {/* Fixed dropdown (rendered outside scroll container to avoid clipping) */}
-      {menuOpenId && menuPos && (() => {
-        const conv = conversations.find((c) => c.id === menuOpenId)
-        if (!conv) return null
-        return (
-          <div
-            ref={menuRef}
-            className={styles.dropdown}
-            style={{ top: menuPos.top, left: menuPos.left }}
-          >
-            <button
-              className={styles.dropdownItem}
-              onClick={(e) => {
-                e.stopPropagation()
-                onPinConversation(conv.id, !conv.is_pinned)
-                setMenuOpenId(null)
-              }}
-            >
-              <svg viewBox="0 0 24 24" width={14} height={14} fill="currentColor">
-                <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" />
-              </svg>
-              {conv.is_pinned ? 'Unpin' : 'Pin'}
-            </button>
-            <button
-              className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`}
-              onClick={(e) => {
-                e.stopPropagation()
-                onDeleteConversation(conv.id)
-                setMenuOpenId(null)
-              }}
-            >
-              <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              Delete
-            </button>
-          </div>
-        )
-      })()}
-
-      {/* User info + config + sign out */}
-      <div className={styles.userFooter}>
+      {/* Footer — avatar + email + settings gear */}
+      <div className={styles.userFooter} ref={settingsRef}>
         <div className={styles.userEmail}>
           {userEmail}
         </div>
-        {onOpenConfig && (
+        <div className={styles.footerButtons}>
+          {isAdmin && onOpenConfig && (
+            <button
+              className={styles.footerBtn}
+              onClick={() => onOpenConfig()}
+            >
+              Settings
+            </button>
+          )}
           <button
-            onClick={onOpenConfig}
-            className={styles.configButton}
-            title="Configuration"
+            className={`${styles.footerBtn} ${styles.footerBtnDanger}`}
+            onClick={onSignOut}
           >
-            <svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.248a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.248a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-            </svg>
+            Sign out
           </button>
-        )}
-        <button
-          onClick={onSignOut}
-          className={styles.signOutButton}
+        </div>
+        {/* <button
+          className={styles.settingsButton}
+          title="Settings"
+          onClick={() => setSettingsOpen((v) => !v)}
         >
-          Sign out
-        </button>
+          <svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.248a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.248a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+          </svg>
+        </button> */}
+
+        {/* Settings popover */}
+        {settingsOpen && (
+          <div className={styles.settingsPopover}>
+            {isAdmin && onOpenConfig && (
+              <button
+                className={styles.settingsPopoverItem}
+                onClick={() => {
+                  setSettingsOpen(false)
+                  onOpenConfig()
+                }}
+              >
+                <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+                </svg>
+                Configuration
+              </button>
+            )}
+            <button
+              className={`${styles.settingsPopoverItem} ${styles.settingsPopoverItemDanger}`}
+              onClick={() => {
+                setSettingsOpen(false)
+                onSignOut()
+              }}
+            >
+              <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+              </svg>
+              Sign out
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

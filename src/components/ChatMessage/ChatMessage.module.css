@@ -87,16 +87,16 @@
   gap: 2px;
   opacity: 0;
   transition: opacity 0.2s;
-  margin-top: 4px;
   border-radius: 18px;
   background: #ffffff;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
   padding: 4px;
+  margin-top: 2px;
 }
 
 .message-content:hover .feedback-row,
-.feedback-row:focus-within,
-.feedback-row[data-has-feedback="true"] {
+.feedback-row:focus-within {
+/* .feedback-row[data-has-feedback="true"] { */
   opacity: 1;
 }
 
@@ -107,21 +107,22 @@
   width: 28px;
   height: 28px;
   border: none;
-  background: transparent;
+  background: white;
   border-radius: 50%;
   cursor: pointer;
   color: #9ca3af;
   transition: color 0.15s, background 0.15s;
   padding: 0;
+  /* box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); */
 }
 
 .feedback-btn:hover {
-  background: #f3f4f6;
-  color: #6b7280;
+  /* background: #f3f4f6; */
+  /* color: #6b7280; */
 }
 
 .feedback-btn-active-up {
-  color: #4f2dd0;
+  color: #22c55e;
 }
 
 .feedback-btn-active-down {
