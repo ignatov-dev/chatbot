@@ -164,8 +164,7 @@
 
 @media (max-width: 768px) {
   .floatingBtn {
-    bottom: calc(16px + env(safe-area-inset-bottom));
-    right: 16px;
+    display: none;
   }
 
   .overlay {

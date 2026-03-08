@@ -15,7 +15,7 @@ import { useSmartlook } from './hooks/useSmartlook'
 import { useAutocompleteSuggestions } from './hooks/useAutocompleteSuggestions'
 import AdminConfig from './components/AdminConfig'
 import Tooltip from './components/Tooltip'
-import FeedbackButton from './components/FeedbackButton'
+import FeedbackButton, { type FeedbackButtonHandle } from './components/FeedbackButton'
 import { askClaude } from './services/chat';
 import {
   upsertFeedback,
@@ -150,6 +150,7 @@ function AuthenticatedApp({
   const [isLoadingConversations, setIsLoadingConversations] = useState(true)
   const skipFetchRef = useRef(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const feedbackRef = useRef<FeedbackButtonHandle>(null)
   const [toast, setToast] = useState<string | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [showShareDialog, setShowShareDialog] = useState(false)
@@ -391,7 +392,7 @@ function AuthenticatedApp({
               conversations={conversations}
               activeConversationId={activeConversationId}
               onSelectConversation={(id) => { setActiveConversationId(id); setSidebarOpen(false) }}
-              onDeleteConversation={(id) => setDeleteConfirmId(id)}
+              onDeleteConversation={(id) => { setDeleteConfirmId(id); setSidebarOpen(false) }}
               onPinConversation={handlePinConversation}
               onSignOut={onSignOut}
               userEmail={user.email ?? ''}
@@ -399,6 +400,12 @@ function AuthenticatedApp({
               isLoading={isLoadingConversations}
               isAdmin={isAdmin}
               onOpenConfig={isAdmin ? () => { navigate('/config'); setSidebarOpen(false) } : undefined}
+              onNewChat={(activeConversationId || messages.length > 0) ? () => { handleNewConversation(); setSidebarOpen(false) } : undefined}
+              onShare={(activeConversationId && allowedShareHours.length > 0) ? () => { handleShareClick(); setSidebarOpen(false) } : undefined}
+              canShare={!!activeConversationId && allowedShareHours.length > 0}
+              hasViewers={hasViewers}
+              onFeedback={() => { feedbackRef.current?.open(); setSidebarOpen(false) }}
+              onClose={() => setSidebarOpen(false)}
             />
 
             <main className={styles.mainColumn}>
@@ -541,7 +548,7 @@ function AuthenticatedApp({
         </AnimatePresence>
       </div>
 
-      <FeedbackButton onToast={showToast} />
+      <FeedbackButton ref={feedbackRef} onToast={showToast} />
     </>
   )
 }

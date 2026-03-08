@@ -1,9 +1,17 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useImperativeHandle, forwardRef } from 'react'
 import { submitFeedback } from '../../services/userFeedback'
 import styles from './FeedbackButton.module.css'
 
-export default function FeedbackButton({ onToast }: { onToast: (msg: string) => void }) {
+export interface FeedbackButtonHandle {
+  open: () => void
+}
+
+const FeedbackButton = forwardRef<FeedbackButtonHandle, { onToast: (msg: string) => void }>(({ onToast }, ref) => {
   const [open, setOpen] = useState(false)
+
+  useImperativeHandle(ref, () => ({
+    open: () => setOpen(true),
+  }), [])
   const [rating, setRating] = useState(0)
   const [hoverRating, setHoverRating] = useState(0)
   const [message, setMessage] = useState('')
@@ -105,4 +113,6 @@ export default function FeedbackButton({ onToast }: { onToast: (msg: string) => 
       )}
     </>
   )
-}
+})
+
+export default FeedbackButton

@@ -162,6 +162,12 @@
   .header-theme-label {
     display: none;
   }
+
+  .delete-btn,
+  .new-chat-btn,
+  .share-active-btn {
+    display: none;
+  }
 }
 
 .toast {

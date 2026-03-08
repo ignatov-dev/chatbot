@@ -360,6 +360,76 @@
   color: #dc2626;
 }
 
+/* ── Bottom Sheet Header & Footer (hidden on desktop) ── */
+.sheetHeader {
+  display: none;
+}
+
+.sheetFooter {
+  display: none;
+}
+
+.sheetFooterButtons {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.sheetHandle {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: #d1d5db;
+  margin: 4px auto 8px;
+  touch-action: none;
+}
+
+.sheetActions {
+  display: flex;
+  gap: 6px;
+}
+
+.mobileActionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  padding: 8px 8px;
+  min-height: 36px;
+  border: none;
+  background: #EDEDF5;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #2D2D45;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 120ms ease;
+}
+
+.mobileActionBtn:active {
+  background: #E0E0EE;
+}
+
+.mobileActionBtnActive {
+  background: rgba(22, 163, 74, 0.1);
+  color: #16a34a;
+}
+
+.mobileActionBtnActive:active {
+  background: rgba(22, 163, 74, 0.18);
+}
+
+.mobileActionBtnDanger {
+  background: rgba(220, 38, 38, 0.18);
+  color: #dc2626;
+}
+
+.mobileActionBtnDanger:active {
+  background: rgba(220, 38, 38, 0.25);
+}
+
 /* ── Mobile Responsive ── */
 @media (max-width: 768px) {
   .sidebar {
@@ -374,16 +444,45 @@
     border-top: 1px solid #E4E4EE;
     border-right: none;
     border-radius: 16px 16px 0 0;
-    padding-top: 12px;
+    padding-top: 0;
+    padding-bottom: env(safe-area-inset-bottom);
     transform: translateY(100%);
     transition: transform 0.3s ease;
     box-shadow: none;
     grid-row: auto;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto auto 1fr auto;
   }
 
   .sidebarOpen {
     transform: translateY(0);
     box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  .sheetHeader {
+    display: flex;
+    flex-direction: column;
+    padding: 4px 12px 10px;
+    border-bottom: 1px solid #E8E8F2;
+    grid-row: 1;
+  }
+
+  .searchWrapper {
+    grid-row: 2;
+  }
+
+  .conversationList {
+    grid-row: 3;
+  }
+
+  .userFooter {
+    display: none;
+  }
+
+  .sheetFooter {
+    display: flex;
+    flex-direction: column;
+    grid-row: 4;
+    padding: 8px 12px;
+    border-top: 1px solid #E8E8F2;
   }
 }
