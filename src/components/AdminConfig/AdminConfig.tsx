@@ -1,5 +1,6 @@
-import { useState, useMemo, useCallback, useRef, type ChangeEvent } from 'react'
+import { useState, useMemo, useCallback, useRef, useEffect, type ChangeEvent } from 'react'
 import { updateUserRole } from '../../services/adminUsers'
+import { fetchFeedbackAnalytics, type FeedbackAnalytics } from '../../services/feedback'
 import { updatePermissions, type RolePermission, type AccessLevel } from '../../services/permissions'
 import { ingestDocument, deleteDocument, formatDocument, splitIntoChunks, type PreviewChunk } from '../../services/documents'
 import { createSuggestion, updateSuggestion, deleteSuggestion } from '../../services/suggestions'
@@ -18,7 +19,7 @@ interface AdminConfigProps {
   onBack: () => void
 }
 
-type ConfigTab = 'users' | 'permissions' | 'documents' | 'suggestions'
+type ConfigTab = 'users' | 'permissions' | 'documents' | 'suggestions' | 'feedback'
 
 export default function AdminConfig({ onBack }: AdminConfigProps) {
   const { user: currentUser, adminUsers: users, adminUsersLoading: loading, adminUsersError: error, setAdminUsers, userRole, permissionsAccess, documentsAccess, suggestionsAccess, allPermissions, refetchPermissions, allSources, refetchSources, allSuggestions, refetchSuggestions, refetchMySuggestions } = useAuth()
@@ -57,6 +58,25 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
   const [editingSuggestionText, setEditingSuggestionText] = useState('')
   const [deletingSuggestionId, setDeletingSuggestionId] = useState<string | null>(null)
   const [confirmDeleteSuggestion, setConfirmDeleteSuggestion] = useState<string | null>(null)
+
+  // Feedback tab state
+  const [feedbackData, setFeedbackData] = useState<FeedbackAnalytics | null>(null)
+  const [feedbackLoading, setFeedbackLoading] = useState(false)
+  const [feedbackRange, setFeedbackRange] = useState<'7d' | '30d' | 'all'>('30d')
+
+  useEffect(() => {
+    if (activeTab !== 'feedback') return
+    setFeedbackLoading(true)
+    const from = feedbackRange === 'all'
+      ? new Date(0).toISOString()
+      : feedbackRange === '7d'
+        ? new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+        : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+    fetchFeedbackAnalytics(from)
+      .then(setFeedbackData)
+      .catch(console.error)
+      .finally(() => setFeedbackLoading(false))
+  }, [activeTab, feedbackRange])
 
   // Use local edits if present, otherwise use context
   const permissions = localPerms ?? allPermissions
@@ -344,6 +364,12 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
               Suggestions
             </button>
           )}
+          <button
+            className={`${styles.configTab} ${activeTab === 'feedback' ? styles.configTabActive : ''}`}
+            onClick={() => setActiveTab('feedback')}
+          >
+            Feedback
+          </button>
         </div>
       </div>
 
@@ -703,6 +729,146 @@ export default function AdminConfig({ onBack }: AdminConfigProps) {
                     </div>
                   )
                 })}
+              </div>
+            )}
+          </>
+        )}
+
+        {activeTab === 'feedback' && (
+          <>
+            {/* Date range pills */}
+            <div className={styles.feedbackRangePills}>
+              {(['7d', '30d', 'all'] as const).map((r) => (
+                <button
+                  key={r}
+                  className={`${styles.feedbackRangePill} ${feedbackRange === r ? styles.feedbackRangePillActive : ''}`}
+                  onClick={() => setFeedbackRange(r)}
+                >
+                  {r === '7d' ? '7 days' : r === '30d' ? '30 days' : 'All time'}
+                </button>
+              ))}
+            </div>
+
+            {feedbackLoading && <div className={styles.loadingState}>Loading feedback...</div>}
+
+            {!feedbackLoading && feedbackData && feedbackData.total > 0 && (() => {
+              const satisfaction = feedbackData.total > 0
+                ? Math.round((feedbackData.thumbs_up / feedbackData.total) * 100)
+                : 0
+              const ringColor = satisfaction < 30 ? '#ef4444' : satisfaction < 80 ? '#f59e0b' : '#059669'
+              const totalReasons = Object.values(feedbackData.reasons ?? {}).reduce((a, b) => a + b, 0)
+              return (
+                <>
+                  {/* Hero: Satisfaction ring + stat cards */}
+                  <div className={styles.feedbackHero}>
+                    <div className={styles.satisfactionRingCard}>
+                      <div
+                        className={styles.satisfactionRing}
+                        style={{
+                          background: `conic-gradient(${ringColor} 0% ${satisfaction}%, #f3f4f6 ${satisfaction}% 100%)`,
+                        }}
+                      >
+                        <div className={styles.satisfactionRingInner}>
+                          <span className={styles.satisfactionRingValue}>{satisfaction}</span>
+                          <span className={styles.satisfactionRingUnit}>%</span>
+                        </div>
+                      </div>
+                      <span className={styles.satisfactionRingLabel}>Satisfaction Rate</span>
+                    </div>
+
+                    <div className={styles.feedbackStats}>
+                      <div className={styles.feedbackStatCard} data-accent="purple">
+                        <span className={styles.feedbackStatLabel}>Total</span>
+                        <span className={styles.feedbackStatValue}>{feedbackData.total}</span>
+                        <div className={styles.feedbackStatIcon} data-accent="purple">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        </div>
+                      </div>
+                      <div className={styles.feedbackStatCard} data-accent="green">
+                        <span className={styles.feedbackStatLabel}>Positive</span>
+                        <span className={styles.feedbackStatValue}>{feedbackData.thumbs_up}</span>
+                        <div className={styles.feedbackStatIcon} data-accent="green">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg>
+                        </div>
+                      </div>
+                      <div className={styles.feedbackStatCard} data-accent="red">
+                        <span className={styles.feedbackStatLabel}>Negative</span>
+                        <span className={styles.feedbackStatValue}>{feedbackData.thumbs_down}</span>
+                        <div className={styles.feedbackStatIcon} data-accent="red">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z"/></svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Negative feedback reasons */}
+                  {feedbackData.thumbs_down > 0 && feedbackData.reasons && Object.keys(feedbackData.reasons).length > 0 && (
+                    <div className={styles.feedbackReasonsSection}>
+                      <div className={styles.feedbackSectionTitle}>
+                        <span className={styles.feedbackSectionTitleIcon} style={{ background: 'rgba(239, 68, 68, 0.08)', color: '#ef4444' }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        </span>
+                        Negative Feedback Reasons
+                      </div>
+                      {Object.entries(feedbackData.reasons)
+                        .sort(([, a], [, b]) => b - a)
+                        .map(([reason, count]) => {
+                          const maxCount = Math.max(...Object.values(feedbackData.reasons))
+                          const pct = maxCount > 0 ? (count / maxCount) * 100 : 0
+                          const pctOfTotal = totalReasons > 0 ? Math.round((count / totalReasons) * 100) : 0
+                          const label = reason.replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase())
+                          return (
+                            <div key={reason} className={styles.reasonBar}>
+                              <span className={styles.reasonLabel}>{label}</span>
+                              <div className={styles.reasonTrack}>
+                                <div className={styles.reasonFill} data-reason={reason} style={{ width: `${pct}%` }} />
+                              </div>
+                              <span className={styles.reasonCount}>{count}</span>
+                              <span className={styles.reasonPct}>{pctOfTotal}%</span>
+                            </div>
+                          )
+                        })}
+                    </div>
+                  )}
+
+                  {/* Recent negative feedback */}
+                  {feedbackData.recent_negative && feedbackData.recent_negative.length > 0 && (
+                    <div className={styles.feedbackNegativeSection}>
+                      <div className={styles.feedbackSectionTitle}>
+                        <span className={styles.feedbackSectionTitleIcon} style={{ background: 'rgba(79, 45, 208, 0.08)', color: '#4f2dd0' }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        </span>
+                        Recent Negative Feedback
+                      </div>
+                      {feedbackData.recent_negative.map((item, i) => (
+                        <div key={i} className={styles.feedbackItem}>
+                          <div className={styles.feedbackItemContent}>
+                            {item.content.length > 200 ? item.content.slice(0, 200) + '...' : item.content}
+                          </div>
+                          <div className={styles.feedbackItemMeta}>
+                            <svg className={styles.feedbackItemIcon} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z"/></svg>
+                            {item.reasons && item.reasons.map((r: string) => (
+                              <span key={r} className={styles.feedbackReason} data-reason={r}>
+                                {r.replace(/_/g, ' ')}
+                              </span>
+                            ))}
+                            <span className={styles.feedbackItemDate}>
+                              {new Date(item.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )
+            })()}
+
+            {!feedbackLoading && feedbackData && feedbackData.total === 0 && (
+              <div className={styles.feedbackEmpty}>
+                <svg className={styles.feedbackEmptyIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <div className={styles.feedbackEmptyText}>No feedback collected yet</div>
+                <div className={styles.feedbackEmptySub}>Feedback will appear here once users rate responses</div>
               </div>
             )}
           </>

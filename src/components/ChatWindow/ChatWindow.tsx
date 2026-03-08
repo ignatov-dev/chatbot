@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import XBO from '/XBO.svg';
 import ChatMessage from '../ChatMessage'
+import type { FeedbackRating, FeedbackReason, MessageFeedback } from '../../services/feedback'
 import styles from './ChatWindow.module.css'
 
 export interface Message {
@@ -18,9 +19,12 @@ interface ChatWindowProps {
   onOptionClick?: (messageId: string, option: string) => void
   suggestions?: Array<{ id: string; text: string }>
   onSuggestionClick?: (text: string) => void
+  feedbackMap?: Record<string, MessageFeedback>
+  onFeedback?: (messageId: string, rating: FeedbackRating, reasons?: FeedbackReason[]) => void
+  onRemoveFeedback?: (messageId: string) => void
 }
 
-export default function ChatWindow({ messages, isLoading, themeLabel, onOptionClick, suggestions, onSuggestionClick }: ChatWindowProps) {
+export default function ChatWindow({ messages, isLoading, themeLabel, onOptionClick, suggestions, onSuggestionClick, feedbackMap, onFeedback, onRemoveFeedback }: ChatWindowProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -65,7 +69,11 @@ export default function ChatWindow({ messages, isLoading, themeLabel, onOptionCl
               role={msg.role}
               content={msg.content}
               options={msg.options}
-              onOptionClick={onOptionClick ? (option: string) => onOptionClick(msg.id, option) : undefined}
+              onOptionClick={onOptionClick}
+              messageId={msg.id}
+              feedback={feedbackMap?.[msg.id] ?? null}
+              onFeedback={onFeedback}
+              onRemoveFeedback={onRemoveFeedback}
             />
           </motion.div>
         ))}

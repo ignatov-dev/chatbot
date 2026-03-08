@@ -15,6 +15,8 @@
   height: 100%;
   background: #ffffff;
   overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .header {
@@ -141,6 +143,11 @@
 }
 
 @media (max-width: 768px) {
+  .main-column {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
   .header-theme-label {
     display: none;
   }

@@ -14,6 +14,14 @@ import { useAuth } from './contexts/AuthContext'
 import { useSmartlook } from './hooks/useSmartlook'
 import AdminConfig from './components/AdminConfig'
 import { askClaude } from './services/chat';
+import {
+  upsertFeedback,
+  deleteFeedback,
+  fetchFeedbackForMessages,
+  type FeedbackRating,
+  type FeedbackReason,
+  type MessageFeedback,
+} from './services/feedback';
 import XBO from '/XBO.svg';
 import styles from './App.module.css'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -141,6 +149,7 @@ function AuthenticatedApp({
   const [toast, setToast] = useState<string | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [showShareDialog, setShowShareDialog] = useState(false)
+  const [feedbackMap, setFeedbackMap] = useState<Record<string, MessageFeedback>>({})
   const { hasViewers, revoke: revokeViewers } = useSharedViewers(activeConversationId)
   const { notifications: accessRequests, approve: approveRequest, deny: denyRequest } = useAccessRequestNotifications(user.id)
   const { supported: pushSupported, subscribed: pushSubscribed, loading: pushLoading, toggle: togglePush } = usePushNotifications()
@@ -162,12 +171,19 @@ function AuthenticatedApp({
     }
     if (!activeConversationId) {
       setMessages([])
+      setFeedbackMap({})
       return
     }
     fetchMessages(activeConversationId)
-      .then((msgs) =>
-        setMessages(msgs.map((m) => ({ id: m.id, role: m.role, content: m.content }))),
-      )
+      .then((msgs) => {
+        setMessages(msgs.map((m) => ({ id: m.id, role: m.role, content: m.content })))
+        const assistantIds = msgs.filter((m) => m.role === 'assistant').map((m) => m.id)
+        if (assistantIds.length > 0) {
+          fetchFeedbackForMessages(assistantIds).then(setFeedbackMap).catch(console.error)
+        } else {
+          setFeedbackMap({})
+        }
+      })
       .catch(console.error)
   }, [activeConversationId])
 
@@ -266,35 +282,25 @@ function AuthenticatedApp({
       // Persist user message
       saveMessage(convId, 'user', userText).catch(console.error)
 
-      try {
-        const history = messages.map(({ role, content }) => ({ role, content }))
-        const response = await askClaude(userText, effectiveSources, history)
-        const assistantMsg: Message = {
-          id: `a-${Date.now()}`,
-          role: 'assistant',
-          content: response.answer,
-          options: response.options,
-        }
-        setMessages((prev) => [...prev, assistantMsg])
+      const historyForApi = messages.map(({ role, content }) => ({ role, content }))
 
-        // Persist assistant message (text only, options are transient)
-        saveMessage(convId, 'assistant', response.answer).catch(console.error)
+      try {
+        const result = await askClaude(userText, effectiveSources, historyForApi)
+        const dbId = await saveMessage(convId, 'assistant', result.answer)
+        setMessages((prev) => [
+          ...prev,
+          { id: dbId, role: 'assistant', content: result.answer, options: result.options },
+        ])
+        fetchConversations().then(setConversations).catch(console.error)
       } catch (err) {
         console.error('Chat error:', err)
         setMessages((prev) => [
           ...prev,
-          {
-            id: `a-${Date.now()}`,
-            role: 'assistant',
-            content: 'Sorry, something went wrong. Please try again.',
-          },
+          { id: `a-${Date.now()}`, role: 'assistant', content: 'Sorry, something went wrong. Please try again.' },
         ])
       } finally {
         setIsLoading(false)
       }
-
-      // Refresh sidebar
-      fetchConversations().then(setConversations).catch(console.error)
     },
     [activeConversationId, effectiveSources, messages],
   )
@@ -302,6 +308,40 @@ function AuthenticatedApp({
   const handleSuggestionClick = useCallback((text: string) => {
     handleSend(text)
   }, [handleSend])
+
+  const handleFeedback = useCallback(async (messageId: string, rating: FeedbackRating, reasons?: FeedbackReason[]) => {
+    let prev: MessageFeedback | undefined
+    // Optimistic update
+    setFeedbackMap((m) => {
+      prev = m[messageId]
+      return { ...m, [messageId]: { message_id: messageId, rating, reasons: reasons ?? null } }
+    })
+    try {
+      await upsertFeedback(messageId, rating, reasons)
+    } catch {
+      // Rollback
+      setFeedbackMap((m) => {
+        if (prev) return { ...m, [messageId]: prev }
+        const { [messageId]: _, ...rest } = m
+        return rest
+      })
+    }
+  }, [])
+
+  const handleRemoveFeedback = useCallback(async (messageId: string) => {
+    let prev: MessageFeedback | undefined
+    // Optimistic remove
+    setFeedbackMap((m) => {
+      prev = m[messageId]
+      const { [messageId]: _, ...rest } = m
+      return rest
+    })
+    try {
+      await deleteFeedback(messageId)
+    } catch {
+      setFeedbackMap((m) => prev ? { ...m, [messageId]: prev } : m)
+    }
+  }, [])
 
   const handleOptionClick = useCallback(
     (messageId: string, option: string) => {
@@ -328,14 +368,14 @@ function AuthenticatedApp({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
-            style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)' }}
+            style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)', flex: 1 }}
           >
             <AdminConfig onBack={() => navigate('/')} />
           </motion.div>
         ) : (
           <motion.div
             key="chat"
-            style={{ display: 'flex', width: '100%', height: '100%', borderRadius: 16, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)' }}
+            style={{ display: 'flex', width: '100%', height: '100%', gap: 12 }}
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
@@ -408,7 +448,7 @@ function AuthenticatedApp({
 
               {/* Messages */}
               <div className={styles.messagesArea}>
-                <ChatWindow messages={messages} isLoading={isLoading} themeLabel="XBO" onOptionClick={handleOptionClick} suggestions={suggestions} onSuggestionClick={handleSuggestionClick} />
+                <ChatWindow messages={messages} isLoading={isLoading} themeLabel="XBO" onOptionClick={handleOptionClick} suggestions={suggestions} onSuggestionClick={handleSuggestionClick} feedbackMap={feedbackMap} onFeedback={handleFeedback} onRemoveFeedback={handleRemoveFeedback} />
               </div>
 
               {/* Input */}

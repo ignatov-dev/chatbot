@@ -9,16 +9,16 @@
 
 .message-row-assistant {
   justify-content: flex-start;
-  gap: 2px;
+  gap: 6px;
 }
 
 .avatar {
   width: 32px;
   height: 32px;
+  margin-top: 6px;
 }
 
 .bubble {
-  max-width: 90%;
   padding: 10px 14px;
   font-size: 14px;
   line-height: 1.5;
@@ -70,4 +70,240 @@
   background: #4f2dd0;
   color: #ffffff;
   border-color: #4f2dd0;
+}
+
+/* Message content wrapper */
+.message-content {
+  max-width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Feedback */
+.feedback-row {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  margin-top: 4px;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  padding: 4px;
+}
+
+.message-content:hover .feedback-row,
+.feedback-row:focus-within,
+.feedback-row[data-has-feedback="true"] {
+  opacity: 1;
+}
+
+.feedback-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #9ca3af;
+  transition: color 0.15s, background 0.15s;
+  padding: 0;
+}
+
+.feedback-btn:hover {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.feedback-btn-active-up {
+  color: #4f2dd0;
+}
+
+.feedback-btn-active-down {
+  color: #ef4444;
+}
+
+.reason-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reason-dialog {
+  position: relative;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  width: fit-content;
+  max-width: calc(100vw - 32px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.reason-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.reason-close-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.reason-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.reason-message {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+
+.reason-chips {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.reason-chip {
+  padding: 7px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  border: none;
+  border-radius: 8px;
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.reason-chip:hover {
+  background: rgba(220, 38, 38, 0.15);
+}
+
+.reason-chip-selected {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.reason-chip-selected:hover {
+  background: #b91c1c;
+}
+
+.reason-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.reason-cancel-btn {
+  display: none;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-family: inherit;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+}
+
+.reason-cancel-btn:hover {
+  background: #f3f4f6;
+}
+
+.reason-submit-btn {
+  padding: 7px 16px;
+  font-size: 13px;
+  font-family: inherit;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+}
+
+.reason-submit-btn:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.reason-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .reason-overlay {
+    align-items: flex-end;
+  }
+
+  .reason-dialog {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 16px 16px 0 0;
+    padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+  }
+
+  .reason-chips {
+    flex-direction: column;
+  }
+
+  .reason-chip {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+
+  .reason-close-btn {
+    display: none;
+  }
+
+  .reason-cancel-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+
+  .reason-submit-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+
+  .reason-actions {
+    flex-direction: column;
+  }
+
+  .reason-submit-btn {
+    order: -1;
+  }
 }

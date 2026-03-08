@@ -53,11 +53,14 @@ export async function saveMessage(
   conversationId: string,
   role: 'user' | 'assistant',
   content: string,
-): Promise<void> {
-  const { error } = await supabase
+): Promise<string> {
+  const { data, error } = await supabase
     .from('messages')
     .insert({ conversation_id: conversationId, role, content })
+    .select('id')
+    .single()
   if (error) throw error
+  return data.id
 }
 
 export async function updateConversationTitle(id: string, title: string): Promise<void> {

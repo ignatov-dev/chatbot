@@ -5,6 +5,7 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string
 export interface ChatResponse {
   answer: string
   options?: string[]
+  cached?: boolean
 }
 
 export async function askClaude(
@@ -32,3 +33,4 @@ export async function askClaude(
   const data = (await res.json()) as ChatResponse
   return data
 }
+
