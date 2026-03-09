@@ -66,9 +66,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
 
     const oauthPending = sessionStorage.getItem('oauth_pending') === '1'
+    console.log('[AUTH_DEBUG] useEffect init', { oauthPending, hash: window.location.hash.slice(0, 80), search: window.location.search.slice(0, 80) })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('[AUTH_DEBUG] onAuthStateChange', {
+          event,
+          provider: session?.user?.app_metadata?.provider,
+          providers: session?.user?.app_metadata?.providers,
+          email: session?.user?.email,
+          oauthPending,
+        })
         setSession(session)
         setUser(session?.user ?? null)
         if (
@@ -77,6 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ) {
           sessionStorage.removeItem('oauth_pending')
           notifyAuth('signin', session.user.email ?? '', 'google')
+          console.log('[AUTH_DEBUG] notifyAuth called for google')
         }
       },
     )
