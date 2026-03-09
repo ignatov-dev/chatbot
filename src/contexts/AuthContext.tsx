@@ -65,11 +65,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false)
     })
 
+    const isOAuthCallback = window.location.hash.includes('access_token') || window.location.search.includes('code=')
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session)
         setUser(session?.user ?? null)
-        if (event === 'SIGNED_IN' && session?.user?.app_metadata?.provider === 'google') {
+        if (
+          (event === 'SIGNED_IN' || (event === 'INITIAL_SESSION' && isOAuthCallback))
+          && session?.user?.app_metadata?.provider === 'google'
+        ) {
           notifyAuth('signin', session.user.email ?? '', 'google')
         }
       },
