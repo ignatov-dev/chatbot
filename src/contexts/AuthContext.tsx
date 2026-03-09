@@ -65,16 +65,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false)
     })
 
-    const isOAuthCallback = window.location.hash.includes('access_token') || window.location.search.includes('code=')
+    const oauthPending = sessionStorage.getItem('oauth_pending') === '1'
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session)
         setUser(session?.user ?? null)
         if (
-          (event === 'SIGNED_IN' || (event === 'INITIAL_SESSION' && isOAuthCallback))
+          (event === 'SIGNED_IN' || (event === 'INITIAL_SESSION' && oauthPending))
           && session?.user?.app_metadata?.provider === 'google'
         ) {
+          sessionStorage.removeItem('oauth_pending')
           notifyAuth('signin', session.user.email ?? '', 'google')
         }
       },
@@ -99,6 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signInWithGoogle = async () => {
+    sessionStorage.setItem('oauth_pending', '1')
     const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' })
     return { error: error?.message ?? null }
   }
