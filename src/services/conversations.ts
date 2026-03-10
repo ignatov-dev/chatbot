@@ -19,9 +19,12 @@ export interface DbMessage {
 }
 
 export async function fetchConversations(sources?: string[]): Promise<ConversationSummary[]> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
   let query = supabase
     .from('conversations')
     .select('id, title, source, created_at, updated_at, is_shared, shared_expires_at, is_pinned')
+    .eq('user_id', user.id)
     .order('updated_at', { ascending: false })
   if (sources?.length) query = query.in('source', sources)
   const { data, error } = await query
